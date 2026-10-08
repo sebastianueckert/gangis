@@ -499,6 +499,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     GREEN: 1.0,        // thinking time (s) that counts as fully green
     B_ALPHA: 0.2,      // how fast the typing allowance follows her easy-question times
     ROUND: 20,         // questions per round
+    MAX_RISE: 1.5,     // one correct answer can raise a fact's estimate by at most this (s)
     LOG: 20            // raw attempts kept per fact, for later re-analysis
   };
   const DAY = 864e5;
@@ -531,17 +532,20 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const d = String(ans).length;
     return d === 1 ? S.typing[1] : S.typing[2] + (d - 2) * 0.5;
   }
-  function recordSpeed(a, b, ms, ok) {
+  // ms is the time with typo corrections cut out (see check()); rawMs is the plain time to OK.
+  function recordSpeed(a, b, ms, ok, rawMs) {
     const now = Date.now(), key = factKey(a, b), ans = a * b, sec = ms / 1000, d = String(ans).length;
     if (ok && isEasy(a, b) && d <= 2) {
       const old = S.typing[d];
       S.typing[d] = Math.max(0.6, (1 - SP.B_ALPHA) * old + SP.B_ALPHA * Math.min(sec, old * 2));
     }
-    const score = ok ? Math.min(SP.C, Math.max(0, sec - typingAllowance(ans))) : SP.C;
+    const prev = estimate(key, now);
+    // A single slow correct answer (a distraction, a sneeze) can only make things a little worse.
+    const score = ok ? Math.min(SP.C, prev + SP.MAX_RISE, Math.max(0, sec - typingAllowance(ans))) : SP.C;
     const s = S.speed[key] || { e: SP.C, ts: now, n: 0, log: [] };
-    s.e = (1 - SP.ALPHA) * estimate(key, now) + SP.ALPHA * score;
+    s.e = (1 - SP.ALPHA) * prev + SP.ALPHA * score;
     s.ts = now; s.n++;
-    s.log.push([now, a, b, Math.round(ms), ok ? 1 : 0]);
+    s.log.push([now, a, b, Math.round(ms), ok ? 1 : 0, Math.round(rawMs)]);
     if (s.log.length > SP.LOG) s.log.shift();
     S.speed[key] = s;
     S.bestPct = Math.max(S.bestPct, boardPct()); // the record never fades
@@ -789,6 +793,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     $("progressBar").style.width = Math.min(G.fresh / G.total, 1) * 100 + "%";
     G.interrupted = document.hidden;
     G.qStart = performance.now();
+    G.firstKeyAt = 0; G.lastDelAt = 0;
   }
   // The small square in the corner shows this question's square on the board.
   function paintChip() {
@@ -811,9 +816,13 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   function press(k) {
     if (G && G.waiting) { if (k === "ok") continueAfterWrong(); return; }
     if (!G || G.locked) return;
-    if (k === "del") { G.input = G.input.slice(0, -1); renderAnswer(); sfx.tap(); return; }
+    if (k === "del") {
+      if (G.input) G.lastDelAt = performance.now();
+      G.input = G.input.slice(0, -1); renderAnswer(); sfx.tap(); return;
+    }
     if (k === "ok") { if (G.input !== "") check(); return; }
     if (G.input.length >= 3) return;
+    if (!G.firstKeyAt) G.firstKeyAt = performance.now();
     G.input = (G.input + k).replace(/^0+(?=\d)/, "");
     sfx.tap();
     renderAnswer();
@@ -821,7 +830,10 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   function check() {
     G.locked = true;
-    const ms = performance.now() - G.qStart;
+    // Typo corrections don't count: keep the time up to her first key, plus the time from her
+    // last ⌫ to OK (retyping), and drop the stretch from the slip until she noticed it.
+    const now = performance.now(), rawMs = now - G.qStart;
+    const ms = G.lastDelAt ? (G.firstKeyAt - G.qStart) + (now - G.lastDelAt) : rawMs;
     const { a, b } = G.q, ans = a * b, ok = Number(G.input) === ans;
     const key = factKey(a, b);
     const f = S.facts[key] || { r: 0, w: 0, last: false };
@@ -833,7 +845,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
     let quick = false;
     if (G.mode === "green" && !G.interrupted) {
-      quick = ok && recordSpeed(a, b, ms, ok) <= SP.GREEN;
+      quick = ok && recordSpeed(a, b, ms, ok, rawMs) <= SP.GREEN;
       G.touched.add(key);
       paintChip();
     }

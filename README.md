@@ -17,7 +17,8 @@ Each fact (7·8 and 8·7 count as one, 55 facts) has an estimate of her *thinkin
 
 - One answer scores `time to OK − typing allowance`, capped at `C = 8 s`. A wrong answer scores `C`.
 - The typing allowance is her running average time on the easy ×1 (one-digit answers) and ×10 (two-digit answers) questions.
-- The estimate is a weighted average, `E ← 0.7·E + 0.3·score`, starting at `C`.
+- Typo corrections don't count: if she presses ⌫, the time is the time until her first key plus the time from her last ⌫ to OK.
+- The estimate is a weighted average, `E ← 0.7·E + 0.3·score`, starting at `C`. One correct answer can raise `E` by at most 1.5 s, so a single slow moment barely shows.
 - Without practice, the estimate fades back towards `C` with a half-life of 2 days.
 - A square is fully green at `E ≤ 1 s`. "Grönt nu" is the average greenness over all 55 facts; the record (🏆) is the best value ever reached and never fades.
 
