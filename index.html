@@ -25,6 +25,11 @@
   --bad: #d9406a;
   --bad-soft: #fde3ea;
   --shadow: 0 3px 0 #c6d3ea;
+  --heat-lo: #e2e6ee;
+  --heat-hi: #12985a;
+  --heat-text: #6c7693;
+  --heat-text-on: #ffffff;
+  --heat-full: #0a5f37;
   --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
   --font-body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -34,6 +39,7 @@
     --card: #24352e; --line: #3a5046; --blue: #7aaeff; --blue-ink: #0d1c33;
     --sun: #ffd65c; --sun-ink: #2c2000; --good: #5ad99a; --good-soft: #1f4434;
     --bad: #ff8aa7; --bad-soft: #4a2531; --shadow: 0 3px 0 #13201b;
+    --heat-lo: #34443d; --heat-hi: #52d695; --heat-text: #a5b8ad; --heat-text-on: #0f2a1d; --heat-full: #d4ffe6;
     color-scheme: dark;
   }
 }
@@ -42,6 +48,7 @@
   --card: #24352e; --line: #3a5046; --blue: #7aaeff; --blue-ink: #0d1c33;
   --sun: #ffd65c; --sun-ink: #2c2000; --good: #5ad99a; --good-soft: #1f4434;
   --bad: #ff8aa7; --bad-soft: #4a2531; --shadow: 0 3px 0 #13201b;
+    --heat-lo: #34443d; --heat-hi: #52d695; --heat-text: #a5b8ad; --heat-text-on: #0f2a1d; --heat-full: #d4ffe6;
   color-scheme: dark;
 }
 
@@ -147,6 +154,29 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outl
 .tile.sel .bar { background: rgba(255,255,255,.3); }
 .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 
+/* ---------- Gröna rutan board ---------- */
+.heat-card { display: flex; flex-direction: column; gap: 12px; }
+.board { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; width: 100%; font-variant-numeric: tabular-nums; }
+#homeBoard { cursor: pointer; }
+.board .c {
+  aspect-ratio: 1; max-width: 100%; border-radius: 6px; display: grid; place-items: center;
+  font-size: clamp(0.6rem, 2.6vw, 0.85rem); font-weight: 800; color: var(--heat-text);
+  background: color-mix(in oklab, var(--heat-hi) calc(var(--g) * 100%), var(--heat-lo));
+}
+.board .c.dark { color: var(--heat-text-on); }
+.board .c.full { box-shadow: inset 0 0 0 2px var(--heat-full); }
+.board .c.changed { animation: glow 1.2s ease-in-out 2; position: relative; z-index: 1; }
+@keyframes glow { 50% { transform: scale(1.2); box-shadow: 0 0 0 3px var(--sun); } }
+.heat-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; text-align: center; width: 100%; }
+.heat-stats b { display: block; font-family: var(--font-display); font-size: 1.35rem; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.heat-stats span { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+.heat-stats .best b { color: var(--blue); }
+.cell-chip {
+  position: absolute; top: 12px; left: 12px; width: 22px; height: 22px; border-radius: 6px;
+  background: color-mix(in oklab, var(--heat-hi) calc(var(--g, 0) * 100%), var(--heat-lo));
+  transition: background .8s;
+}
+
 /* ---------- Setup ---------- */
 .seg { display: flex; gap: 8px; flex-wrap: wrap; }
 .seg button {
@@ -158,7 +188,6 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outl
 .game-top { display: flex; align-items: center; gap: 10px; }
 .progress { flex: 1; height: 14px; border-radius: 8px; background: var(--card); border: 2px solid var(--line); overflow: hidden; }
 .progress i { display: block; height: 100%; width: 0; background: var(--good); border-radius: 6px; transition: width .3s; }
-.progress.timer i { background: var(--sun); transition: width 1s linear; }
 .streak { font-weight: 800; font-variant-numeric: tabular-nums; min-width: 3.2em; text-align: right; }
 .streak.hot { color: var(--bad); }
 
@@ -288,13 +317,22 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       <p id="helloSub">Vad vill du göra idag?</p>
     </div>
 
-    <button class="big-btn primary" data-go="setup" data-mode="practice">
+    <div class="card heat-card">
+      <div class="section-head">
+        <h3>Gröna rutan</h3>
+        <span class="eyebrow">Gör hela brädet grönt</span>
+      </div>
+      <div class="board" id="homeBoard" role="button" tabindex="0" aria-label="Spela Gröna rutan"></div>
+      <div class="heat-stats" id="homeStats"></div>
+      <p class="kbd-note">En ruta blir grönare när du svarar rätt och snabbt. Om du inte övar bleknar den sakta tillbaka till grått, men ditt rekord finns alltid kvar.</p>
+    </div>
+    <button class="big-btn primary" id="greenBtn">
+      <span class="emoji">🟩</span>
+      <span><strong>Spela Gröna rutan</strong><span class="sub">20 frågor. Hur grönt kan du göra brädet?</span></span>
+    </button>
+    <button class="big-btn" data-go="setup" data-mode="practice">
       <span class="emoji">✏️</span>
       <span><strong>Öva tabeller</strong><span class="sub">Välj tabeller och träna i lugn och ro</span></span>
-    </button>
-    <button class="big-btn" data-go="setup" data-mode="timed">
-      <span class="emoji">⏱️</span>
-      <span><strong>Snabbt! 60 sekunder</strong><span class="sub">Hur många hinner du? Rekord: <b id="bestHome">0</b></span></span>
     </button>
     <button class="big-btn" data-go="explore">
       <span class="emoji">🔍</span>
@@ -305,20 +343,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       <span><strong>Min djursamling</strong><span class="sub"><b id="stickerHome">0</b> av 30 djur. Vinn fler genom att öva!</span></span>
     </button>
 
-    <div class="card" style="display:flex;flex-direction:column;gap:12px">
-      <div class="section-head">
-        <h3>Dina tabeller</h3>
-        <span class="eyebrow">Tryck för att öva</span>
-      </div>
-      <div class="tables" id="homeTables"></div>
-      <p class="kbd-note">Stjärnorna växer när du kan fler svar i tabellen. Tre stjärnor betyder att du kan hela!</p>
-    </div>
   </section>
 
   <!-- SETUP -->
   <section id="setup" class="menu" hidden>
     <div class="hello">
-      <span class="eyebrow" id="setupEyebrow">Öva tabeller</span>
+      <span class="eyebrow">Öva tabeller</span>
       <h1>Vilka tabeller?</h1>
     </div>
     <div class="card" style="display:flex;flex-direction:column;gap:14px">
@@ -351,6 +381,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       <span class="streak" id="streak" title="Rätt i rad">🔥 0</span>
     </div>
     <div class="question" id="qCard">
+      <span class="cell-chip" id="cellChip" title="Rutans färg på brädet" hidden></span>
       <p class="spoken" id="spoken"></p>
       <div class="equation" aria-live="polite">
         <span id="qa">7</span><span class="op">·</span><span id="qb">8</span><span class="op">=</span>
@@ -398,7 +429,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <div class="hello">
       <span class="eyebrow">Min djursamling</span>
       <h1 id="collTitle">0 av 30 djur</h1>
-      <p>Du vinner ett nytt djur när du får minst 8 av 10 rätt i en övning, eller slår ditt rekord på 60 sekunder.</p>
+      <p>Du vinner ett nytt djur när du får minst 8 av 10 rätt i en övning, eller när ditt rekord i Gröna rutan når nästa 5 %.</p>
     </div>
     <div class="stickers" id="stickers"></div>
     <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
@@ -436,7 +467,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   };
 
   function defaults() {
-    return { name: "", facts: {}, total: 0, stickers: [], best: 0, sound: true };
+    return { name: "", facts: {}, total: 0, stickers: [], sound: true,
+      speed: {}, typing: { 1: 2.0, 2: 2.5 }, bestPct: 0, milestone: 0 };
   }
   function load() {
     try {
@@ -452,16 +484,86 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   const pick = (arr) => arr[rand(arr.length)];
   const factKey = (a, b) => Math.min(a, b) + "x" + Math.max(a, b);
   const fact = (a, b) => S.facts[factKey(a, b)] || { r: 0, w: 0, last: false };
-  const known = (a, b) => { const f = fact(a, b); return f.r >= 2 && f.last; };
+  // ---------- Gröna rutan: speed model ----------
+  // Each fact (7·8 and 8·7 count as one) has an estimate E of her thinking time in seconds:
+  // time from question to OK, minus a typing allowance, capped at C. A wrong answer scores C.
+  // E is a weighted average where the newest answer weighs ALPHA. It starts at C, and when
+  // a fact isn't practised it fades back towards C with a half-life of HALF_LIFE_DAYS.
+  // These values are first guesses; tune them here.
+  const SP = {
+    C: 8,              // cap, penalty for a wrong answer and starting value (s)
+    ALPHA: 0.3,        // weight of the newest answer
+    HALF_LIFE_DAYS: 2, // fading speed when a fact isn't practised
+    GREEN: 1.0,        // thinking time (s) that counts as fully green
+    B_ALPHA: 0.2,      // how fast the typing allowance follows her easy-question times
+    ROUND: 20,         // questions per round
+    LOG: 20            // raw attempts kept per fact, for later re-analysis
+  };
+  const DAY = 864e5;
+  const FACTS = [];
+  for (let a = 1; a <= 10; a++) for (let b = a; b <= 10; b++) FACTS.push([a, b]);
+  const isEasy = (a, b) => a === 1 || b === 1 || a === 10 || b === 10;
 
-  function tableMastery(t) {
-    let k = 0;
-    for (let b = 1; b <= 10; b++) if (known(t, b)) k++;
-    return k / 10;
+  function estimate(key, now) {
+    const s = S.speed[key];
+    if (!s) return SP.C;
+    const days = Math.max(0, (now - s.ts) / DAY);
+    return SP.C - (SP.C - s.e) * Math.pow(0.5, days / SP.HALF_LIFE_DAYS);
   }
-  function tableStars(t) {
-    const m = tableMastery(t);
-    return m >= 1 ? 3 : m >= 0.7 ? 2 : m >= 0.3 ? 1 : 0;
+  function greenness(key, now) {
+    const g = (SP.C - estimate(key, now)) / (SP.C - SP.GREEN);
+    return Math.min(1, Math.max(0, g));
+  }
+  function boardPct() {
+    const now = Date.now();
+    return FACTS.reduce((s, f) => s + greenness(factKey(f[0], f[1]), now), 0) / FACTS.length * 100;
+  }
+  function tableGreen(t) {
+    const now = Date.now();
+    let s = 0;
+    for (let b = 1; b <= 10; b++) s += greenness(factKey(t, b), now);
+    return s / 10;
+  }
+  // Typing allowance: her typical time on the easy ×1 (one digit) and ×10 (two digits) questions.
+  function typingAllowance(ans) {
+    const d = String(ans).length;
+    return d === 1 ? S.typing[1] : S.typing[2] + (d - 2) * 0.5;
+  }
+  function recordSpeed(a, b, ms, ok) {
+    const now = Date.now(), key = factKey(a, b), ans = a * b, sec = ms / 1000, d = String(ans).length;
+    if (ok && isEasy(a, b) && d <= 2) {
+      const old = S.typing[d];
+      S.typing[d] = Math.max(0.6, (1 - SP.B_ALPHA) * old + SP.B_ALPHA * Math.min(sec, old * 2));
+    }
+    const score = ok ? Math.min(SP.C, Math.max(0, sec - typingAllowance(ans))) : SP.C;
+    const s = S.speed[key] || { e: SP.C, ts: now, n: 0, log: [] };
+    s.e = (1 - SP.ALPHA) * estimate(key, now) + SP.ALPHA * score;
+    s.ts = now; s.n++;
+    s.log.push([now, a, b, Math.round(ms), ok ? 1 : 0]);
+    if (s.log.length > SP.LOG) s.log.shift();
+    S.speed[key] = s;
+    S.bestPct = Math.max(S.bestPct, boardPct()); // the record never fades
+    return score;
+  }
+  const fmtPct = (v) => (Math.round(v * 10) / 10).toLocaleString("sv-SE") + " %";
+  function boardHtml(changed) {
+    const now = Date.now();
+    let html = "";
+    for (let r = 1; r <= 10; r++) {
+      for (let c = 1; c <= 10; c++) {
+        const key = factKey(r, c), g = greenness(key, now);
+        const cls = "c" + (g >= 0.999 ? " full" : "") + (g >= 0.55 ? " dark" : "") + (changed && changed.has(key) ? " changed" : "");
+        html += '<span class="' + cls + '" style="--g:' + g.toFixed(3) + '" title="' + r + " · " + c + '">' + r * c + "</span>";
+      }
+    }
+    return html;
+  }
+  function statsHtml() {
+    const now = Date.now();
+    const fast = FACTS.filter((f) => greenness(factKey(f[0], f[1]), now) >= 0.999).length;
+    return "<div><b>" + fmtPct(boardPct()) + "</b><span>grönt nu</span></div>" +
+      '<div class="best"><b>🏆 ' + fmtPct(S.bestPct) + "</b><span>ditt rekord</span></div>" +
+      "<div><b>🟩 " + fast + "</b><span>av 55 helt gröna</span></div>";
   }
 
   // ---------- Sound ----------
@@ -522,7 +624,6 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   // ---------- Navigation ----------
   const SCREENS = ["home", "setup", "game", "result", "explore", "collection"];
   function show(name) {
-    if (name !== "game") stopTimer();
     SCREENS.forEach((s) => { $(s).hidden = s !== name; });
     if (name === "home") renderHome();
     if (name === "setup") renderSetup();
@@ -550,15 +651,13 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     return s;
   }
   function tileHtml(t, sel) {
-    const m = Math.round(tableMastery(t) * 100);
+    const m = Math.round(tableGreen(t) * 100);
     return '<button class="tile' + (sel ? " sel" : "") + '" data-t="' + t + '" aria-pressed="' + !!sel + '">' +
       "<b>" + t + "</b>" +
-      '<span class="stars">' + starsHtml(tableStars(t)) + "</span>" +
-      '<span class="bar"><i style="width:' + m + '%"></i></span></button>';
+      '<span class="bar" title="' + m + ' % grönt"><i style="width:' + m + '%"></i></span></button>';
   }
   function renderHome() {
     $("starCount").textContent = S.total;
-    $("bestHome").textContent = S.best;
     $("stickerHome").textContent = S.stickers.length;
     if (S.name) {
       $("helloTitle").innerHTML = 'Hej, <span class="name"></span>!';
@@ -568,9 +667,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       $("helloTitle").textContent = "Hej!";
       $("nameForm").hidden = false;
     }
-    let html = "";
-    for (let t = 1; t <= 10; t++) html += tileHtml(t, false);
-    $("homeTables").innerHTML = html;
+    $("homeBoard").innerHTML = boardHtml();
+    $("homeStats").innerHTML = statsHtml();
   }
   $("nameForm").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -580,19 +678,13 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   $("helloTitle").addEventListener("click", () => {
     if (S.name) { $("nameInput").value = S.name; $("nameForm").hidden = false; $("nameInput").focus(); }
   });
-  $("homeTables").addEventListener("click", (e) => {
-    const b = e.target.closest(".tile");
-    if (!b) return;
-    sfx.tap();
-    setup.mode = "practice"; setup.tables = [Number(b.dataset.t)];
-    startGame();
-  });
+  function startGreen() { sfx.tap(); setup.mode = "green"; startGame(); }
+  $("greenBtn").addEventListener("click", startGreen);
+  $("homeBoard").addEventListener("click", startGreen);
 
   // ---------- Setup ----------
   const setup = { mode: "practice", tables: [2, 3, 4, 5], count: 10 };
   function renderSetup() {
-    $("setupEyebrow").textContent = setup.mode === "timed" ? "Snabbt! 60 sekunder" : "Öva tabeller";
-    $("countWrap").hidden = setup.mode === "timed";
     let html = "";
     for (let t = 1; t <= 10; t++) html += tileHtml(t, setup.tables.includes(t));
     $("setupTables").innerHTML = html;
@@ -616,55 +708,62 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const b = e.target.closest("button");
     if (b) { setup.count = Number(b.dataset.n); renderSetup(); }
   });
-  $("startBtn").addEventListener("click", startGame);
+  $("startBtn").addEventListener("click", () => { setup.mode = "practice"; startGame(); });
 
   // ---------- Game ----------
-  let G = null, timer = 0, advanceTimeout = 0;
+  let G = null, advanceTimeout = 0;
 
   function startGame() {
     clearTimeout(advanceTimeout);
+    const green = setup.mode === "green";
     G = {
-      mode: setup.mode, tables: setup.tables.slice(), total: setup.mode === "timed" ? Infinity : setup.count,
-      answered: 0, fresh: 0, firstRight: 0, correct: 0, streak: 0, bestStreak: 0, retry: [], missed: [], last: "",
-      q: null, input: "", locked: false, hinted: false, firstTry: true, timeLeft: 60
+      mode: setup.mode, tables: green ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] : setup.tables.slice(),
+      total: green ? SP.ROUND : setup.count,
+      answered: 0, fresh: 0, firstRight: 0, correct: 0, fast: 0, streak: 0, bestStreak: 0,
+      retry: [], missed: [], recent: [],
+      q: null, input: "", locked: false, hinted: false, qStart: 0, interrupted: false,
+      startPct: boardPct(), startBest: S.bestPct, touched: new Set()
     };
     show("game");
-    $("progress").classList.toggle("timer", G.mode === "timed");
-    $("hintBtn").hidden = G.mode === "timed";
-    if (G.mode === "timed") {
-      $("progressBar").style.width = "100%";
-      timer = setInterval(tick, 1000);
-    }
+    $("cellChip").hidden = !green;
     renderStreak();
     nextQuestion();
   }
-  function stopTimer() { clearInterval(timer); timer = 0; }
-  function tick() {
-    G.timeLeft--;
-    $("progressBar").style.width = (G.timeLeft / 60 * 100) + "%";
-    if (G.timeLeft <= 10 && G.timeLeft > 0) tone(880, 0, 0.05, "square", 0.04);
-    if (G.timeLeft <= 0) { stopTimer(); clearTimeout(advanceTimeout); finish(); }
+
+  function drawWeighted(pool) {
+    let live = pool.filter((p) => p.w > 0);
+    if (!live.length) live = pool.map((p) => Object.assign({}, p, { w: 1 }));
+    let r = Math.random() * live.reduce((s, p) => s + p.w, 0);
+    let q = live[live.length - 1];
+    for (const p of live) { r -= p.w; if (r <= 0) { q = p; break; } }
+    return Math.random() < 0.5 ? { a: q.a, b: q.b } : { a: q.b, b: q.a };
   }
 
-  function weightedPick() {
+  // Practice: weight by right/wrong counts within the chosen tables.
+  function practicePick() {
     const pool = [];
     for (const t of G.tables) {
       for (let b = 1; b <= 10; b++) {
         const f = fact(t, b);
         let w = 1 + f.w * 2 - Math.min(f.r, 4) * 0.2;
         if (!f.last && f.r + f.w > 0) w += 1.5;
-        if (t === 1 || b === 1 || t === 10 || b === 10) w *= 0.6; // the easy ones show up a little less
-        pool.push({ a: t, b: b, w: Math.max(w, 0.25) });
+        if (isEasy(t, b)) w *= 0.6; // the easy ones show up a little less
+        pool.push({ a: t, b: b, w: G.recent.includes(factKey(t, b)) ? 0 : Math.max(w, 0.25) });
       }
     }
-    let q;
-    for (let tries = 0; tries < 6; tries++) {
-      let sum = pool.reduce((s, p) => s + p.w, 0), r = Math.random() * sum;
-      q = pool[pool.length - 1];
-      for (const p of pool) { r -= p.w; if (r <= 0) { q = p; break; } }
-      if (factKey(q.a, q.b) !== G.last) break;
-    }
-    return Math.random() < 0.5 ? { a: q.a, b: q.b } : { a: q.b, b: q.a };
+    return drawWeighted(pool);
+  }
+
+  // Gröna rutan: favour grey and half-green squares, still mix in some green ones.
+  function greenPick() {
+    const now = Date.now();
+    const pool = FACTS.map(([a, b]) => {
+      const key = factKey(a, b), g = greenness(key, now);
+      let w = S.speed[key] ? 0.4 + 2.6 * (1 - g) : 1.2;
+      if (isEasy(a, b)) w *= 0.6;
+      return { a: a, b: b, w: G.recent.includes(key) ? 0 : w };
+    });
+    return drawWeighted(pool);
   }
 
   function nextQuestion() {
@@ -673,8 +772,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       const dueIdx = G.retry.findIndex((r) => r.due <= G.answered || G.fresh >= G.total);
       if (dueIdx >= 0) q = Object.assign({ retry: true }, G.retry.splice(dueIdx, 1)[0].q);
     }
-    G.q = q || weightedPick();
-    G.last = factKey(G.q.a, G.q.b);
+    G.q = q || (G.mode === "green" ? greenPick() : practicePick());
+    G.recent = [factKey(G.q.a, G.q.b)].concat(G.recent).slice(0, 3);
     G.input = ""; G.locked = false; G.hinted = false;
     $("qa").textContent = G.q.a; $("qb").textContent = G.q.b;
     $("spoken").textContent = (NUM_WORDS[G.q.a] + " gånger " + NUM_WORDS[G.q.b]).replace(/^./, (c) => c.toUpperCase());
@@ -682,8 +781,18 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     $("qCard").className = "question";
     $("hint").hidden = true; $("hintBtn").disabled = false;
     renderAnswer();
-    if (G.mode === "practice") $("progressBar").style.width = Math.min(G.fresh / G.total, 1) * 100 + "%";
+    paintChip();
+    $("progressBar").style.width = Math.min(G.fresh / G.total, 1) * 100 + "%";
+    G.interrupted = document.hidden;
+    G.qStart = performance.now();
   }
+  // The small square in the corner shows this question's square on the board.
+  function paintChip() {
+    if (G.mode !== "green") return;
+    $("cellChip").style.setProperty("--g", greenness(factKey(G.q.a, G.q.b), Date.now()).toFixed(3));
+  }
+  // Leaving the app mid-question would make the time meaningless, so that answer isn't timed.
+  document.addEventListener("visibilitychange", () => { if (document.hidden && G) G.interrupted = true; });
 
   function renderAnswer() {
     const el = $("answer");
@@ -707,30 +816,40 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   function check() {
     G.locked = true;
-    const { a, b } = G.q, ans = a * b, given = Number(G.input);
+    const ms = performance.now() - G.qStart;
+    const { a, b } = G.q, ans = a * b, ok = Number(G.input) === ans;
     const key = factKey(a, b);
     const f = S.facts[key] || { r: 0, w: 0, last: false };
     const fb = $("feedback"), card = $("qCard");
     G.answered++;
     if (!G.q.retry) G.fresh++;
+    if (ok) { f.r++; f.last = true; } else { f.w++; f.last = false; }
+    S.facts[key] = f;
 
-    if (given === ans) {
-      f.r++; f.last = true;
+    let quick = false;
+    if (G.mode === "green" && !G.interrupted) {
+      quick = ok && recordSpeed(a, b, ms, ok) <= SP.GREEN;
+      G.touched.add(key);
+      paintChip();
+    }
+    save();
+
+    if (ok) {
       G.correct++; S.total++;
       if (!G.q.retry && !G.hinted) G.firstRight++;
       if (!G.hinted) G.streak++;
+      if (quick) G.fast++;
       G.bestStreak = Math.max(G.bestStreak, G.streak);
       card.className = "question right";
       fb.className = "feedback good pop";
-      fb.textContent = STREAK_PRAISE[G.streak] || pick(PRAISE);
+      fb.textContent = STREAK_PRAISE[G.streak] || (quick ? "⚡ Blixtsnabbt!" : pick(PRAISE));
       $("answer").classList.add("pop");
       if (STREAK_PRAISE[G.streak]) { sfx.streak(); confetti(60, 0.4); } else sfx.right();
       $("starCount").textContent = S.total;
-      S.facts[key] = f; save();
+      save();
       renderStreak();
-      advanceTimeout = setTimeout(afterAnswer, G.mode === "timed" ? 450 : 900);
+      advanceTimeout = setTimeout(afterAnswer, 900);
     } else {
-      f.w++; f.last = false;
       G.streak = 0;
       if (!G.missed.includes(key)) G.missed.push(key);
       if (G.mode === "practice") G.retry.push({ q: { a: a, b: b }, due: G.answered + 2 });
@@ -740,15 +859,14 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       $("answer").textContent = ans;
       $("answer").classList.remove("empty");
       sfx.wrong();
-      S.facts[key] = f; save();
       renderStreak();
-      if (G.mode === "practice") showHint(true);
-      advanceTimeout = setTimeout(afterAnswer, G.mode === "timed" ? 1300 : 2600);
+      showHint(true);
+      advanceTimeout = setTimeout(afterAnswer, 2600);
     }
   }
   function afterAnswer() {
     $("answer").classList.remove("pop");
-    if (G.mode === "practice" && G.fresh >= G.total && G.retry.length === 0) finish();
+    if (G.fresh >= G.total && G.retry.length === 0) finish();
     else nextQuestion();
   }
 
@@ -782,7 +900,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     if (/^[0-9]$/.test(e.key)) k = e.key;
     else if (e.key === "Backspace" || e.key === "Delete") k = "del";
     else if (e.key === "Enter") k = "ok";
-    else if (e.key === "Escape") { show("home"); return; }
+    else if (e.key === "Escape") { clearTimeout(advanceTimeout); show("home"); return; }
     if (k === null) return;
     e.preventDefault();
     const btn = document.querySelector('#pad [data-k="' + k + '"]');
@@ -800,7 +918,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     return ANIMALS[i];
   }
   function finish() {
-    stopTimer();
+    clearTimeout(advanceTimeout);
     const card = $("resultCard");
     let html = "", sticker = null, celebrate = false;
     const who = S.name ? ", " + S.name : "";
@@ -818,15 +936,19 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       if (pct >= 0.8) { sticker = awardSticker(); celebrate = true; }
       else html += "<p>Får du 8 av 10 rätt vinner du ett djur till din samling!</p>";
     } else {
-      const isRecord = G.correct > S.best;
-      const prev = S.best;
-      if (isRecord) { S.best = G.correct; save(); }
-      html += '<span class="eyebrow">60 sekunder</span>';
-      html += "<h2>" + (isRecord ? "Nytt rekord" + esc(who) + "!" : "Bra jobbat" + esc(who) + "!") + "</h2>";
-      html += '<p class="big-stars" style="font-family:var(--font-display);letter-spacing:0;color:var(--blue)">' + G.correct + "</p>";
-      html += '<p class="score">rätta svar på en minut</p>';
-      html += "<p>" + (isRecord ? (prev ? "Förra rekordet var " + prev + "." : "Nu har du ett rekord att slå!") : "Ditt rekord är " + S.best + ". Försök slå det!") + "</p>";
-      if (isRecord && G.correct >= 5) { sticker = awardSticker(); celebrate = true; }
+      const pct = boardPct(), gain = pct - G.startPct;
+      const record = S.bestPct > G.startBest + 0.05;
+      const title = record ? "Nytt rekord" + who + "!" : gain >= 0.05 ? "Brädet blev grönare" + who + "!" : "Bra kämpat" + who + "!";
+      html += '<span class="eyebrow">Gröna rutan</span>';
+      html += "<h2>" + esc(title) + "</h2>";
+      html += '<div class="board">' + boardHtml(G.touched) + "</div>";
+      html += '<div class="heat-stats">' + statsHtml() + "</div>";
+      html += '<p class="score">' + G.correct + " av " + G.total + " rätt" + (G.fast ? ", varav " + G.fast + " blixtsnabba ⚡" : "") + "</p>";
+      if (gain >= 0.05) html += "<p>Brädet blev " + fmtPct(gain) + " grönare den här rundan.</p>";
+      const m = Math.floor(S.bestPct / 5);
+      if (m > S.milestone) { S.milestone = m; save(); sticker = awardSticker(); }
+      else html += "<p>Nästa djur får du när ditt rekord når " + (S.milestone + 1) * 5 + " %.</p>";
+      celebrate = record || !!sticker;
     }
     if (sticker) {
       html += '<div class="sticker-reveal"><span class="eyebrow" style="color:inherit">Nytt djur!</span><span class="em">' + sticker[0] + "</span><b>" + sticker[1] + "</b></div>";
