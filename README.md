@@ -9,7 +9,8 @@ Or open `index.html` in a browser. No build step and no install needed.
 - **Gröna rutan** (main mode): a 10×10 board where each square turns from grey to green as she answers that fact correctly and quickly. 20 questions per round, picked mostly from the greyest squares.
 - **Öva tabeller**: relaxed practice of the tables you pick. Missed questions come back, and dot hints are available.
 - **Utforska tabellerna**: an interactive 10×10 table with dot pictures and a tip for each table.
-- **Min djursamling**: collect 30 animals by doing well.
+- **Your pet** (top of the start screen): pick an egg; it hatches and grows with every finished round (1 growth point per correct answer, +1 per lightning-fast answer in Gröna rutan, +2 per percentage point the record improves; stages at 15 / 100 / 250 / 450 / 700). It eats one round a day (3 food leaves, one empties per missed day), and stands on a meadow that is as green as the board. A day streak (one missed day per week is a free day) unlocks a scarf (3 days), a hat (7), sunglasses (14) and a crown (30). Nothing is ever lost: the pet can be hungry or sleepy, never shrinks or dies.
+- **Mina djur**: when the pet is fully grown it moves here and she gets a new egg.
 
 ## How Gröna rutan scores
 
