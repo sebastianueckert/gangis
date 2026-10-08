@@ -2,7 +2,9 @@
 
 A small single-page app (in Swedish) for learning the multiplication tables 1–10.
 
-Open `index.html` in a browser. No build step and no install needed.
+**▶ [Spela Gångis](https://sebastianueckert.github.io/gangis/)**
+
+Or open `index.html` in a browser. No build step and no install needed.
 
 - **Öva tabeller**: practice the tables you pick. Questions you miss come back again, and the questions you struggle with show up more often.
 - **Snabbt! 60 sekunder**: a one-minute challenge with a personal record.
