@@ -227,6 +227,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outl
 }
 .pad button:active, .pad button.pressed { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
 .pad .ok { background: var(--good); color: var(--card); font-size: 1.4rem; }
+.next-btn { margin-top: 12px; font-size: 1.15rem; padding: 10px 28px; }
 .pad .del { font-size: 1.4rem; }
 .game-foot { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
 .kbd-note { color: var(--muted); font-size: 0.85rem; }
@@ -389,6 +390,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       </div>
       <p class="feedback" id="feedback"></p>
       <div class="hint" id="hint" hidden></div>
+      <button class="btn sun next-btn" id="nextBtn" hidden>Nästa →</button>
     </div>
     <div class="pad" id="pad">
       <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
@@ -721,10 +723,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       total: green ? SP.ROUND : setup.count,
       answered: 0, fresh: 0, firstRight: 0, correct: 0, fast: 0, streak: 0, bestStreak: 0,
       retry: [], missed: [], recent: [],
-      q: null, input: "", locked: false, hinted: false, qStart: 0, interrupted: false,
+      q: null, input: "", locked: false, hinted: false, qStart: 0, interrupted: false, waiting: false,
       startPct: boardPct(), startBest: S.bestPct, touched: new Set()
     };
     show("game");
+    $("nextBtn").hidden = true;
+    document.querySelector('#pad .ok').textContent = "OK";
     $("cellChip").hidden = !green;
     renderStreak();
     nextQuestion();
@@ -805,6 +809,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   }
 
   function press(k) {
+    if (G && G.waiting) { if (k === "ok") continueAfterWrong(); return; }
     if (!G || G.locked) return;
     if (k === "del") { G.input = G.input.slice(0, -1); renderAnswer(); sfx.tap(); return; }
     if (k === "ok") { if (G.input !== "") check(); return; }
@@ -861,9 +866,21 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       sfx.wrong();
       renderStreak();
       showHint(true);
-      advanceTimeout = setTimeout(afterAnswer, 2600);
+      // Wait for her to tap "Nästa" so she has time to look at the right answer and the dots.
+      G.waiting = true; G.wrongAt = performance.now();
+      $("nextBtn").hidden = false;
+      document.querySelector('#pad .ok').textContent = "Nästa";
     }
   }
+  function continueAfterWrong() {
+    if (performance.now() - G.wrongAt < 700) return; // ignore a double tap on OK
+    G.waiting = false;
+    $("nextBtn").hidden = true;
+    document.querySelector('#pad .ok').textContent = "OK";
+    sfx.tap();
+    afterAnswer();
+  }
+  $("nextBtn").addEventListener("click", continueAfterWrong);
   function afterAnswer() {
     $("answer").classList.remove("pop");
     if (G.fresh >= G.total && G.retry.length === 0) finish();
