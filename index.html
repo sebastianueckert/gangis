@@ -71,7 +71,8 @@ body {
 h1, h2, h3 { font-family: var(--font-pixel); font-weight: 700; line-height: 1.1; margin: 0; text-wrap: balance; overflow-wrap: anywhere; }
 .panel h1 { font-size: clamp(1.5rem, 7vw, 2rem); }
 p { margin: 0; }
-button { font: inherit; color: inherit; cursor: pointer; }
+/* No double-tap zoom on buttons, so quick repeated taps all count. */
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
 :focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
 .pix { image-rendering: pixelated; image-rendering: crisp-edges; }
 
@@ -1451,9 +1452,19 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     G.hinted = true; showHint(false);
   });
 
+  // The pad reacts when a finger touches a key, not when it lifts: with fast two-finger typing the
+  // next finger often lands before the last one has lifted, and some phones then drop a click.
+  $("pad").addEventListener("pointerdown", (e) => {
+    const b = e.target.closest("button");
+    if (!b || (e.pointerType === "mouse" && e.button !== 0)) return;
+    e.preventDefault();
+    b.classList.add("pressed"); setTimeout(() => b.classList.remove("pressed"), 120);
+    press(b.dataset.k);
+  });
+  // Keyboard users who tab to a key and press Space/Enter get a click without a pointerdown.
   $("pad").addEventListener("click", (e) => {
     const b = e.target.closest("button");
-    if (b) press(b.dataset.k);
+    if (b && e.detail === 0) press(b.dataset.k);
   });
   document.addEventListener("keydown", (e) => {
     if ($("game").hidden || e.target.tagName === "INPUT") return;
