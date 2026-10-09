@@ -277,6 +277,11 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 .vcard b { font-family: var(--font-pixel); font-size: 0.98rem; line-height: 1.1; }
 .vcard small { font-size: 0.78rem; color: var(--muted); line-height: 1.2; }
 .vcard.locked { background: #e6d3a6; }
+.row-badges { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.row-badge { font-family: var(--font-pixel); font-size: 0.9rem; text-align: center; padding: 4px 2px; background: #e6d3a6; color: var(--muted); border: 2px solid var(--panel-lo); white-space: nowrap; }
+.row-badge .num { font-family: var(--font-num); font-size: 0.7rem; font-weight: 400; }
+.row-badge.on { background: var(--sun); color: var(--ink); border-color: var(--sun-lo); }
+.rosette-big { font-size: 2.4rem; width: 56px; text-align: center; flex: none; }
 .stickers { display: grid; grid-template-columns: repeat(auto-fill, minmax(82px, 1fr)); gap: 10px; }
 .sticker { display: flex; flex-direction: column; align-items: center; padding: 6px 4px; }
 .sticker .em { font-size: 2.2rem; line-height: 1.2; }
@@ -461,10 +466,15 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <div class="panel menu">
       <span class="eyebrow">Trädgårdens besökare</span>
       <h1 id="collTitle">Besökare</h1>
-      <p>Djuren flyttar in när en hel rad blommar. Saker i trädgården får du när fler plantor blommar och när du slår ditt rekord. Allt här stannar för alltid.</p>
+      <p id="collIntro">Ett nytt djur kommer varje gång trädgården har vuxit tio procent till. Saker i trädgården får du när fler plantor blommar och när du slår ditt rekord. Allt här stannar för alltid.</p>
     </div>
     <h2 class="section-title">Djur</h2>
     <div class="visit-grid" id="visitorList"></div>
+    <h2 class="section-title">Hela rader</h2>
+    <div class="panel">
+      <p class="note">När en hel rad blommar kan du hela den tabellen, och raden får en rosett.</p>
+      <div class="row-badges" id="rowBadges"></div>
+    </div>
     <h2 class="section-title">I trädgården</h2>
     <div class="visit-grid" id="decoList"></div>
     <div id="oldStickers" class="menu" hidden>
@@ -657,16 +667,16 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   // ---------- Visitors and decorations (all permanent) ----------
   const VISITORS = [
-    { row: 1, id: "kalfjaril", name: "Kålfjäril", kind: "butterfly", c1: "#ffffff", c2: "#2b1a0a" },
-    { row: 2, id: "humla", name: "Humla", kind: "bumblebee" },
-    { row: 3, id: "nyckelpiga", name: "Nyckelpiga", kind: "ladybug" },
-    { row: 4, id: "citronfjaril", name: "Citronfjäril", kind: "butterfly", c1: "#fff06a", c2: "#e0a92a" },
-    { row: 5, id: "honungsbi", name: "Honungsbi", kind: "bee" },
-    { row: 6, id: "pafagelöga", name: "Påfågelöga", kind: "butterfly", c1: "#c8402a", c2: "#4f7df0" },
-    { row: 7, id: "trollslanda", name: "Trollslända", kind: "dragonfly" },
-    { row: 8, id: "blavinge", name: "Blåvinge", kind: "butterfly", c1: "#7fb6ff", c2: "#2f5fb3" },
-    { row: 9, id: "grashoppa", name: "Gräshoppa", kind: "grasshopper" },
-    { row: 10, id: "snigel", name: "Snigel", kind: "snail" }
+    { id: "kalfjaril", name: "Kålfjäril", kind: "butterfly", c1: "#ffffff", c2: "#2b1a0a" },
+    { id: "humla", name: "Humla", kind: "bumblebee" },
+    { id: "nyckelpiga", name: "Nyckelpiga", kind: "ladybug" },
+    { id: "citronfjaril", name: "Citronfjäril", kind: "butterfly", c1: "#fff06a", c2: "#e0a92a" },
+    { id: "honungsbi", name: "Honungsbi", kind: "bee" },
+    { id: "pafagelöga", name: "Påfågelöga", kind: "butterfly", c1: "#c8402a", c2: "#4f7df0" },
+    { id: "trollslanda", name: "Trollslända", kind: "dragonfly" },
+    { id: "blavinge", name: "Blåvinge", kind: "butterfly", c1: "#7fb6ff", c2: "#2f5fb3" },
+    { id: "grashoppa", name: "Gräshoppa", kind: "grasshopper" },
+    { id: "snigel", name: "Snigel", kind: "snail" }
   ];
   const DECOS = [
     { id: "bench", name: "Bänk", how: "Rekord 25 %", has: () => S.bestPct >= 25 },
@@ -684,8 +694,45 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     for (let b = 1; b <= 10; b++) { const s = S.speed[factKey(a, b)]; if (!s || stageFromBest(s.best || 0) < 4) return false; }
     return true;
   }
+  const fullRows = () => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(rowBlooms);
+  // Garden maturity: the average size of all 55 plants (0..1). It only grows, and it grows with
+  // every bit of progress, also on the hard facts, so visitors keep coming all the way.
+  function maturity() {
+    return FACTS.reduce((t, [a, b]) => { const x = S.speed[factKey(a, b)]; return t + (x ? x.best || 0 : 0); }, 0) / FACTS.length;
+  }
+  // One visitor per 10 % of maturity. Each lands on a plant (the one that grew most when it came).
+  const visitorsDue = () => Math.min(VISITORS.length, Math.floor(maturity() * 10 + 1e-9));
+  function freePlant(prefer) {
+    const taken = new Set(S.visits.map((v) => v.key));
+    for (const k of prefer) if (!taken.has(k)) return k;
+    // otherwise one of the biggest plants; ties are broken by a fixed shuffle so visitors spread out
+    const mixKey = (k) => { const [a, b] = k.split("x").map(Number); return (a * 37 + b * 17) % 23; };
+    const rest = FACTS.map(([a, b]) => factKey(a, b)).filter((k) => !taken.has(k));
+    rest.sort((x, y) => (((S.speed[y] || {}).best || 0) - ((S.speed[x] || {}).best || 0)) || mixKey(x) - mixKey(y));
+    return rest[0] || prefer[0] || "1x1";
+  }
+  function arriveVisitors(prefer) {
+    const added = [];
+    while (S.visits.length < visitorsDue()) {
+      const v = VISITORS.find((x) => !S.visits.some((w) => w.id === x.id));
+      if (!v) break;
+      const visit = { id: v.id, key: freePlant(prefer) };
+      S.visits.push(visit); added.push(visit);
+    }
+    save();
+    return added;
+  }
+  // Earlier versions gave one visitor per fully flowering row. Keep those, then top up by maturity.
+  if (!Array.isArray(S.visits)) {
+    S.visits = [];
+    fullRows().forEach((r) => {
+      const row = [4, 7, 2, 9, 5, 1, 8, 3, 6, 10].map((b) => factKey(r, b));
+      S.visits.push({ id: VISITORS[r - 1].id, key: freePlant(row) });
+    });
+    arriveVisitors([]);
+  }
   function unlocked() {
-    return { visitors: VISITORS.filter((v) => rowBlooms(v.row)).map((v) => v.id), decos: DECOS.filter((d) => d.has()).map((d) => d.id) };
+    return { visitors: S.visits.map((v) => v.id), decos: DECOS.filter((d) => d.has()).map((d) => d.id) };
   }
 
   // ---------- Garden drawing ----------
@@ -1001,6 +1048,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         p.rect(x, y, w, 1, on ? "#fff3b0" : "#fffaf0");
         p.rect(x, y + h - 1, w, 1, "rgba(0,0,0,0.12)");
       }
+      // a fully flowering row (and so also its column) gets a rosette on both its stakes
+      function rosette(x, y) {
+        p.disc(x, y, 2, "#e8445a"); p.px(x, y, "#ffd23f"); p.px(x - 1, y - 1, "#ff8fa0");
+        p.px(x - 1, y + 2, "#c42a40"); p.px(x - 1, y + 3, "#c42a40"); p.px(x + 1, y + 2, "#c42a40"); p.px(x + 1, y + 3, "#c42a40");
+      }
+      const full = opts.fullRows || [];
       for (let j = 0; j < 10; j++) {
         const sx = GX + j * C + 8;
         p.rect(sx, 17, 2, 9, "#6b4423"); p.rect(sx + 1, 17, 1, 9, "#4a2e14");
@@ -1011,6 +1064,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         p.rect(14, sy, 6, 2, "#6b4423"); p.rect(14, sy + 1, 6, 1, "#4a2e14");
         plate(2, sy - 4, 12, 9, !!sel && sel[0] === i + 1);
       }
+      full.forEach((r) => { rosette(GX + (r - 1) * C + 8 + 6, 9); rosette(14, GY + (r - 1) * C + 8 - 3); });
 
       // planting strings along the selected row and column
       if (sel) {
@@ -1039,8 +1093,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       if (deco.hedgehog) hedgehog(p, 96, 221);
       if (deco.greenhouse) greenhouse(p, 167, 199);
 
-      // visitors live by the end of their row
-      visitors.forEach((v) => visitor(p, v, 189, GY + (v.row - 1) * C + 8));
+      // visitors sit on the plant they landed on (row = smaller factor, column = larger)
+      visitors.forEach((w) => visitor(p, w.v, GX + (w.col - 1) * C + 8 + 3, GY + (w.row - 1) * C + 8 - 4));
     }
 
     // The single plot of one fact, for the question screen.
@@ -1122,7 +1176,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     Garden.draw(canvas, {
       sel: opts.sel,
       deco: deco,
-      visitors: VISITORS.filter((v) => u.visitors.includes(v.id)),
+      visitors: S.visits.map((w) => { const [x, y] = w.key.split("x").map(Number); return { v: VISITORS.find((v) => v.id === w.id), row: x, col: y }; }),
+      fullRows: fullRows(),
       plot: (a, b) => { const st = plotOf(a, b, now); return { g: st.best, near: st.near && !wet.has(st.key), dry: wet.has(st.key) ? 0 : st.dry, wet: wet.has(st.key) }; }
     });
     const flowers = FACTS.filter(([a, b]) => plotOf(a, b, now).stage === 4).length;
@@ -1230,8 +1285,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     else items.push("Trädgården väntar på dig idag.");
     if (near) items.push("✨ " + (near === 1 ? "En knopp är nära" : near + " knoppar är nära") + " att slå ut.");
     if (thirsty) items.push(thirsty === 1 ? "En planta är törstig." : thirsty + " plantor är törstiga.");
-    const u = unlocked(), next = DECOS.find((d) => !u.decos.includes(d.id));
-    if (next) items.push("Nästa i trädgården: " + next.name.toLowerCase() + " (" + next.how.toLowerCase() + ").");
+    if (S.visits.length < VISITORS.length) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + " %. Nästa besökare kommer vid " + (S.visits.length + 1) * 10 + " %.");
     const t = $("ticker");
     t.innerHTML = "<b>NYHETER</b>";
     const hello = document.createElement("button");
@@ -1344,7 +1398,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       retry: [], missed: [], recent: [],
       q: null, input: "", locked: false, hinted: false, qStart: 0, interrupted: false, waiting: false,
       startPct: boardPct(), startBest: S.bestPct, touched: new Set(),
-      before: snapshot(), unlockedBefore: unlocked()
+      before: snapshot(), unlockedBefore: unlocked(), rowsBefore: fullRows()
     };
     show("game");
     $("nextBtn").hidden = true;
@@ -1644,18 +1698,22 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         '<div><span>Grönt nu</span><b class="up">' + Math.round(G.startPct) + " → " + Math.round(pct) + " %</b></div>" +
         "<div><span>Rekord</span><b>" + fmtPct(S.bestPct) + "</b></div></div>";
       celebrate = record || bloomed > 0;
+      G.arrived = arriveVisitors(cared.map((c) => c.k));
     }
     const n = roundsToday();
     html += '<p class="water-note">' + (n === 1 ? "Första rundan idag." : "Runda " + n + " idag.") +
       " 🔥 " + streakDays() + (streakDays() === 1 ? " dag" : " dagar") + " i rad.</p>";
 
-    const u = unlocked(), newV = u.visitors.filter((id) => !G.unlockedBefore.visitors.includes(id)),
-      newD = u.decos.filter((id) => !G.unlockedBefore.decos.includes(id));
-    if (newV.length || newD.length) {
+    const u = unlocked(), newV = G.arrived || [], newD = u.decos.filter((id) => !G.unlockedBefore.decos.includes(id)),
+      newRows = fullRows().filter((r) => !G.rowsBefore.includes(r));
+    if (newV.length || newD.length || newRows.length) {
       celebrate = true;
       html += '<div class="unlocks">' +
-        newV.map((id) => { const v = VISITORS.find((x) => x.id === id);
-          return '<div class="unlock"><canvas class="pix" data-icon="visitor" data-id="' + id + '"></canvas><span><span class="eyebrow">Ny besökare</span><b>' + v.name + "</b>Hela rad " + v.row + " blommar.</span></div>"; }).join("") +
+        newRows.map((r) => '<div class="unlock"><span class="rosette-big" aria-hidden="true">🎀</span><span><span class="eyebrow">Hela raden blommar</span><b>Hela ' + r +
+          ":ans rad blommar!</b>Du kan hela " + r + "-tabellen. Raden får en rosett.</span></div>").join("") +
+        newV.map((w) => { const v = VISITORS.find((x) => x.id === w.id), [x, y] = w.key.split("x");
+          return '<div class="unlock"><canvas class="pix" data-icon="visitor" data-id="' + w.id + '"></canvas><span><span class="eyebrow">Ny besökare</span><b>' + v.name +
+            "</b>Trädgården har vuxit till " + Math.floor(maturity() * 100) + " %. Den landade på " + x + " · " + y + ".</span></div>"; }).join("") +
         newD.map((id) => { const d = DECOS.find((x) => x.id === id);
           return '<div class="unlock"><canvas class="pix" data-icon="deco" data-id="' + id + '"></canvas><span><span class="eyebrow">Nytt i trädgården</span><b>' + d.name + "</b>" + d.how + ".</span></div>"; }).join("") +
         "</div>";
@@ -1717,13 +1775,19 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   // ---------- Visitors ----------
   function renderCollection() {
-    const u = unlocked(), n = u.visitors.length + u.decos.length;
-    $("collTitle").textContent = n + " av " + (VISITORS.length + DECOS.length) + " har kommit till trädgården";
-    $("visitorList").innerHTML = VISITORS.map((v) => {
-      const has = u.visitors.includes(v.id);
-      return '<div class="panel vcard' + (has ? "" : " locked") + '"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="' + !has + '"></canvas>' +
-        "<b>" + (has ? v.name : "???") + "</b><small>Hela rad " + v.row + " blommar</small></div>";
-    }).join("");
+    const u = unlocked();
+    $("collTitle").textContent = "Trädgården har vuxit till " + Math.floor(maturity() * 100) + " %";
+    const pending = VISITORS.filter((v) => !S.visits.some((w) => w.id === v.id));
+    $("visitorList").innerHTML = S.visits.map((w) => {
+      const v = VISITORS.find((x) => x.id === w.id), [x, y] = w.key.split("x");
+      return '<div class="panel vcard"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="false"></canvas>' +
+        "<b>" + v.name + "</b><small>Bor på " + x + " · " + y + "</small></div>";
+    }).join("") + pending.map((v, i) =>
+      '<div class="panel vcard locked"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="true"></canvas>' +
+      "<b>???</b><small>Kommer vid " + (S.visits.length + i + 1) * 10 + "\u00a0%</small></div>").join("");
+    const rows = fullRows();
+    $("rowBadges").innerHTML = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((r) =>
+      '<span class="row-badge' + (rows.includes(r) ? " on" : "") + '">' + (rows.includes(r) ? "🎀 " : "") + '<b class="num">' + r + "</b>:an</span>").join("");
     $("decoList").innerHTML = DECOS.map((d) => {
       const has = u.decos.includes(d.id);
       return '<div class="panel vcard' + (has ? "" : " locked") + '"><canvas class="pix" data-icon="deco" data-id="' + d.id + '" data-locked="' + !has + '"></canvas>' +

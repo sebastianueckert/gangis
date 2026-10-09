@@ -18,7 +18,7 @@ Or open `index.html` in a browser. No build step and no install needed.
 - **About to open**: buds whose current greenness is at least 85 % (about two fast answers from flowering) sparkle.
 - **Thirst**: when a fact's current greenness falls more than 15 points below its best, the plant droops: pale cracked soil and yellowed leaves. A couple of good answers perk it up.
 - **Days in a row**: any finished round counts for the day and the start screen shows today's rounds. One missed day per week counts as rain. The streak is only a counter; no rewards depend on it.
-- **Visitors** move in when a whole row flowers (one animal per row). **Decorations**: bench (record 25 %), bird box (10 flowering plants), pond with a frog (50 %), hedgehog (25 flowering plants), apple tree (75 %), greenhouse (100 %). All are permanent.
+- **Visitors**: one new animal each time garden maturity (the average size of all 55 plants) passes another 10 %. It lands on the plant that grew most that round and lives there. **Full rows**: when a whole row flowers she knows that table; the row and column stakes get a rosette. **Decorations**: bench (record 25 %), bird box (10 flowering plants), pond with a frog (50 %), hedgehog (25 flowering plants), apple tree (75 %), greenhouse (100 %). All are permanent.
 
 ## How the speed score works
 
