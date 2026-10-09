@@ -8,37 +8,32 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&family=Nunito:wght@500;700;800&display=swap">
 <style>
-/* Layout: one column, a pixel garden in a wooden frame; parchment panels and bevelled buttons like an old strategy game.
-   One deliberate look (a game world), the same in light and dark mode. */
+/* Layout: one column under a sky-to-meadow background; the pixel garden in a green frame, white
+   rounded cards and chunky bright buttons with a solid bottom edge that presses down when tapped.
+   One deliberate bright look, the same in light and dark mode. */
 :root {
-  --bg: #2b1b0d;
-  --panel: #f1e3c0;
-  --panel-hi: #fff6dc;
-  --panel-lo: #a07a45;
-  --edge: #1f1308;
-  --ink: #2b1a0a;
-  --muted: #6b4423;
-  --wood: #7a4a22;
-  --wood-grain: #71431e;
-  --wood-hi: #a8743f;
-  --wood-lo: #3d240e;
-  --wood-ink: #fff6dc;
-  --green: #4f9a2f;
-  --green-hi: #8fd16a;
-  --green-lo: #2d5e18;
-  --stone: #c9c1ae;
-  --stone-hi: #ece6d6;
-  --stone-lo: #6f685b;
-  --sun: #ffd23f;
-  --sun-hi: #ffe98f;
-  --sun-lo: #b8891c;
-  --accent: #2f5fb3;
-  --water: #6fb2f2;
-  --good: #2d7a1a;
-  --good-soft: #dcefc6;
-  --bad: #b8341f;
-  --bad-soft: #f6d6c8;
-  --ticker: #1d2a18;
+  --sky: #c6eafc;
+  --meadow: #d8f2c8;
+  --ink: #1d3a2a;
+  --muted: #557563;
+  --card: #ffffff;
+  --card-edge: #cddfd2;
+  --line: #e1eee4;
+  --cream: #fff9e8;
+  --green: #58cc02;
+  --green-edge: #45a002;
+  --sun: #ffc800;
+  --sun-edge: #dba900;
+  --sun-soft: #fff4c4;
+  --red: #ff5a52;
+  --red-edge: #d93a33;
+  --accent: #1a8fd0;
+  --frame: #3b7d3d;
+  --frame-edge: #2b5e2d;
+  --good: #3a9400;
+  --good-soft: #e5f8d6;
+  --bad: #d9302c;
+  --bad-soft: #ffe4e1;
   --font-pixel: "Pixelify Sans", ui-monospace, "Courier New", monospace;
   --font-body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   /* Digits get their own pixel face: in Pixelify Sans a 5 looks too much like an S. */
@@ -51,9 +46,10 @@
 html, body { min-height: 100%; }
 body {
   margin: 0;
-  background-color: var(--bg);
-  background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 9px);
-  color: var(--panel);
+  background-color: var(--meadow);
+  background-image: linear-gradient(180deg, var(--sky) 0, var(--meadow) 520px);
+  background-repeat: no-repeat;
+  color: var(--ink);
   font-family: var(--font-body);
   font-size: 17px;
   line-height: 1.45;
@@ -63,7 +59,7 @@ body {
   max-width: 560px;
   margin: 0 auto;
   padding-inline: 16px;
-  padding-block: 10px 36px;
+  padding-block: 12px 40px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -73,228 +69,218 @@ h1, h2, h3 { font-family: var(--font-pixel); font-weight: 700; line-height: 1.1;
 p { margin: 0; }
 /* No double-tap zoom on buttons, so quick repeated taps all count. */
 button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
-:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .pix { image-rendering: pixelated; image-rendering: crisp-edges; }
 
 /* ---------- Building blocks ---------- */
-.panel {
-  background: var(--panel); color: var(--ink); padding: 12px;
-  border: 3px solid; border-color: var(--panel-hi) var(--panel-lo) var(--panel-lo) var(--panel-hi);
-  box-shadow: 0 0 0 2px var(--edge);
-}
-.wood {
-  background: repeating-linear-gradient(0deg, var(--wood) 0 6px, var(--wood-grain) 6px 7px); color: var(--wood-ink);
-  border: 3px solid; border-color: var(--wood-hi) var(--wood-lo) var(--wood-lo) var(--wood-hi);
-  box-shadow: 0 0 0 2px var(--edge);
-}
-.eyebrow { font-family: var(--font-pixel); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-.note { color: var(--muted); font-size: 0.88rem; }
-.note-light { color: var(--panel); opacity: 0.8; font-size: 0.85rem; }
+.panel { background: var(--card); color: var(--ink); padding: 14px; border-radius: 20px; border: 2px solid var(--line); box-shadow: 0 4px 0 var(--card-edge); }
+.eyebrow { font-family: var(--font-pixel); font-size: 0.82rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.note { color: var(--muted); font-size: 0.9rem; }
 .btn {
-  font-family: var(--font-pixel); font-weight: 700; font-size: 1.05rem; line-height: 1.15; padding: 10px 16px;
-  background: var(--stone); color: var(--ink);
-  border: 3px solid; border-color: var(--stone-hi) var(--stone-lo) var(--stone-lo) var(--stone-hi);
-  box-shadow: 0 0 0 2px var(--edge);
+  font-family: var(--font-pixel); font-weight: 700; font-size: 1.05rem; line-height: 1.15; padding: 11px 16px;
+  background: var(--card); color: var(--ink); border-radius: 16px; border: 2px solid var(--line); box-shadow: 0 4px 0 var(--card-edge);
+  transition: transform .08s, box-shadow .08s;
 }
-.btn:active { border-color: var(--stone-lo) var(--stone-hi) var(--stone-hi) var(--stone-lo); }
-.btn.green { background: var(--green); color: #ffffff; text-shadow: 2px 2px 0 var(--green-lo); border-color: var(--green-hi) var(--green-lo) var(--green-lo) var(--green-hi); }
-.btn.green:active { border-color: var(--green-lo) var(--green-hi) var(--green-hi) var(--green-lo); }
-.btn.sun { background: var(--sun); border-color: var(--sun-hi) var(--sun-lo) var(--sun-lo) var(--sun-hi); }
-.btn.sun:active { border-color: var(--sun-lo) var(--sun-hi) var(--sun-hi) var(--sun-lo); }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--card-edge); }
+.btn.green { background: var(--green); color: #ffffff; border-color: var(--green-edge); box-shadow: 0 4px 0 var(--green-edge); }
+.btn.green:active { box-shadow: 0 1px 0 var(--green-edge); }
+.btn.sun { background: var(--sun); color: var(--ink); border-color: var(--sun-edge); box-shadow: 0 4px 0 var(--sun-edge); }
+.btn.sun:active { box-shadow: 0 1px 0 var(--sun-edge); }
+.btn.danger { background: var(--red); color: #ffffff; border-color: var(--red-edge); box-shadow: 0 4px 0 var(--red-edge); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .row { display: flex; gap: 12px; flex-wrap: wrap; }
 .row > .grow { flex: 1; }
 .menu { display: flex; flex-direction: column; gap: 14px; }
 .icon-btn {
-  width: 44px; height: 44px; display: grid; place-items: center; padding: 0; font-size: 1.15rem;
-  background: var(--stone); border: 3px solid; border-color: var(--stone-hi) var(--stone-lo) var(--stone-lo) var(--stone-hi);
-  box-shadow: 0 0 0 2px var(--edge); color: var(--ink);
+  width: 44px; height: 44px; display: grid; place-items: center; padding: 0; font-size: 1.15rem; color: var(--ink);
+  background: var(--card); border-radius: 14px; border: 2px solid var(--line); box-shadow: 0 3px 0 var(--card-edge);
 }
+.icon-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--card-edge); }
 
 /* ---------- Top bar ---------- */
-.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 10px; }
-.logo { background: none; border: 0; padding: 0; font-family: var(--font-pixel); font-weight: 700; font-size: 1.9rem; line-height: 1; color: var(--wood-ink); text-shadow: 2px 2px 0 var(--wood-lo); }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; }
+.logo { background: none; border: 0; padding: 0; font-family: var(--font-pixel); font-weight: 700; font-size: 1.9rem; line-height: 1; color: var(--frame); }
 .logo span { color: var(--sun); }
 .top-right { display: flex; gap: 10px; align-items: center; }
-.tally { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-num); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.tally { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-num); font-size: 0.8rem; color: var(--ink); background: var(--sun-soft); padding: 7px 10px; border-radius: 999px; }
 
 /* ---------- Home ---------- */
-.res { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 6px; }
+.res { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .res-chip {
-  display: flex; align-items: center; gap: 6px; min-width: 0; padding: 3px 6px; background: var(--panel); color: var(--ink);
-  border: 2px solid; border-color: var(--panel-lo) var(--panel-hi) var(--panel-hi) var(--panel-lo);
+  display: flex; align-items: center; gap: 6px; min-width: 0; padding: 6px 8px; background: var(--card); color: var(--ink);
+  border-radius: 14px; border: 2px solid var(--line); box-shadow: 0 3px 0 var(--card-edge);
 }
 .res-chip svg { flex: none; }
 .res-chip span { display: flex; flex-direction: column; line-height: 1.05; min-width: 0; }
-.res-chip b { font-family: var(--font-num); font-size: 0.72rem; line-height: 1.4; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.res-chip small { font-family: var(--font-pixel); font-size: 0.68rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.res-chip b { font-family: var(--font-num); font-size: 0.72rem; line-height: 1.4; white-space: nowrap; }
+.res-chip small { font-size: 0.72rem; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .name-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.name-form input {
+  font: inherit; font-weight: 700; padding: 9px 12px; min-width: 0; flex: 1 1 160px; color: var(--ink); background: var(--cream);
+  border-radius: 12px; border: 2px solid var(--line);
+}
 .reset-row { flex-basis: 100%; display: flex; flex-direction: column; gap: 8px; }
 .link-btn { align-self: flex-start; background: none; border: 0; padding: 4px 0; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; font-size: 0.9rem; }
-.reset-confirm { display: flex; flex-direction: column; gap: 8px; padding: 10px; background: var(--bad-soft); border: 2px solid var(--bad); }
-.btn.danger { background: var(--bad); color: #ffffff; text-shadow: 1px 1px 0 #5a1a0e; border-color: #e0705a #6a1c10 #6a1c10 #e0705a; }
-.retry-tag { font-family: var(--font-pixel); font-weight: 700; color: var(--accent); margin-top: -6px; }
-.name-form input {
-  font: inherit; font-weight: 700; padding: 8px 10px; min-width: 0; flex: 1 1 160px; color: var(--ink); background: var(--panel-hi);
-  border: 2px solid; border-color: var(--panel-lo) var(--panel-hi) var(--panel-hi) var(--panel-lo);
-}
-.garden-frame { padding: 0; overflow: hidden; }
+.reset-confirm { display: flex; flex-direction: column; gap: 10px; padding: 12px; background: var(--bad-soft); border-radius: 14px; border: 2px solid #ffc2bc; }
+.garden-frame { padding: 0; overflow: hidden; border-radius: 20px; border: 4px solid var(--frame); box-shadow: 0 5px 0 var(--frame-edge); background: var(--frame); }
 .garden { position: relative; container-type: inline-size; }
 .garden canvas { display: block; width: 100%; height: auto; cursor: pointer; touch-action: manipulation; }
 .garden .lbl {
   position: absolute; transform: translate(-50%, -50%); pointer-events: none;
   font-family: var(--font-num); font-size: 2.5cqw; line-height: 1; color: var(--ink);
 }
-.ticker {
-  background: var(--ticker); color: var(--sun); font-family: var(--font-pixel); font-size: 0.95rem; line-height: 1.35;
-  padding: 6px 10px; border: 2px solid #0e150b; box-shadow: 0 0 0 2px var(--edge);
-}
-.ticker b { color: #ffffff; margin-right: 8px; }
-.ticker button { background: none; border: 0; padding: 0; color: #ffffff; text-decoration: underline; text-underline-offset: 3px; }
+.ticker { background: var(--sun-soft); color: var(--ink); font-size: 0.95rem; font-weight: 700; line-height: 1.4; padding: 9px 12px; border-radius: 16px; border: 2px solid #f4df8c; }
+.ticker b { font-family: var(--font-pixel); background: var(--sun); padding: 1px 8px; border-radius: 8px; margin-right: 8px; }
+.ticker button { background: none; border: 0; padding: 0; font-weight: 800; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 .plot-info { display: flex; gap: 12px; align-items: flex-start; }
-.zoom { flex: none; width: 84px; height: 84px; border: 2px solid var(--edge); background: #6a4226; }
+.zoom { flex: none; width: 84px; height: 84px; border-radius: 14px; overflow: hidden; border: 2px solid var(--line); background: #6a4226; }
 .zoom canvas { display: block; width: 80px; height: 80px; }
 .plot-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
 .plot-text .eq { font-family: var(--font-num); font-size: 1.25rem; line-height: 1.2; }
-.meter { display: flex; align-items: center; gap: 8px; font-family: var(--font-pixel); font-size: 0.92rem; }
-.meter > span:first-child { width: 58px; flex: none; }
+.meter { display: flex; align-items: center; gap: 8px; font-size: 0.92rem; font-weight: 700; }
+.meter > span:first-child { width: 58px; flex: none; color: var(--muted); }
 .pips { display: flex; gap: 3px; }
-.pips i { width: 14px; height: 10px; background: #e6d3a6; border: 1px solid var(--edge); display: block; }
-.pips i.on { background: #3fa34a; }
-.waterbar { flex: 1; height: 10px; background: #e6d3a6; border: 1px solid var(--edge); position: relative; min-width: 40px; }
-.waterbar i { position: absolute; inset: 0 auto 0 0; background: var(--water); display: block; }
-.big-water { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 10px 14px; }
+.pips i { width: 14px; height: 10px; background: var(--line); border-radius: 4px; display: block; }
+.pips i.on { background: var(--green); }
+.waterbar { flex: 1; height: 10px; background: var(--line); border-radius: 6px; overflow: hidden; position: relative; min-width: 40px; }
+.waterbar i { position: absolute; inset: 0 auto 0 0; background: #4fb8f0; border-radius: 6px; display: block; }
+.big-water { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 12px 14px; }
 .big-water span { display: flex; flex-direction: column; text-align: left; }
-.big-water b { font-size: 1.5rem; line-height: 1.05; }
-.big-water small { font-size: 0.9rem; font-weight: 600; }
+.big-water b { font-size: 1.45rem; line-height: 1.05; }
+.big-water small { font-family: var(--font-body); font-size: 0.92rem; font-weight: 700; }
 .tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.tools .btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; font-size: 0.95rem; }
+.tools .btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 4px; font-size: 0.95rem; }
 
 /* ---------- Setup ---------- */
 .tables { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .tile {
-  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px 6px; background: var(--panel-hi); color: var(--ink);
-  border: 2px solid var(--edge);
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px 7px; background: var(--card); color: var(--ink);
+  border-radius: 14px; border: 2px solid var(--line); box-shadow: 0 3px 0 var(--card-edge);
 }
 .tile b { font-family: var(--font-num); font-size: 1.05rem; line-height: 1.2; }
-.tile .bar { width: 80%; height: 6px; background: #e6d3a6; border: 1px solid var(--edge); overflow: hidden; }
-.tile .bar i { display: block; height: 100%; background: #3fa34a; }
-.tile.sel { background: var(--green); color: #ffffff; }
+.tile .bar { width: 80%; height: 6px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.tile .bar i { display: block; height: 100%; background: var(--green); }
+.tile.sel { background: var(--green); color: #ffffff; border-color: var(--green-edge); box-shadow: 0 3px 0 var(--green-edge); }
+.tile.sel .bar { background: rgba(255, 255, 255, 0.35); }
+.tile.sel .bar i { background: #ffffff; }
 .seg { display: flex; gap: 8px; flex-wrap: wrap; }
-.seg button { font-family: var(--font-pixel); font-weight: 700; padding: 6px 14px; background: var(--panel-hi); border: 2px solid var(--edge); }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+.seg button { font-family: var(--font-num); font-size: 0.85rem; padding: 9px 14px; background: var(--card); border-radius: 12px; border: 2px solid var(--line); box-shadow: 0 3px 0 var(--card-edge); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: #ffffff; border-color: var(--ink); box-shadow: 0 3px 0 #0e2016; }
 
 /* ---------- Game ---------- */
 .game-top { display: flex; align-items: center; gap: 12px; }
-.progress { flex: 1; height: 16px; background: var(--wood-lo); border: 2px solid var(--edge); overflow: hidden; }
-.progress i { display: block; height: 100%; width: 0; background: var(--green-hi); transition: width .3s; }
-.streak { font-family: var(--font-num); font-size: 0.8rem; font-variant-numeric: tabular-nums; min-width: 3.2em; text-align: right; color: var(--panel); }
-.streak.hot { color: var(--sun); }
-.question { position: relative; text-align: center; padding: 22px 12px 18px; transition: background .2s; }
-.question.right { background: var(--good-soft); }
-.question.wrong { background: var(--bad-soft); animation: shake .35s; }
-.plant-chip { position: absolute; top: 10px; left: 10px; width: 44px; height: 44px; border: 2px solid var(--edge); }
+.progress { flex: 1; height: 16px; background: var(--card); border-radius: 999px; border: 2px solid var(--line); overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--green); border-radius: 999px; transition: width .3s; }
+.streak { font-family: var(--font-num); font-size: 0.8rem; min-width: 3.2em; text-align: right; color: var(--ink); }
+.streak.hot { color: #e8590c; }
+.question { position: relative; text-align: center; padding: 22px 12px 18px; border-radius: 24px; transition: background .2s, border-color .2s; }
+.question.right { background: var(--good-soft); border-color: #b7e59a; }
+.question.wrong { background: var(--bad-soft); border-color: #ffc2bc; animation: shake .35s; }
+.plant-chip { position: absolute; top: 10px; left: 10px; width: 44px; height: 44px; border-radius: 10px; border: 2px solid var(--line); }
 .question .spoken { color: var(--muted); font-weight: 700; font-size: 0.95rem; min-height: 44px; display: flex; align-items: center; justify-content: center; padding-inline: 50px; }
+.retry-tag { font-family: var(--font-pixel); font-weight: 700; color: var(--accent); margin-top: -6px; }
 .equation {
   font-family: var(--font-num); font-size: clamp(2.2rem, 10vw, 3rem); line-height: 1.2;
-  display: flex; justify-content: center; align-items: center; gap: 0.2em; flex-wrap: wrap; font-variant-numeric: tabular-nums;
+  display: flex; justify-content: center; align-items: center; gap: 0.2em; flex-wrap: wrap;
 }
 .equation .op { color: var(--green); }
 .answer-box { min-width: 2.2em; padding: 0 0.15em; border-bottom: 5px solid var(--ink); color: var(--accent); }
-.answer-box.empty::after { content: "?"; color: var(--panel-lo); }
+.answer-box.empty::after { content: "?"; color: #c5d8ca; }
 .feedback { font-family: var(--font-pixel); font-weight: 700; font-size: 1.3rem; min-height: 1.6em; }
 .feedback.good { color: var(--good); }
 .feedback.bad { color: var(--bad); }
 .pop { animation: pop .35s; }
 .hint { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.dots { display: inline-grid; gap: 4px; padding: 10px; background: var(--panel-hi); border: 2px dashed var(--panel-lo); }
+.dots { display: inline-grid; gap: 4px; padding: 10px; background: var(--cream); border-radius: 14px; border: 2px dashed var(--card-edge); }
 .dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--green); display: block; }
-.dots i.alt { background: var(--sun-lo); }
-.next-btn { margin-top: 12px; font-size: 1.15rem; padding: 10px 28px; }
+.dots i.alt { background: var(--sun); }
+.next-btn { margin-top: 12px; font-size: 1.15rem; padding: 11px 28px; }
 .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .pad button {
-  height: 60px; font-family: var(--font-num); font-size: 1.35rem; color: var(--ink); background: var(--stone);
-  border: 3px solid; border-color: var(--stone-hi) var(--stone-lo) var(--stone-lo) var(--stone-hi); box-shadow: 0 0 0 2px var(--edge);
+  height: 62px; font-family: var(--font-num); font-size: 1.35rem; color: var(--ink); background: var(--card);
+  border-radius: 18px; border: 2px solid var(--line); box-shadow: 0 5px 0 var(--card-edge); transition: transform .06s, box-shadow .06s;
 }
-.pad button:active, .pad button.pressed { border-color: var(--stone-lo) var(--stone-hi) var(--stone-hi) var(--stone-lo); }
-.pad .ok { background: var(--green); color: #ffffff; font-family: var(--font-pixel); font-weight: 700; font-size: 1.4rem; text-shadow: 2px 2px 0 var(--green-lo); border-color: var(--green-hi) var(--green-lo) var(--green-lo) var(--green-hi); }
-.pad .del { font-size: 1.4rem; }
+.pad button:active, .pad button.pressed { transform: translateY(4px); box-shadow: 0 1px 0 var(--card-edge); }
+.pad .ok { background: var(--green); color: #ffffff; font-family: var(--font-pixel); font-weight: 700; font-size: 1.5rem; border-color: var(--green-edge); box-shadow: 0 5px 0 var(--green-edge); }
+.pad .ok:active, .pad .ok.pressed { box-shadow: 0 1px 0 var(--green-edge); }
+.pad .del { font-family: var(--font-body); font-size: 1.5rem; color: var(--muted); }
 .game-foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
 
 /* ---------- Results ---------- */
 .result { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .result h2 { font-size: clamp(1.8rem, 7vw, 2.3rem); }
 .result .score { font-family: var(--font-pixel); font-size: 1.25rem; font-weight: 700; }
-.ledger { width: 100%; display: flex; flex-direction: column; text-align: left; font-family: var(--font-pixel); font-size: 1rem; }
-.ledger div { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; border-bottom: 1px dashed var(--panel-lo); }
+.ledger { width: 100%; display: flex; flex-direction: column; text-align: left; font-weight: 700; }
+.ledger div { display: flex; justify-content: space-between; gap: 12px; padding: 5px 2px; border-bottom: 2px dashed var(--line); }
 .ledger div:last-child { border-bottom: 0; }
 .ledger b { font-family: var(--font-num); font-size: 0.75rem; font-weight: 400; align-self: center; }
 .ledger .up { color: var(--good); }
 .big-stars { font-size: 3rem; letter-spacing: 6px; line-height: 1; }
-.big-stars span { display: inline-block; color: #d8c49a; }
-.big-stars span.on { color: var(--sun); -webkit-text-stroke: 1px var(--sun-lo); animation: starIn .5s backwards; }
+.big-stars span { display: inline-block; color: #dfe9e1; }
+.big-stars span.on { color: var(--sun); animation: starIn .5s backwards; }
 .big-stars span.on:nth-child(2) { animation-delay: .25s; }
 .big-stars span.on:nth-child(3) { animation-delay: .5s; }
 .unlocks { display: flex; flex-direction: column; gap: 10px; width: 100%; }
 .unlock {
-  display: flex; align-items: center; gap: 12px; text-align: left; padding: 8px 12px; background: var(--sun); color: var(--ink);
-  border: 3px solid; border-color: var(--sun-hi) var(--sun-lo) var(--sun-lo) var(--sun-hi); box-shadow: 0 0 0 2px var(--edge);
-  animation: flipIn .7s .4s backwards;
+  display: flex; align-items: center; gap: 12px; text-align: left; padding: 10px 12px; background: var(--sun-soft); color: var(--ink);
+  border-radius: 16px; border: 2px solid #f4df8c; box-shadow: 0 4px 0 #ecd27a; animation: flipIn .7s .4s backwards;
 }
-.unlock canvas { width: 56px; height: 56px; flex: none; }
+.unlock canvas { width: 56px; height: 56px; flex: none; border-radius: 12px; }
 .unlock span { display: flex; flex-direction: column; }
 .unlock b { font-family: var(--font-pixel); font-size: 1.15rem; line-height: 1.1; }
-.water-note { font-family: var(--font-pixel); font-size: 1rem; color: var(--accent); }
-.near-note { font-family: var(--font-pixel); font-size: 1.1rem; color: var(--ink); background: var(--sun-hi); padding: 4px 10px; border: 2px solid var(--sun-lo); }
+.rosette-big { font-size: 2.4rem; width: 56px; text-align: center; flex: none; }
+.water-note { font-weight: 800; color: var(--accent); }
+.near-note { font-family: var(--font-pixel); font-size: 1.1rem; color: var(--ink); background: var(--sun-soft); padding: 6px 12px; border-radius: 12px; }
 .cared { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; width: 100%; }
-.care-card { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--panel-hi); border: 2px solid var(--panel-lo); min-width: 0; }
-.care-card canvas { width: 40px; height: 40px; flex: none; border: 1px solid var(--edge); }
-.care-card .arrow { font-family: var(--font-pixel); color: var(--muted); }
-.care-text { display: flex; flex-direction: column; text-align: left; font-family: var(--font-pixel); font-size: 0.95rem; margin-left: 4px; line-height: 1.15; min-width: 0; }
+.care-card { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--cream); border-radius: 14px; border: 2px solid var(--line); min-width: 0; }
+.care-card canvas { width: 40px; height: 40px; flex: none; border-radius: 8px; }
+.care-card .arrow { font-weight: 800; color: var(--muted); }
+.care-text { display: flex; flex-direction: column; text-align: left; font-weight: 800; font-size: 0.95rem; line-height: 1.15; min-width: 0; margin-left: 4px; }
 .care-text b { font-family: var(--font-num); font-size: 0.75rem; font-weight: 400; margin-bottom: 4px; white-space: nowrap; }
 .missed { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-.missed span { background: var(--bad-soft); border: 2px solid var(--bad); padding: 4px 8px; font-family: var(--font-num); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.missed span { background: var(--bad-soft); border: 2px solid #ffc2bc; border-radius: 10px; padding: 5px 8px; font-family: var(--font-num); font-size: 0.75rem; }
 
 /* ---------- Explorer ---------- */
 .grid-wrap { overflow-x: auto; }
 table.mult { border-collapse: separate; border-spacing: 3px; margin: 0 auto; font-family: var(--font-num); }
-table.mult td, table.mult th { width: 40px; height: 36px; text-align: center; font-size: 0.7rem; padding: 0; }
+table.mult td, table.mult th { width: 40px; height: 36px; text-align: center; font-size: 0.7rem; padding: 0; border-radius: 8px; }
 table.mult th { color: var(--muted); font-size: 0.75rem; }
-table.mult td { background: var(--panel-hi); border: 2px solid var(--panel-lo); cursor: pointer; }
-table.mult td.band { background: #e6d3a6; }
-table.mult td.on { background: var(--sun); border-color: var(--edge); }
+table.mult td { background: var(--card); border: 2px solid var(--line); cursor: pointer; }
+table.mult td.band { background: #eef7ea; }
+table.mult td.on { background: var(--sun); border-color: var(--sun-edge); }
 table.mult th.band { color: var(--ink); background: var(--sun); }
 .explain { display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center; }
 .explain .eq { font-family: var(--font-num); font-size: 1.5rem; line-height: 1.3; }
 .explain .eq .op { color: var(--green); }
-.tip { background: var(--panel-hi); border: 2px dashed var(--panel-lo); padding: 10px 14px; text-align: left; width: 100%; }
+.tip { background: var(--cream); border: 2px dashed var(--card-edge); border-radius: 14px; padding: 10px 14px; text-align: left; width: 100%; }
 .tip b { font-family: var(--font-pixel); }
 
 /* ---------- Visitors ---------- */
+.section-title { font-size: 1.35rem; color: var(--ink); }
 .visit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 12px; }
-.vcard { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 8px 6px; }
-.vcard canvas { width: 72px; height: 72px; }
+.vcard { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 10px 6px; }
+.vcard canvas { width: 72px; height: 72px; border-radius: 14px; }
 .vcard b { font-family: var(--font-pixel); font-size: 0.98rem; line-height: 1.1; }
 .vcard small { font-size: 0.78rem; color: var(--muted); line-height: 1.2; }
-.vcard.locked { background: #e6d3a6; }
-.ptable { border-collapse: collapse; width: 100%; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
-.ptable th, .ptable td { padding: 4px 3px; text-align: right; border-bottom: 1px solid #e0cfa6; white-space: nowrap; }
-.ptable th:first-child, .ptable td:first-child { text-align: left; }
-.ptable th { font-family: var(--font-pixel); font-weight: 700; color: var(--muted); position: sticky; top: 0; background: var(--panel); }
-.ptable tr.slow td:nth-child(2) { color: var(--bad); font-weight: 800; }
-.ptable td.none { text-align: left; color: var(--muted); font-style: italic; }
-.copy-box { width: 100%; min-height: 120px; font: 0.75rem ui-monospace, monospace; }
-#parent .row .btn[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+.vcard.locked { background: #eef3ef; box-shadow: none; }
 .row-badges { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
-.row-badge { font-family: var(--font-pixel); font-size: 0.9rem; text-align: center; padding: 4px 2px; background: #e6d3a6; color: var(--muted); border: 2px solid var(--panel-lo); white-space: nowrap; }
+.row-badge { font-weight: 800; font-size: 0.9rem; text-align: center; padding: 5px 2px; background: #eef3ef; color: var(--muted); border-radius: 10px; white-space: nowrap; }
 .row-badge .num { font-family: var(--font-num); font-size: 0.7rem; font-weight: 400; }
-.row-badge.on { background: var(--sun); color: var(--ink); border-color: var(--sun-lo); }
-.rosette-big { font-size: 2.4rem; width: 56px; text-align: center; flex: none; }
+.row-badge.on { background: var(--sun); color: var(--ink); }
 .stickers { display: grid; grid-template-columns: repeat(auto-fill, minmax(82px, 1fr)); gap: 10px; }
 .sticker { display: flex; flex-direction: column; align-items: center; padding: 6px 4px; }
 .sticker .em { font-size: 2.2rem; line-height: 1.2; }
 .sticker small { font-weight: 800; font-size: 0.78rem; }
-.section-title { font-size: 1.35rem; color: var(--panel); }
+
+/* ---------- Parent view ---------- */
+.ptable { border-collapse: collapse; width: 100%; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.ptable th, .ptable td { padding: 4px 3px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.ptable th:first-child, .ptable td:first-child { text-align: left; }
+.ptable th { font-family: var(--font-pixel); font-weight: 700; color: var(--muted); position: sticky; top: 0; background: var(--card); }
+.ptable tr.slow td:nth-child(2) { color: var(--bad); font-weight: 800; }
+.ptable td.none { text-align: left; color: var(--muted); font-style: italic; }
+.copy-box { width: 100%; min-height: 120px; font: 0.75rem ui-monospace, monospace; border-radius: 10px; }
+#parent .row .btn[aria-pressed="true"] { background: var(--ink); color: #ffffff; border-color: var(--ink); }
 
 /* ---------- Effects ---------- */
 #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; width: 100%; height: 100%; }
@@ -311,16 +297,16 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 }
 @media (max-width: 380px) {
   .app { padding-inline: 12px; }
-  .tile b { font-size: 1.25rem; }
-  .pad button { height: 54px; }
-  .res-chip { padding: 3px 4px; gap: 4px; }
+  .tile b { font-size: 0.9rem; }
+  .pad button { height: 56px; }
+  .res-chip { padding: 5px 5px; gap: 4px; }
 }
 </style>
 </head>
 <body>
 <canvas id="confetti" aria-hidden="true"></canvas>
 <div class="app">
-  <header class="topbar wood">
+  <header class="topbar panel">
     <button class="logo" id="logo" aria-label="Till trädgården">Gångis<span>·</span></button>
     <div class="top-right">
       <span class="tally" title="Rätta svar totalt">★ <span id="starCount">0</span></span>
@@ -346,7 +332,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       </div>
     </form>
 
-    <div class="res wood" id="resBar">
+    <div class="res" id="resBar">
       <div class="res-chip">
         <svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="2" fill="#6fb2f2"/><rect x="6" y="3" width="4" height="2" fill="#6fb2f2"/><rect x="5" y="5" width="6" height="3" fill="#6fb2f2"/><rect x="4" y="8" width="8" height="4" fill="#6fb2f2"/><rect x="5" y="12" width="6" height="2" fill="#4a8fd6"/><rect x="6" y="7" width="2" height="3" fill="#d6ecff"/></svg>
         <span><b id="resWater">0</b><small>rundor idag</small></span>
@@ -365,7 +351,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       </div>
     </div>
 
-    <div class="wood garden-frame"><div class="garden" id="homeGarden"></div></div>
+    <div class="garden-frame"><div class="garden" id="homeGarden"></div></div>
 
     <p class="ticker" id="ticker"></p>
 
@@ -444,7 +430,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     </div>
     <div class="game-foot">
       <button class="btn" id="hintBtn">Visa prickar</button>
-      <span class="note-light">Du kan också skriva med tangentbordet och trycka Enter.</span>
+      <span class="note">Du kan också skriva med tangentbordet och trycka Enter.</span>
     </div>
   </section>
 
@@ -926,10 +912,11 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     }
 
     // --- visitors and decorations, also used for the icons on the visitors page ---
-    function visitor(p, v, x, y) {
+    function visitor(p, v, x, y, flap) {
       switch (v.kind) {
         case "butterfly":
-          p.disc(x - 2, y - 1, 1.6, v.c1); p.disc(x + 2, y - 1, 1.6, v.c1); p.disc(x - 1.5, y + 2, 1.1, v.c1); p.disc(x + 1.5, y + 2, 1.1, v.c1);
+          if (flap) { p.disc(x - 1, y - 1, 1, v.c1); p.disc(x + 1, y - 1, 1, v.c1); p.disc(x - 1, y + 2, 0.7, v.c1); p.disc(x + 1, y + 2, 0.7, v.c1); }
+          else { p.disc(x - 2, y - 1, 1.6, v.c1); p.disc(x + 2, y - 1, 1.6, v.c1); p.disc(x - 1.5, y + 2, 1.1, v.c1); p.disc(x + 1.5, y + 2, 1.1, v.c1); }
           p.px(x - 2, y - 1, v.c2); p.px(x + 2, y - 1, v.c2); p.rect(x, y - 2, 1, 5, "#2b1a0a"); p.px(x - 1, y - 3, "#2b1a0a"); p.px(x + 1, y - 3, "#2b1a0a"); break;
         case "bumblebee":
           p.disc(x, y, 2.4, "#2b1a0a"); p.rect(x - 2, y - 1, 5, 2, "#ffc21a"); p.rect(x - 2, y + 2, 5, 1, "#f2f2f2");
@@ -1000,17 +987,24 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       p.px(x + 3, y + 7, "#ffffff"); p.px(x + 4, y + 8, "#ffffff");
     }
 
-    function draw(canvas, opts) {
-      const plot = opts.plot, sel = opts.sel || null, deco = opts.deco || {}, visitors = opts.visitors || [];
-      canvas.width = W; canvas.height = H;
-      const ctx = canvas.getContext("2d");
+    // --- the garden, drawn live ---
+    // The ground, stakes, strings and lawn decorations are drawn once into a cached base image.
+    // Every frame (about 12 per second) the plants are drawn from small cached sprites on top,
+    // swaying a pixel in the wind, together with twinkling buds, visitors and growth bursts.
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const stageOfG = (g) => g >= 0.999 ? 4 : g >= 0.6 ? 3 : g >= 0.4 ? 2 : g >= 0.2 ? 1 : 0;
+    function plotXY(a, b) {
+      return [GX + (b - 1) * C + 8 + Math.round((hash2(a, b, 31) - 0.5) * 4), GY + (a - 1) * C + 8 + Math.round((hash2(a, b, 37) - 0.5) * 4)];
+    }
+    function buildBase(opts, states) {
+      const sel = opts.sel || null, deco = opts.deco || {};
+      const base = document.createElement("canvas");
+      base.width = W; base.height = H;
+      const ctx = base.getContext("2d");
       const img = ctx.createImageData(W, H), D = img.data;
-
-      const states = {};
       const moist = new Float32Array(W * H);
       for (let a = 1; a <= 10; a++) for (let b = 1; b <= 10; b++) {
-        const st = plot(a, b);
-        states[a + "," + b] = st;
+        const st = states[a + "," + b];
         if (st.dry <= 0.05 && !st.wet) continue;
         const cx0 = GX + (b - 1) * C + 8, cy0 = GY + (a - 1) * C + 8;
         for (let y = cy0 - 10; y <= cy0 + 10; y++) for (let x = cx0 - 10; x <= cx0 + 10; x++) {
@@ -1021,7 +1015,6 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
           moist[y * W + x] += st.wet ? t : -t * st.dry;
         }
       }
-
       const SOIL1 = rgb("#6a4226"), SOIL2 = rgb("#7e5230"), SOILDRY = rgb("#d2b07a"), SOILWET = rgb("#3e2311");
       const G1 = rgb("#5a9c39"), G2 = rgb("#6cb045"), GHI = rgb("#86c95a"), GLO = rgb("#467f2b");
       const bx0 = GX - 5, by0 = GY - 5, bx1 = GX + 165, by1 = GY + 165, r = 9;
@@ -1091,7 +1084,6 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         p.disc(x, y, 2, "#e8445a"); p.px(x, y, "#ffd23f"); p.px(x - 1, y - 1, "#ff8fa0");
         p.px(x - 1, y + 2, "#c42a40"); p.px(x - 1, y + 3, "#c42a40"); p.px(x + 1, y + 2, "#c42a40"); p.px(x + 1, y + 3, "#c42a40");
       }
-      const full = opts.fullRows || [];
       for (let j = 0; j < 10; j++) {
         const sx = GX + j * C + 8;
         p.rect(sx, 17, 2, 9, "#6b4423"); p.rect(sx + 1, 17, 1, 9, "#4a2e14");
@@ -1102,7 +1094,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         p.rect(14, sy, 6, 2, "#6b4423"); p.rect(14, sy + 1, 6, 1, "#4a2e14");
         plate(2, sy - 4, 12, 9, !!sel && sel[0] === i + 1);
       }
-      full.forEach((r) => { rosette(GX + (r - 1) * C + 8 + 6, 9); rosette(14, GY + (r - 1) * C + 8 - 3); });
+      (opts.fullRows || []).forEach((rw) => { rosette(GX + (rw - 1) * C + 8 + 6, 9); rosette(14, GY + (rw - 1) * C + 8 - 3); });
 
       // planting strings along the selected row and column
       if (sel) {
@@ -1112,27 +1104,104 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         [[GX - 4, ry - 2], [GX + 163, ry - 2], [rx - 1, GY - 5], [rx - 1, GY + 163]].forEach((o) => p.rect(o[0], o[1], 2, 4, "#8b5a2b"));
       }
 
-      for (let a = 1; a <= 10; a++) for (let b = 1; b <= 10; b++) {
-        const st = states[a + "," + b], s = speciesOf(a, b);
-        const cx = GX + (b - 1) * C + 8 + Math.round((hash2(a, b, 31) - 0.5) * 4);
-        const cy = GY + (a - 1) * C + 8 + Math.round((hash2(a, b, 37) - 0.5) * 4);
-        plant(p, cx, cy, s.sp, s.vr, st.g, st.dry, st.wet, hash2(a, b, 41), st.near);
-      }
-
-      if (sel) {
-        const hx = GX + (sel[1] - 1) * C + 8, hy = GY + (sel[0] - 1) * C + 8;
-        for (let dy = -10; dy <= 10; dy++) for (let dx = -10; dx <= 10; dx++)
-          if (Math.abs(Math.hypot(dx, dy) - 8.6) < 0.55) p.px(hx + dx, hy + dy, (dx + dy) % 2 ? "#ffd23f" : "#fff3b0");
-      }
-
       // lawn below the bed: pond, bench, hedgehog, greenhouse
       if (deco.pond) pond(p, 30, 213, 24, 12, true);
       if (deco.bench) bench(p, 62, 202);
       if (deco.hedgehog) hedgehog(p, 96, 221);
       if (deco.greenhouse) greenhouse(p, 167, 199);
-
-      // visitors sit on the plant they landed on (row = smaller factor, column = larger)
-      visitors.forEach((w) => visitor(p, w.v, GX + (w.col - 1) * C + 8 + 3, GY + (w.row - 1) * C + 8 - 4));
+      return base;
+    }
+    function makeSprite(a, b, st, g) {
+      const c = document.createElement("canvas");
+      c.width = 26; c.height = 26;
+      const s = speciesOf(a, b);
+      plant(pen(c.getContext("2d")), 13, 13, s.sp, s.vr, g, st.dry, st.wet, hash2(a, b, 41), false);
+      return c;
+    }
+    // While a round's growth is being shown, a plant grows from its old size to its new one.
+    function growG(ctl, a, b, st, now) {
+      const gr = ctl.opts.grow && ctl.opts.grow[st.key];
+      if (!gr) return st.g;
+      if (reduceMotion) return gr[1];
+      // one plant after another, so she can follow each one
+      const u = clamp01((now - ctl.start - 700 - (ctl.growOrder[st.key] || 0) * 260) / 1100);
+      return gr[0] + (gr[1] - gr[0]) * (1 - Math.pow(1 - u, 3));
+    }
+    function burst(ctl, x, y) {
+      const cols = ["#ffffff", "#fff3a0", "#ffd23f", "#a9dcff"];
+      for (let k = 0; k < 10; k++) {
+        const ang = k / 10 * Math.PI * 2 + Math.random() * 0.4, sp = 0.5 + Math.random() * 0.7;
+        ctl.parts.push({ x: x, y: y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 0.2, life: 10 + Math.random() * 6, c: cols[k % cols.length] });
+      }
+    }
+    function render(ctl, now) {
+      const canvas = ctl.canvas, ctx = canvas.getContext("2d"), p = pen(ctx);
+      const t = reduceMotion ? 0 : (now - ctl.start) / 1000;
+      ctx.drawImage(ctl.base, 0, 0);
+      for (let a = 1; a <= 10; a++) for (let b = 1; b <= 10; b++) {
+        const id = a + "," + b, st = ctl.states[id], g = growG(ctl, a, b, st, now), q = Math.round(g * 100);
+        let sp = ctl.sprites[id];
+        if (!sp || sp.q !== q) { sp = ctl.sprites[id] = { q: q, c: makeSprite(a, b, st, g) }; }
+        const [x, y] = plotXY(a, b), stage = stageOfG(g);
+        if (ctl.primed && stage > ctl.stages[id]) { burst(ctl, x, y); if (ctl.opts.onPop) ctl.opts.onPop(stage); }
+        ctl.stages[id] = stage;
+        // a gust of wind runs across the garden: bigger plants lean a pixel now and then
+        const dx = !reduceMotion && g >= 0.4 ? Math.round(Math.sin(t * 1.6 - (b * 0.55 + a * 0.25)) * 0.62) : 0;
+        ctx.drawImage(sp.c, x - 13 + dx, y - 13);
+        if (st.near && !reduceMotion ? Math.floor(t * 2.5 + a * 0.7 + b * 1.3) % 3 !== 0 : st.near) {
+          [[5, -5], [-5, 4]].forEach((o, n) => {
+            if (!reduceMotion && Math.floor(t * 2.5 + n + a) % 2) return;
+            const sx = x + dx + o[0], sy = y + o[1];
+            p.px(sx, sy - 1, "#ffffff"); p.px(sx, sy + 1, "#ffffff"); p.px(sx - 1, sy, "#ffffff"); p.px(sx + 1, sy, "#ffffff"); p.px(sx, sy, "#ffe14a");
+          });
+        }
+      }
+      ctl.primed = true;
+      const sel = ctl.opts.sel;
+      if (sel) {
+        const hx = GX + (sel[1] - 1) * C + 8, hy = GY + (sel[0] - 1) * C + 8, blink = reduceMotion || Math.floor(t * 2) % 2;
+        for (let dy = -10; dy <= 10; dy++) for (let dx = -10; dx <= 10; dx++)
+          if (Math.abs(Math.hypot(dx, dy) - 8.6) < 0.55) p.px(hx + dx, hy + dy, (dx + dy) % 2 === (blink ? 0 : 1) ? "#ffd23f" : "#fff3b0");
+      }
+      ctl.parts = ctl.parts.filter((q) => q.life > 0);
+      ctl.parts.forEach((q) => { q.x += q.vx; q.y += q.vy; q.vy += 0.04; q.life--; p.px(q.x, q.y, q.c); });
+      // visitors live on their plant and move a little around it
+      (ctl.opts.visitors || []).forEach((w, n) => {
+        let x = GX + (w.col - 1) * C + 8 + 3, y = GY + (w.row - 1) * C + 8 - 4, flap = false;
+        const ph = n * 1.7;
+        if (!reduceMotion) {
+          switch (w.v.kind) {
+            case "butterfly": x += Math.sin(t * 1.3 + ph) * 2.5; y += Math.sin(t * 1.9 + ph) * 1.6; flap = Math.floor(t * 7 + n) % 2 === 1; break;
+            case "bumblebee": case "bee": x += Math.cos(t * 2.2 + ph) * 3.2; y += Math.sin(t * 2.2 + ph) * 2; break;
+            case "dragonfly": x += Math.sin(t * 0.7 + ph) * 4; y += Math.sin(t * 5 + ph) * 0.6; break;
+            case "ladybug": x += Math.sin(t * 0.35 + ph) * 1.5; break;
+            case "grasshopper": y -= Math.max(0, Math.sin(t * 2.4 + ph)) > 0.92 ? 2 : 0; break;
+            default: break;
+          }
+        }
+        visitor(p, w.v, Math.round(x), Math.round(y), flap);
+      });
+    }
+    function tick(ctl, now) {
+      ctl.raf = 0;
+      if (!ctl.canvas.isConnected || ctl.canvas.offsetParent === null) return; // stops while hidden; drawing again restarts it
+      if (!ctl.last || now - ctl.last >= 80) { ctl.last = now; render(ctl, now); }
+      const growing = ctl.opts.grow && now - ctl.start < ctl.growEnd;
+      if (reduceMotion && !growing && !ctl.parts.length) return;
+      ctl.raf = requestAnimationFrame((n) => tick(ctl, n));
+    }
+    function draw(canvas, opts) {
+      canvas.width = W; canvas.height = H;
+      const states = {};
+      for (let a = 1; a <= 10; a++) for (let b = 1; b <= 10; b++) states[a + "," + b] = opts.plot(a, b);
+      const ctl = canvas.__garden || (canvas.__garden = { raf: 0, canvas: canvas });
+      ctl.opts = opts; ctl.states = states; ctl.base = buildBase(opts, states);
+      ctl.sprites = {}; ctl.stages = {}; ctl.primed = false; ctl.parts = []; ctl.start = performance.now(); ctl.last = 0;
+      ctl.growOrder = {};
+      Object.keys(opts.grow || {}).sort().forEach((k, i) => { ctl.growOrder[k] = i; });
+      ctl.growEnd = 700 + Object.keys(ctl.growOrder).length * 260 + 1300;
+      render(ctl, ctl.start);
+      if (!ctl.raf) ctl.raf = requestAnimationFrame((n) => tick(ctl, n));
     }
 
     // The single plot of one fact, for the question screen.
@@ -1216,7 +1285,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       deco: deco,
       visitors: S.visits.map((w) => { const [x, y] = w.key.split("x").map(Number); return { v: VISITORS.find((v) => v.id === w.id), row: x, col: y }; }),
       fullRows: fullRows(),
-      plot: (a, b) => { const st = plotOf(a, b, now); return { g: st.best, near: st.near && !wet.has(st.key), dry: wet.has(st.key) ? 0 : st.dry, wet: wet.has(st.key) }; }
+      grow: opts.grow || null,
+      onPop: (stage) => { tone(stage === 4 ? 1319 : 988, 0, 0.12, "triangle", 0.07); tone(stage === 4 ? 1760 : 1319, 0.08, 0.14, "triangle", 0.05); },
+      plot: (a, b) => { const st = plotOf(a, b, now); return { key: st.key, g: st.best, near: st.near && !wet.has(st.key), dry: wet.has(st.key) ? 0 : st.dry, wet: wet.has(st.key) }; }
     });
     const flowers = FACTS.filter(([a, b]) => plotOf(a, b, now).stage === 4).length;
     canvas.setAttribute("aria-label", "Din trädgård med tio rader och tio kolumner. " + flowers + " av 55 plantor blommar.");
@@ -1330,9 +1401,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     else items.push("Trädgården väntar på dig idag.");
     if (near) items.push("✨ " + (near === 1 ? "En knopp är nära" : near + " knoppar är nära") + " att slå ut.");
     if (thirsty) items.push(thirsty === 1 ? "En planta är törstig." : thirsty + " plantor är törstiga.");
-    if (S.visits.length < VISITORS.length) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + " %. Nästa besökare kommer vid " + (S.visits.length + 1) * 10 + " %.");
+    if (S.visits.length < VISITORS.length) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Nästa besökare kommer vid " + (S.visits.length + 1) * 10 + "\u00a0%.");
     const t = $("ticker");
-    t.innerHTML = "<b>NYHETER</b>";
+    t.innerHTML = "<b>Nytt</b>";
     const hello = document.createElement("button");
     hello.id = "helloBtn";
     hello.textContent = S.name ? "Hej, " + S.name + "!" : "Hej!";
@@ -1722,7 +1793,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       const title = record ? "Nytt rekord" + who + "!" : grew || bloomed ? "Trädgården växte" + who + "!" : "Bra kämpat" + who + "!";
       html += '<span class="eyebrow">Dagens rapport</span>';
       html += "<h2>" + esc(title) + "</h2>";
-      html += '<div class="wood garden-frame" style="width:100%"><div class="garden" id="resultGarden"></div></div>';
+      html += '<div class="garden-frame" style="width:100%"><div class="garden" id="resultGarden"></div></div>';
       html += '<p class="note">Plantorna du skötte om står i blöt jord och glittrar.</p>';
       if (cared.length) {
         html += '<span class="eyebrow">Plantorna du skötte om</span><div class="cared">' + cared.slice(0, 4).map((c) => {
@@ -1758,7 +1829,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
           ":ans rad blommar!</b>Du kan hela " + r + "-tabellen. Raden får en rosett.</span></div>").join("") +
         newV.map((w) => { const v = VISITORS.find((x) => x.id === w.id), [x, y] = w.key.split("x");
           return '<div class="unlock"><canvas class="pix" data-icon="visitor" data-id="' + w.id + '"></canvas><span><span class="eyebrow">Ny besökare</span><b>' + v.name +
-            "</b>Trädgården har vuxit till " + Math.floor(maturity() * 100) + " %. Den landade på " + x + " · " + y + ".</span></div>"; }).join("") +
+            "</b>Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Den landade på " + x + " · " + y + ".</span></div>"; }).join("") +
         newD.map((id) => { const d = DECOS.find((x) => x.id === id);
           return '<div class="unlock"><canvas class="pix" data-icon="deco" data-id="' + id + '"></canvas><span><span class="eyebrow">Nytt i trädgården</span><b>' + d.name + "</b>" + d.how + ".</span></div>"; }).join("") +
         "</div>";
@@ -1775,7 +1846,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     });
     $("againBtn").textContent = G.mode === "green" ? "En runda till!" : "Spela igen";
     show("result");
-    if (G.mode === "green") mountGarden($("resultGarden"), { wet: G.touched });
+    if (G.mode === "green") {
+      // the plants she cared for grow from their old size to their new one, in front of her eyes
+      const after = snapshot(), grow = {};
+      G.touched.forEach((k) => { if (after[k].best - G.before[k].best > 0.005) grow[k] = [G.before[k].best, after[k].best]; });
+      mountGarden($("resultGarden"), { wet: G.touched, grow: grow });
+    }
     if (celebrate) { sfx.fanfare(); confetti(160, 0.3); }
     else sfx.right();
   }
@@ -1866,7 +1942,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   // ---------- Visitors ----------
   function renderCollection() {
     const u = unlocked();
-    $("collTitle").textContent = "Trädgården har vuxit till " + Math.floor(maturity() * 100) + " %";
+    $("collTitle").textContent = "Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%";
     const pending = VISITORS.filter((v) => !S.visits.some((w) => w.id === v.id));
     $("visitorList").innerHTML = S.visits.map((w) => {
       const v = VISITORS.find((x) => x.id === w.id), [x, y] = w.key.split("x");

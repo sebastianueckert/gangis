@@ -6,6 +6,8 @@ A small single-page app (in Swedish) for learning the multiplication tables 1–
 
 Or open `index.html` in a browser. No build step and no install needed.
 
+The look: a pixel-art garden (in the spirit of Stardew Valley and Minecraft) inside a bright, rounded interface. The garden is alive: plants sway in the wind, visitors flutter and buzz, buds about to open twinkle, and after a round the plants she cared for grow one by one in front of her (with a small burst at each new stage). With "reduce motion" switched on in the device settings, the garden stays still.
+
 - **The garden** (start screen): a generated top-down pixel garden built on the 10×10 table. Fact a·b grows at row a, column b, with numbered stakes along the edges; tapping a plant ties planting strings along its row and column and shows the fact. 7·8 and 8·7 grow the same (randomly chosen) plant, so the garden is mirrored along the diagonal.
 - **Sköt om trädgården**: 20 questions, picked mostly from the facts that need it. A missed question comes back once, 3 questions later, on top of the 20; that second try counts like any answer, so a fast correct one makes up for the miss. Only these rounds make plants grow. The report shows the plants she cared for (before → after) and how many buds can open next round.
 - **Öva tabeller**: relaxed practice of the tables you pick. Missed questions come back, and dot hints are available.
