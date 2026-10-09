@@ -240,6 +240,13 @@ button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulat
 .unlock span { display: flex; flex-direction: column; }
 .unlock b { font-family: var(--font-pixel); font-size: 1.15rem; line-height: 1.1; }
 .water-note { font-family: var(--font-pixel); font-size: 1rem; color: var(--accent); }
+.near-note { font-family: var(--font-pixel); font-size: 1.1rem; color: var(--ink); background: var(--sun-hi); padding: 4px 10px; border: 2px solid var(--sun-lo); }
+.cared { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; width: 100%; }
+.care-card { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--panel-hi); border: 2px solid var(--panel-lo); min-width: 0; }
+.care-card canvas { width: 40px; height: 40px; flex: none; border: 1px solid var(--edge); }
+.care-card .arrow { font-family: var(--font-pixel); color: var(--muted); }
+.care-text { display: flex; flex-direction: column; text-align: left; font-family: var(--font-pixel); font-size: 0.95rem; margin-left: 4px; line-height: 1.15; min-width: 0; }
+.care-text b { font-family: var(--font-num); font-size: 0.75rem; font-weight: 400; margin-bottom: 4px; white-space: nowrap; }
 .missed { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 .missed span { background: var(--bad-soft); border: 2px solid var(--bad); padding: 4px 8px; font-family: var(--font-num); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
 
@@ -314,7 +321,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <div class="res wood" id="resBar">
       <div class="res-chip">
         <svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="2" fill="#6fb2f2"/><rect x="6" y="3" width="4" height="2" fill="#6fb2f2"/><rect x="5" y="5" width="6" height="3" fill="#6fb2f2"/><rect x="4" y="8" width="8" height="4" fill="#6fb2f2"/><rect x="5" y="12" width="6" height="2" fill="#4a8fd6"/><rect x="6" y="7" width="2" height="3" fill="#d6ecff"/></svg>
-        <span><b id="resWater">Ja</b><small>vattnad</small></span>
+        <span><b id="resWater">0</b><small>rundor idag</small></span>
       </div>
       <div class="res-chip">
         <svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="3" fill="#ff7a2f"/><rect x="6" y="4" width="4" height="3" fill="#ff7a2f"/><rect x="5" y="7" width="6" height="5" fill="#ff7a2f"/><rect x="6" y="12" width="4" height="2" fill="#ff7a2f"/><rect x="7" y="8" width="2" height="5" fill="#ffd23f"/></svg>
@@ -338,7 +345,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
     <button class="btn green big-water" id="greenBtn">
       <svg width="34" height="34" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="6" width="8" height="7" fill="#d9e3ea"/><rect x="2" y="12" width="8" height="1" fill="#8a99a6"/><rect x="10" y="7" width="2" height="2" fill="#d9e3ea"/><rect x="12" y="5" width="2" height="2" fill="#d9e3ea"/><rect x="0" y="7" width="2" height="4" fill="#8a99a6"/><rect x="13" y="8" width="1" height="2" fill="#6fb2f2"/><rect x="14" y="10" width="1" height="2" fill="#6fb2f2"/><rect x="13" y="12" width="1" height="2" fill="#6fb2f2"/></svg>
-      <span><b>VATTNA TRÄDGÅRDEN</b><small>20 frågor. Vilka plantor växer idag?</small></span>
+      <span><b>SKÖT OM TRÄDGÅRDEN</b><small>20 frågor. Vilka plantor växer nu?</small></span>
     </button>
     <div class="tools">
       <button class="btn" data-go="setup">
@@ -373,7 +380,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         <button data-n="15">15</button>
         <button data-n="25">25</button>
       </div>
-      <p class="note">Övningen vattnar också trädgården, men plantorna växer bara i "Vattna trädgården".</p>
+      <p class="note">Övningen räknas till dina dagar i rad, men plantorna växer bara när du sköter om trädgården.</p>
     </div>
     <div class="row">
       <button class="btn" data-go="home">Tillbaka</button>
@@ -438,7 +445,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <div class="panel menu">
       <span class="eyebrow">Trädgårdens besökare</span>
       <h1 id="collTitle">Besökare</h1>
-      <p>Djuren flyttar in när en hel rad blommar. Saker i trädgården får du genom att vattna många dagar i rad och genom att slå ditt rekord. Allt här stannar för alltid.</p>
+      <p>Djuren flyttar in när en hel rad blommar. Saker i trädgården får du när fler plantor blommar och när du slår ditt rekord. Allt här stannar för alltid.</p>
     </div>
     <h2 class="section-title">Djur</h2>
     <div class="visit-grid" id="visitorList"></div>
@@ -594,7 +601,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   // ---------- Watering days ----------
   function today() { const t = new Date(); return Math.floor((t.getTime() - t.getTimezoneOffset() * 6e4) / DAY); }
-  const wateredToday = () => S.days.includes(today());
+  const roundsToday = () => (S.roundDay === today() ? S.roundsToday || 0 : 0);
   // Days in a row with at least one finished round. One missed day per 7 days is rain:
   // it doesn't break the streak. Today only counts once played, so it never breaks it either.
   function streakDays() {
@@ -627,12 +634,16 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   ];
   const DECOS = [
     { id: "bench", name: "Bänk", how: "Rekord 25 %", has: () => S.bestPct >= 25 },
-    { id: "birdbox", name: "Fågelholk", how: "7 dagar i rad", has: () => S.bestDays >= 7 },
+    { id: "birdbox", name: "Fågelholk", how: "10 blommor", has: () => flowerCount() >= 10 },
     { id: "pond", name: "Damm med groda", how: "Rekord 50 %", has: () => S.bestPct >= 50 },
-    { id: "hedgehog", name: "Igelkott", how: "14 dagar i rad", has: () => S.bestDays >= 14 },
+    { id: "hedgehog", name: "Igelkott", how: "25 blommor", has: () => flowerCount() >= 25 },
     { id: "apple", name: "Äppelträd", how: "Rekord 75 %", has: () => S.bestPct >= 75 },
     { id: "greenhouse", name: "Växthus", how: "Rekord 100 %", has: () => S.bestPct >= 99.95 }
   ];
+  // Flowers never wilt away (size never shrinks), so this count only goes up.
+  function flowerCount() {
+    return FACTS.filter(([a, b]) => { const s = S.speed[factKey(a, b)]; return s && (s.best || 0) >= 0.999; }).length;
+  }
   function rowBlooms(a) {
     for (let b = 1; b <= 10; b++) { const s = S.speed[factKey(a, b)]; if (!s || stageFromBest(s.best || 0) < 4) return false; }
     return true;
@@ -1165,7 +1176,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   function renderHome() {
     $("starCount").textContent = S.total;
     $("nameForm").hidden = !!S.name;
-    $("resWater").textContent = wateredToday() ? "Ja" : "Nej";
+    $("resWater").textContent = roundsToday();
     $("resDays").textContent = streakDays();
     $("resNow").textContent = Math.round(boardPct()) + " %";
     $("resBest").textContent = Math.round(S.bestPct) + " %";
@@ -1176,9 +1187,11 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   function renderTicker() {
     const now = Date.now(), items = [];
     const thirsty = FACTS.filter(([a, b]) => plotOf(a, b, now).dry > 0.4).length;
-    if (wateredToday()) items.push("Trädgården är vattnad idag.");
-    else if (rainedYesterday()) items.push("Det regnade i går, så trädgården klarade sig. Idag behöver den vatten.");
-    else items.push("Trädgården väntar på vatten idag.");
+    const n = roundsToday(), near = FACTS.filter(([a, b]) => plotOf(a, b, now).near).length;
+    if (n) items.push("Idag har du skött om trädgården " + (n === 1 ? "en gång." : n + " gånger."));
+    else if (rainedYesterday()) items.push("Det regnade i går, så trädgården klarade sig. Idag väntar den på dig.");
+    else items.push("Trädgården väntar på dig idag.");
+    if (near) items.push("✨ " + (near === 1 ? "En knopp är nära" : near + " knoppar är nära") + " att slå ut.");
     if (thirsty) items.push(thirsty === 1 ? "En planta är törstig." : thirsty + " plantor är törstiga.");
     const u = unlocked(), next = DECOS.find((d) => !u.decos.includes(d.id));
     if (next) items.push("Nästa i trädgården: " + next.name.toLowerCase() + " (" + next.how.toLowerCase() + ").");
@@ -1509,17 +1522,18 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     for (let i = 0; i < 3; i++) s += '<span class="' + (i < n ? "on" : "") + '">★</span>';
     return s;
   }
-  // A finished round of either kind waters the garden for today.
-  function waterToday() {
-    const t = today(), first = !S.days.includes(t);
-    if (first) S.days = S.days.concat(t).slice(-120);
+  // A finished round of either kind counts for today: one more round today, and today joins the day streak.
+  function countRound() {
+    const t = today();
+    if (!S.days.includes(t)) S.days = S.days.concat(t).slice(-120);
+    S.roundsToday = S.roundDay === t ? (S.roundsToday || 0) + 1 : 1;
+    S.roundDay = t;
     S.bestDays = Math.max(S.bestDays || 0, streakDays());
     save();
-    return first;
   }
   function finish() {
     clearTimeout(advanceTimeout);
-    const firstToday = waterToday();
+    countRound();
     const card = $("resultCard");
     const who = S.name ? ", " + S.name : "";
     let html = "", celebrate = false;
@@ -1538,18 +1552,32 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     } else {
       const after = snapshot(), pct = boardPct();
       let grew = 0, bloomed = 0, perked = 0;
+      const cared = [];
       G.touched.forEach((k) => {
         const b0 = G.before[k], b1 = after[k];
-        if (b1.stage > b0.stage) grew++;
-        if (b1.stage === 4 && b0.stage < 4) bloomed++;
-        if (b0.dry > 0.4 && b1.dry <= 0.4) perked++;
+        const gain = b1.best - b0.best, bloom = b1.stage === 4 && b0.stage < 4, perk = b0.dry > 0.4 && b1.dry <= 0.4;
+        if (gain >= 0.02) grew++;
+        if (bloom) bloomed++;
+        if (perk) perked++;
+        if (gain >= 0.02 || perk) cared.push({ k: k, b0: b0, b1: b1, bloom: bloom, perk: perk, score: (bloom ? 2 : 0) + (perk ? 0.5 : 0) + gain });
       });
+      cared.sort((x, y) => y.score - x.score);
+      const nearNext = FACTS.filter(([a, b]) => after[factKey(a, b)].near).length;
       const record = S.bestPct > G.startBest + 0.05;
       const title = record ? "Nytt rekord" + who + "!" : grew || bloomed ? "Trädgården växte" + who + "!" : "Bra kämpat" + who + "!";
       html += '<span class="eyebrow">Dagens rapport</span>';
       html += "<h2>" + esc(title) + "</h2>";
       html += '<div class="wood garden-frame" style="width:100%"><div class="garden" id="resultGarden"></div></div>';
-      html += '<p class="note">Plantorna du vattnade står i blöt jord och glittrar.</p>';
+      html += '<p class="note">Plantorna du skötte om står i blöt jord och glittrar.</p>';
+      if (cared.length) {
+        html += '<span class="eyebrow">Plantorna du skötte om</span><div class="cared">' + cared.slice(0, 4).map((c) => {
+          const [x, y] = c.k.split("x");
+          const what = c.bloom ? "Slog ut!" : c.perk ? "Piggnade till" : c.b1.stage > c.b0.stage ? STAGE_NAMES[c.b0.stage] + " → " + STAGE_NAMES[c.b1.stage] : "Växte";
+          return '<div class="care-card"><canvas class="pix" data-mini="' + c.k + '" data-when="0"></canvas><span class="arrow">→</span>' +
+            '<canvas class="pix" data-mini="' + c.k + '" data-when="1"></canvas><span class="care-text"><b>' + x + " · " + y + "</b>" + what + "</span></div>";
+        }).join("") + "</div>";
+      }
+      if (nearNext) html += '<p class="near-note">✨ ' + (nearNext === 1 ? "En knopp kan" : nearNext + " knoppar kan") + " slå ut nästa runda!</p>";
       html += '<div class="ledger">' +
         "<div><span>Rätt svar</span><b>" + G.correct + " / " + G.total + "</b></div>" +
         "<div><span>Blixtsnabba</span><b>" + G.fast + "</b></div>" +
@@ -1560,7 +1588,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         "<div><span>Rekord</span><b>" + fmtPct(S.bestPct) + "</b></div></div>";
       celebrate = record || bloomed > 0;
     }
-    html += '<p class="water-note">' + (firstToday ? "Trädgården är vattnad för idag!" : "Trädgården var redan vattnad idag.") +
+    const n = roundsToday();
+    html += '<p class="water-note">' + (n === 1 ? "Första rundan idag." : "Runda " + n + " idag.") +
       " 🔥 " + streakDays() + (streakDays() === 1 ? " dag" : " dagar") + " i rad.</p>";
 
     const u = unlocked(), newV = u.visitors.filter((id) => !G.unlockedBefore.visitors.includes(id)),
@@ -1575,11 +1604,16 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         "</div>";
     }
     if (G.missed.length) {
-      html += '<span class="eyebrow">Vattna lite extra</span><div class="missed">' +
+      html += '<span class="eyebrow">Öva lite extra på</span><div class="missed">' +
         G.missed.map((k) => { const [x, y] = k.split("x"); return "<span>" + x + " · " + y + " = " + x * y + "</span>"; }).join("") + "</div>";
     }
     card.innerHTML = html;
     card.querySelectorAll("canvas[data-icon]").forEach((c) => Garden.drawIcon(c, c.dataset.icon, c.dataset.id, false));
+    card.querySelectorAll("canvas[data-mini]").forEach((c) => {
+      const [x, y] = c.dataset.mini.split("x").map(Number), snap = c.dataset.when === "1" ? snapshot() : G.before;
+      Garden.drawMini(c, x, y, snap[c.dataset.mini]);
+    });
+    $("againBtn").textContent = G.mode === "green" ? "En runda till!" : "Spela igen";
     show("result");
     if (G.mode === "green") mountGarden($("resultGarden"), { wet: G.touched });
     if (celebrate) { sfx.fanfare(); confetti(160, 0.3); }

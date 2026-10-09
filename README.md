@@ -7,17 +7,18 @@ A small single-page app (in Swedish) for learning the multiplication tables 1–
 Or open `index.html` in a browser. No build step and no install needed.
 
 - **The garden** (start screen): a generated top-down pixel garden built on the 10×10 table. Fact a·b grows at row a, column b, with numbered stakes along the edges; tapping a plant ties planting strings along its row and column and shows the fact. 7·8 and 8·7 grow the same (randomly chosen) plant, so the garden is mirrored along the diagonal.
-- **Vattna trädgården**: 20 questions, picked mostly from the facts that need it. Only these rounds make plants grow.
+- **Sköt om trädgården**: 20 questions, picked mostly from the facts that need it. Only these rounds make plants grow. The report shows the plants she cared for (before → after) and how many buds can open next round.
 - **Öva tabeller**: relaxed practice of the tables you pick. Missed questions come back, and dot hints are available.
 - **Utforska tabellerna**: an interactive 10×10 table with dot pictures and a tip for each table.
 - **Trädgårdens besökare**: everything that has come to stay in the garden.
 
 ## How the garden works
 
-- **Size** of a plant = the best greenness its fact has ever reached (below): seed < 20 %, sprout 20–40 %, plant 40–60 %, bud 60–99 %, flower at 100 %. Plants never shrink.
+- **Size** of a plant = the best greenness its fact has ever reached (below), drawn continuously: it gains size and leaves with every bit of progress, so each good round visibly changes the garden. Stages: seed < 20 %, sprout 20–40 %, plant 40–60 %, bud 60–99 % (the bud swells and colours up), flower at 100 %. Plants never shrink.
+- **About to open**: buds whose current greenness is at least 85 % (about two fast answers from flowering) sparkle.
 - **Thirst**: when a fact's current greenness falls more than 15 points below its best, the plant droops: pale cracked soil and yellowed leaves. A couple of good answers perk it up.
-- **Watering**: any finished round waters the garden for the day. One missed day per week counts as rain and doesn't break the day streak.
-- **Visitors** move in when a whole row flowers (one animal per row). **Decorations**: bench (record 25 %), bird box (7 days in a row), pond with a frog (50 %), hedgehog (14 days), apple tree (75 %), greenhouse (100 %). All are permanent.
+- **Days in a row**: any finished round counts for the day and the start screen shows today's rounds. One missed day per week counts as rain. The streak is only a counter; no rewards depend on it.
+- **Visitors** move in when a whole row flowers (one animal per row). **Decorations**: bench (record 25 %), bird box (10 flowering plants), pond with a frog (50 %), hedgehog (25 flowering plants), apple tree (75 %), greenhouse (100 %). All are permanent.
 
 ## How the speed score works
 
