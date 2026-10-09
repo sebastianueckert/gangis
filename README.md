@@ -7,7 +7,7 @@ A small single-page app (in Swedish) for learning the multiplication tables 1–
 Or open `index.html` in a browser. No build step and no install needed.
 
 - **The garden** (start screen): a generated top-down pixel garden built on the 10×10 table. Fact a·b grows at row a, column b, with numbered stakes along the edges; tapping a plant ties planting strings along its row and column and shows the fact. 7·8 and 8·7 grow the same (randomly chosen) plant, so the garden is mirrored along the diagonal.
-- **Sköt om trädgården**: 20 questions, picked mostly from the facts that need it. Only these rounds make plants grow. The report shows the plants she cared for (before → after) and how many buds can open next round.
+- **Sköt om trädgården**: 20 questions, picked mostly from the facts that need it. A missed question comes back once, 3 questions later, on top of the 20; that second try counts like any answer, so a fast correct one makes up for the miss. Only these rounds make plants grow. The report shows the plants she cared for (before → after) and how many buds can open next round.
 - **Öva tabeller**: relaxed practice of the tables you pick. Missed questions come back, and dot hints are available.
 - **Utforska tabellerna**: an interactive 10×10 table with dot pictures and a tip for each table.
 - **Trädgårdens besökare**: everything that has come to stay in the garden.
@@ -33,4 +33,4 @@ Each fact (7·8 and 8·7 count as one, 55 facts) has an estimate of her *thinkin
 
 The parameters are first guesses and live in the `SP` object in `index.html`. The last 20 raw attempts per fact are stored too, so the scoring can be retuned later without losing history.
 
-Progress is saved in the browser (localStorage).
+Progress is saved in the browser (localStorage). To start over, tap "Hej, …!" in the news line on the start screen and choose "Börja om från början".

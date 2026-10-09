@@ -129,6 +129,11 @@ button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulat
 .res-chip b { font-family: var(--font-num); font-size: 0.72rem; line-height: 1.4; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .res-chip small { font-family: var(--font-pixel); font-size: 0.68rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .name-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.reset-row { flex-basis: 100%; display: flex; flex-direction: column; gap: 8px; }
+.link-btn { align-self: flex-start; background: none; border: 0; padding: 4px 0; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; font-size: 0.9rem; }
+.reset-confirm { display: flex; flex-direction: column; gap: 8px; padding: 10px; background: var(--bad-soft); border: 2px solid var(--bad); }
+.btn.danger { background: var(--bad); color: #ffffff; text-shadow: 1px 1px 0 #5a1a0e; border-color: #e0705a #6a1c10 #6a1c10 #e0705a; }
+.retry-tag { font-family: var(--font-pixel); font-weight: 700; color: var(--accent); margin-top: -6px; }
 .name-form input {
   font: inherit; font-weight: 700; padding: 8px 10px; min-width: 0; flex: 1 1 160px; color: var(--ink); background: var(--panel-hi);
   border: 2px solid; border-color: var(--panel-lo) var(--panel-hi) var(--panel-hi) var(--panel-lo);
@@ -316,6 +321,16 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       <label for="nameInput" style="font-family: var(--font-pixel); font-weight: 700;">Vad heter du?</label>
       <input id="nameInput" maxlength="20" autocomplete="off" placeholder="Ditt namn">
       <button class="btn green" type="submit">Spara</button>
+      <div class="reset-row">
+        <button type="button" class="link-btn" id="resetAsk">Börja om från början …</button>
+        <div id="resetConfirm" class="reset-confirm" hidden>
+          <p><b>Börja om från början?</b> Allt försvinner: trädgården, rekordet, besökarna, dagarna i rad och namnet. Det går inte att ångra.</p>
+          <div class="row">
+            <button type="button" class="btn" id="resetNo">Avbryt</button>
+            <button type="button" class="btn danger" id="resetYes">Ja, börja om</button>
+          </div>
+        </div>
+      </div>
     </form>
 
     <div class="res wood" id="resBar">
@@ -398,6 +413,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <div class="panel question" id="qCard">
       <canvas class="plant-chip pix" id="plantChip" width="22" height="22" title="Din planta i trädgården" hidden></canvas>
       <p class="spoken" id="spoken"></p>
+      <p class="retry-tag" id="retryTag" hidden>Ett försök till!</p>
       <div class="equation" aria-live="polite">
         <span id="qa">7</span><span class="op">·</span><span id="qb">8</span><span class="op">=</span>
         <span class="answer-box empty" id="answer"></span>
@@ -1176,6 +1192,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   function renderHome() {
     $("starCount").textContent = S.total;
     $("nameForm").hidden = !!S.name;
+    document.querySelector(".reset-row").hidden = !S.name && !Object.keys(S.speed).length;
     $("resWater").textContent = roundsToday();
     $("resDays").textContent = streakDays();
     $("resNow").textContent = Math.round(boardPct()) + " %";
@@ -1242,6 +1259,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     mountGarden($("homeGarden"), { sel: home.sel });
     renderPlotInfo();
   });
+  $("resetAsk").addEventListener("click", () => { $("resetConfirm").hidden = false; $("resetAsk").hidden = true; });
+  $("resetNo").addEventListener("click", () => { $("resetConfirm").hidden = true; $("resetAsk").hidden = false; });
+  $("resetYes").addEventListener("click", () => {
+    try { localStorage.removeItem(KEY); } catch (e) { /* ignore */ }
+    location.reload();
+  });
   $("nameForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const v = $("nameInput").value.trim();
@@ -1292,7 +1315,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     G = {
       mode: setup.mode, tables: green ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] : setup.tables.slice(),
       total: green ? SP.ROUND : setup.count,
-      answered: 0, fresh: 0, firstRight: 0, correct: 0, fast: 0, streak: 0, bestStreak: 0,
+      answered: 0, fresh: 0, firstRight: 0, freshRight: 0, correct: 0, fast: 0, streak: 0, bestStreak: 0, retried: 0, fixed: 0,
       retry: [], missed: [], recent: [],
       q: null, input: "", locked: false, hinted: false, qStart: 0, interrupted: false, waiting: false,
       startPct: boardPct(), startBest: S.bestPct, touched: new Set(),
@@ -1344,7 +1367,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   function nextQuestion() {
     let q = null;
-    if (G.mode === "practice") {
+    {
       const dueIdx = G.retry.findIndex((r) => r.due <= G.answered || G.fresh >= G.total);
       if (dueIdx >= 0) q = Object.assign({ retry: true }, G.retry.splice(dueIdx, 1)[0].q);
     }
@@ -1352,6 +1375,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     G.recent = [factKey(G.q.a, G.q.b)].concat(G.recent).slice(0, 3);
     G.input = ""; G.locked = false; G.hinted = false;
     $("qa").textContent = G.q.a; $("qb").textContent = G.q.b;
+    $("retryTag").hidden = !G.q.retry;
     $("spoken").textContent = (NUM_WORDS[G.q.a] + " gånger " + NUM_WORDS[G.q.b]).replace(/^./, (c) => c.toUpperCase());
     $("feedback").textContent = ""; $("feedback").className = "feedback";
     $("qCard").className = "panel question";
@@ -1422,6 +1446,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     if (ok) {
       G.correct++; S.total++;
       if (!G.q.retry && !G.hinted) G.firstRight++;
+      if (!G.q.retry) G.freshRight++;
+      if (G.q.retry) G.fixed++;
       if (!G.hinted) G.streak++;
       if (quick) G.fast++;
       G.bestStreak = Math.max(G.bestStreak, G.streak);
@@ -1437,7 +1463,11 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     } else {
       G.streak = 0;
       if (!G.missed.includes(key)) G.missed.push(key);
+      // A miss comes back later in the same round, on top of the 20 questions. In the garden it
+      // comes back once, 3 questions later, and counts like any answer, so a fast correct
+      // second try makes up for the miss. Practice keeps asking until it's right.
       if (G.mode === "practice") G.retry.push({ q: { a: a, b: b }, due: G.answered + 2 });
+      else if (!G.q.retry) { G.retry.push({ q: { a: a, b: b }, due: G.answered + 3 }); G.retried++; }
       card.className = "panel question wrong";
       fb.className = "feedback bad";
       fb.textContent = pick(["Nästan!", "Bra försök!", "Ingen fara!", "Oj, inte riktigt."]) + " " + a + " · " + b + " = " + ans;
@@ -1548,6 +1578,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       html += '<div class="big-stars">' + starsHtml(stars) + "</div>";
       html += '<p class="score">' + firstTry + " av " + G.total + " rätt på första försöket</p>";
       if (G.bestStreak >= 3) html += "<p>Längsta svit: 🔥 " + G.bestStreak + " i rad</p>";
+      if (G.fixed) html += "<p>Rättade till: " + G.fixed + (G.fixed === 1 ? " fråga" : " frågor") + " som blev fel först.</p>";
       celebrate = pct >= 0.8;
     } else {
       const after = snapshot(), pct = boardPct();
@@ -1579,7 +1610,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       }
       if (nearNext) html += '<p class="near-note">✨ ' + (nearNext === 1 ? "En knopp kan" : nearNext + " knoppar kan") + " slå ut nästa runda!</p>";
       html += '<div class="ledger">' +
-        "<div><span>Rätt svar</span><b>" + G.correct + " / " + G.total + "</b></div>" +
+        "<div><span>Rätt svar</span><b>" + G.freshRight + " / " + G.total + "</b></div>" +
+        (G.retried ? "<div><span>Rättade till</span><b>" + G.fixed + " / " + G.retried + "</b></div>" : "") +
         "<div><span>Blixtsnabba</span><b>" + G.fast + "</b></div>" +
         "<div><span>Plantor som växte</span><b>" + grew + "</b></div>" +
         "<div><span>Nya blommor</span><b>" + bloomed + "</b></div>" +
