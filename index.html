@@ -1145,8 +1145,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         const [x, y] = plotXY(a, b), stage = stageOfG(g);
         if (ctl.primed && stage > ctl.stages[id]) { burst(ctl, x, y); if (ctl.opts.onPop) ctl.opts.onPop(stage); }
         ctl.stages[id] = stage;
-        // a gust of wind runs across the garden: bigger plants lean a pixel now and then
-        const dx = !reduceMotion && g >= 0.4 ? Math.round(Math.sin(t * 1.6 - (b * 0.55 + a * 0.25)) * 0.62) : 0;
+        // now and then a slow gust runs across the garden and the buds and flowers lean a pixel
+        const gust = Math.max(0, Math.sin(t * 0.22));
+        const dx = !reduceMotion && g >= 0.6 ? Math.round(Math.sin(t * 0.9 - (b * 0.55 + a * 0.25)) * 0.72 * gust) : 0;
         ctx.drawImage(sp.c, x - 13 + dx, y - 13);
         if (st.near && !reduceMotion ? Math.floor(t * 2.5 + a * 0.7 + b * 1.3) % 3 !== 0 : st.near) {
           [[5, -5], [-5, 4]].forEach((o, n) => {
