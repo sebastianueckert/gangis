@@ -277,6 +277,14 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 .vcard b { font-family: var(--font-pixel); font-size: 0.98rem; line-height: 1.1; }
 .vcard small { font-size: 0.78rem; color: var(--muted); line-height: 1.2; }
 .vcard.locked { background: #e6d3a6; }
+.ptable { border-collapse: collapse; width: 100%; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.ptable th, .ptable td { padding: 4px 3px; text-align: right; border-bottom: 1px solid #e0cfa6; white-space: nowrap; }
+.ptable th:first-child, .ptable td:first-child { text-align: left; }
+.ptable th { font-family: var(--font-pixel); font-weight: 700; color: var(--muted); position: sticky; top: 0; background: var(--panel); }
+.ptable tr.slow td:nth-child(2) { color: var(--bad); font-weight: 800; }
+.ptable td.none { text-align: left; color: var(--muted); font-style: italic; }
+.copy-box { width: 100%; min-height: 120px; font: 0.75rem ui-monospace, monospace; }
+#parent .row .btn[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
 .row-badges { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
 .row-badge { font-family: var(--font-pixel); font-size: 0.9rem; text-align: center; padding: 4px 2px; background: #e6d3a6; color: var(--muted); border: 2px solid var(--panel-lo); white-space: nowrap; }
 .row-badge .num { font-family: var(--font-num); font-size: 0.7rem; font-weight: 400; }
@@ -461,6 +469,27 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
   </section>
 
+  <!-- PARENTS (hidden: tap the logo five times) -->
+  <section id="parent" class="menu" hidden>
+    <div class="panel menu">
+      <span class="eyebrow">För föräldrar</span>
+      <h1>Svarstider</h1>
+      <p id="parentSummary"></p>
+      <div class="row">
+        <button class="btn" id="sortTable">Sortera efter tabell</button>
+        <button class="btn" id="sortSlow">Långsammast först</button>
+        <button class="btn" id="copyData">Kopiera data</button>
+      </div>
+      <p class="note" id="copyNote" hidden></p>
+      <textarea id="copyBox" class="copy-box" readonly hidden aria-label="Data att kopiera"></textarea>
+      <div class="grid-wrap"><table class="ptable" id="parentTable"></table></div>
+      <p class="note"><b>Typisk</b>: tänketiden som trädgården räknar med (tid till OK minus skrivtiden på lätta frågor, viktat mot de senaste svaren). Blomma kräver högst <span id="limitNote">1,5</span> s.
+        <b>Median</b>: mitten av de senaste rätta svarens tänketid. <b>Svar/Fel</b>: bland de sparade senaste svaren (högst 20 per fakta).
+        <b>Halv.</b>: hur många dagar det tar innan tänketiden har glidit halvvägs tillbaka utan övning. <b>Stl.</b>: plantans storlek (bästa nivån hittills).</p>
+    </div>
+    <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
+  </section>
+
   <!-- VISITORS -->
   <section id="collection" class="menu" hidden>
     <div class="panel menu">
@@ -554,7 +583,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     HL_SHRINK: 0.5,    // ×half-life after a wrong answer
     HL_MIN: 1,         // half-life limits (days)
     HL_MAX: 60,
-    GREEN: 1.0,        // thinking time (s) that counts as fully green
+    GREEN: 1.5,        // thinking time (s) that counts as fully green
     B_ALPHA: 0.2,      // how fast the typing allowance follows her easy-question times
     ROUND: 20,         // questions per round
     MAX_RISE: 1.5,     // one correct answer can raise a fact's estimate by at most this (s)
@@ -621,6 +650,15 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const limit = (s.best || 0) - 0.33, u = (SP.C - estimate(key, now)) / (SP.C - SP.GREEN);
     if (limit <= 0.02 || u <= limit) return null;
     return (s.hl || SP.HL_START) * Math.log2(u / limit);
+  }
+  // If the green limit changed since the sizes were stored, rescale them: the same thinking time now
+  // gives (C - E)/(C - new limit) instead of (C - E)/(C - old limit). Versions before this used 1 s.
+  if (S.greenLimit !== SP.GREEN) {
+    const f = (SP.C - (S.greenLimit || 1)) / (SP.C - SP.GREEN);
+    Object.keys(S.speed).forEach((k) => { if (S.speed[k].best != null) S.speed[k].best = Math.min(1, S.speed[k].best * f); });
+    S.bestPct = Math.min(100, S.bestPct * f);
+    S.greenLimit = SP.GREEN;
+    save();
   }
   // Facts practised before plants existed start with their current greenness as their best.
   Object.keys(S.speed).forEach((k) => { if (S.speed[k].best == null) S.speed[k].best = greenness(k, Date.now()); });
@@ -1241,13 +1279,14 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   }
 
   // ---------- Navigation ----------
-  const SCREENS = ["home", "setup", "game", "result", "explore", "collection"];
+  const SCREENS = ["home", "setup", "game", "result", "explore", "collection", "parent"];
   function show(name) {
     SCREENS.forEach((s) => { $(s).hidden = s !== name; });
     if (name === "home") renderHome();
     if (name === "setup") renderSetup();
     if (name === "explore") renderExplore();
     if (name === "collection") renderCollection();
+    if (name === "parent") renderParent();
     window.scrollTo(0, 0);
   }
   document.addEventListener("click", (e) => {
@@ -1256,7 +1295,13 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     sfx.tap();
     show(b.dataset.go);
   });
-  $("logo").addEventListener("click", () => show("home"));
+  // The logo goes home; five quick taps open the parent view.
+  let logoTaps = [];
+  $("logo").addEventListener("click", () => {
+    const t = Date.now();
+    logoTaps = logoTaps.filter((x) => t - x < 3000).concat(t);
+    if (logoTaps.length >= 5) { logoTaps = []; show("parent"); } else show("home");
+  });
   $("soundBtn").addEventListener("click", () => {
     S.sound = !S.sound; save(); renderSound(); sfx.tap();
   });
@@ -1771,6 +1816,51 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     if (!td) return;
     ex.a = Number(td.dataset.r); ex.b = Number(td.dataset.c);
     sfx.tap(); renderExplore();
+  });
+
+  // ---------- Parent view ----------
+  let parentSort = "table";
+  const fmtS = (v) => v == null ? "–" : v.toLocaleString("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  function factStats(a, b) {
+    const key = factKey(a, b), s = S.speed[key];
+    if (!s) return { key: key, a: a, b: b, n: 0 };
+    const think = s.log.filter((l) => l[4]).map((l) => Math.max(0, l[3] / 1000 - typingAllowance(a * b))).slice(-10).sort((x, y) => x - y);
+    const median = think.length ? (think.length % 2 ? think[(think.length - 1) / 2] : (think[think.length / 2 - 1] + think[think.length / 2]) / 2) : null;
+    return { key: key, a: a, b: b, n: s.log.length, wrong: s.log.filter((l) => !l[4]).length, e: s.e, median: median,
+      hl: s.hl || SP.HL_START, size: Math.round((s.best || 0) * 100) };
+  }
+  function renderParent() {
+    const rows = FACTS.map(([a, b]) => factStats(a, b));
+    const answered = rows.filter((r) => r.n), total = answered.reduce((t, r) => t + r.n, 0);
+    const allThink = [];
+    answered.forEach((r) => S.speed[r.key].log.filter((l) => l[4]).forEach((l) => allThink.push(Math.max(0, l[3] / 1000 - typingAllowance(r.a * r.b)))));
+    allThink.sort((x, y) => x - y);
+    const med = allThink.length ? allThink[Math.floor(allThink.length / 2)] : null;
+    $("limitNote").textContent = fmtS(SP.GREEN);
+    $("parentSummary").innerHTML = "Skrivtid på lätta frågor (×1 och ×10): <b>" + fmtS(S.typing[1]) + " s</b> för ensiffriga svar, <b>" + fmtS(S.typing[2]) + " s</b> för tvåsiffriga. " +
+      "Sparade svar: <b>" + total + "</b> på " + answered.length + " av 55 fakta. Median tänketid för alla rätta svar: <b>" + fmtS(med) + " s</b>. " +
+      "Gränsen för blomma är " + fmtS(SP.GREEN) + " s tänketid.";
+    if (parentSort === "slow") rows.sort((x, y) => (y.n ? y.e : -1) - (x.n ? x.e : -1));
+    $("parentTable").innerHTML = "<thead><tr><th>Fakta</th><th>Typisk</th><th>Median</th><th>Svar</th><th>Fel</th><th>Halv.</th><th>Stl.</th></tr></thead><tbody>" +
+      rows.map((r) => "<tr" + (r.n && r.e > SP.GREEN ? ' class="slow"' : "") + "><td>" + r.a + " · " + r.b + "</td>" +
+        (r.n ? "<td>" + fmtS(r.e) + " s</td><td>" + fmtS(r.median) + " s</td><td>" + r.n + "</td><td>" + r.wrong + "</td><td>" + fmtS(r.hl) + " d</td><td>" + r.size + " %</td>"
+          : '<td colspan="6" class="none">inte övad än</td>') + "</tr>").join("") + "</tbody>";
+    $("sortTable").setAttribute("aria-pressed", String(parentSort === "table"));
+    $("sortSlow").setAttribute("aria-pressed", String(parentSort === "slow"));
+  }
+  $("sortTable").addEventListener("click", () => { parentSort = "table"; renderParent(); });
+  $("sortSlow").addEventListener("click", () => { parentSort = "slow"; renderParent(); });
+  $("copyData").addEventListener("click", () => {
+    const text = JSON.stringify({ version: 1, greenLimit: SP.GREEN, typing: S.typing, speed: S.speed });
+    const fallback = () => {
+      $("copyBox").hidden = false; $("copyBox").value = text; $("copyBox").focus(); $("copyBox").select();
+      $("copyNote").hidden = false; $("copyNote").textContent = "Det gick inte att kopiera automatiskt. Texten är markerad nedan, kopiera den själv.";
+    };
+    try {
+      navigator.clipboard.writeText(text).then(() => {
+        $("copyNote").hidden = false; $("copyNote").textContent = "Kopierat! Svarsdata för alla fakta ligger nu i urklipp.";
+      }, fallback);
+    } catch (e) { fallback(); }
   });
 
   // ---------- Visitors ----------
