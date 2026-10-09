@@ -6,12 +6,20 @@ A small single-page app (in Swedish) for learning the multiplication tables 1–
 
 Or open `index.html` in a browser. No build step and no install needed.
 
-- **Gröna rutan** (main mode): a 10×10 board where each square turns from grey to green as she answers that fact correctly and quickly. 20 questions per round, picked mostly from the greyest squares.
+- **The garden** (start screen): a generated top-down pixel garden built on the 10×10 table. Fact a·b grows at row a, column b, with numbered stakes along the edges; tapping a plant ties planting strings along its row and column and shows the fact. 7·8 and 8·7 grow the same (randomly chosen) plant, so the garden is mirrored along the diagonal.
+- **Vattna trädgården**: 20 questions, picked mostly from the facts that need it. Only these rounds make plants grow.
 - **Öva tabeller**: relaxed practice of the tables you pick. Missed questions come back, and dot hints are available.
 - **Utforska tabellerna**: an interactive 10×10 table with dot pictures and a tip for each table.
-- **Min djursamling**: collect 30 animals by doing well.
+- **Trädgårdens besökare**: everything that has come to stay in the garden.
 
-## How Gröna rutan scores
+## How the garden works
+
+- **Size** of a plant = the best greenness its fact has ever reached (below): seed < 20 %, sprout 20–40 %, plant 40–60 %, bud 60–99 %, flower at 100 %. Plants never shrink.
+- **Thirst**: when a fact's current greenness falls more than 15 points below its best, the plant droops: pale cracked soil and yellowed leaves. A couple of good answers perk it up.
+- **Watering**: any finished round waters the garden for the day. One missed day per week counts as rain and doesn't break the day streak.
+- **Visitors** move in when a whole row flowers (one animal per row). **Decorations**: bench (record 25 %), bird box (7 days in a row), pond with a frog (50 %), hedgehog (14 days), apple tree (75 %), greenhouse (100 %). All are permanent.
+
+## How the speed score works
 
 Each fact (7·8 and 8·7 count as one, 55 facts) has an estimate of her *thinking time*:
 
