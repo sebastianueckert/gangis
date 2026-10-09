@@ -30,7 +30,6 @@
   --heat-text: #6c7693;
   --heat-text-on: #ffffff;
   --heat-full: #0a5f37;
-  --soil: #d2b48c;
   --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
   --font-body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -40,7 +39,7 @@
     --card: #24352e; --line: #3a5046; --blue: #7aaeff; --blue-ink: #0d1c33;
     --sun: #ffd65c; --sun-ink: #2c2000; --good: #5ad99a; --good-soft: #1f4434;
     --bad: #ff8aa7; --bad-soft: #4a2531; --shadow: 0 3px 0 #13201b;
-    --heat-lo: #34443d; --heat-hi: #52d695; --heat-text: #a5b8ad; --heat-text-on: #0f2a1d; --heat-full: #d4ffe6; --soil: #5f4b33;
+    --heat-lo: #34443d; --heat-hi: #52d695; --heat-text: #a5b8ad; --heat-text-on: #0f2a1d; --heat-full: #d4ffe6;
     color-scheme: dark;
   }
 }
@@ -49,7 +48,7 @@
   --card: #24352e; --line: #3a5046; --blue: #7aaeff; --blue-ink: #0d1c33;
   --sun: #ffd65c; --sun-ink: #2c2000; --good: #5ad99a; --good-soft: #1f4434;
   --bad: #ff8aa7; --bad-soft: #4a2531; --shadow: 0 3px 0 #13201b;
-    --heat-lo: #34443d; --heat-hi: #52d695; --heat-text: #a5b8ad; --heat-text-on: #0f2a1d; --heat-full: #d4ffe6; --soil: #5f4b33;
+    --heat-lo: #34443d; --heat-hi: #52d695; --heat-text: #a5b8ad; --heat-text-on: #0f2a1d; --heat-full: #d4ffe6;
   color-scheme: dark;
 }
 
@@ -177,45 +176,6 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--blue); outl
   background: color-mix(in oklab, var(--heat-hi) calc(var(--g, 0) * 100%), var(--heat-lo));
   transition: background .8s;
 }
-
-/* ---------- Pet ---------- */
-.pet-card { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); gap: 6px 14px; align-items: center; }
-.pet-stage { background: none; border: 0; padding: 0; border-radius: 16px; }
-.pet-svg { display: block; width: 100%; height: auto; overflow: visible; }
-.pet-svg .bob { animation: bob 2.6s ease-in-out infinite; transform-box: view-box; transform-origin: 100px 158px; }
-.pet-svg .egg { animation: wobble 3.2s ease-in-out infinite; transform-box: view-box; transform-origin: 100px 157px; }
-.pet-svg .eyes { animation: blink 5s infinite; transform-box: fill-box; transform-origin: center; }
-.pet-stage.jump .bob { animation: hop .6s ease-out; }
-.pet-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.pet-info h3 { font-size: 1.5rem; overflow-wrap: anywhere; }
-.pet-info .btn { margin-top: 6px; font-size: 0.9rem; }
-.speech {
-  grid-column: 1 / -1; position: relative; justify-self: start; max-width: 100%;
-  background: var(--paper); border: 2px solid var(--line); border-radius: 14px; padding: 6px 12px; font-weight: 700; margin-bottom: 4px;
-}
-.speech::after {
-  content: ""; position: absolute; left: 52px; bottom: -9px; width: 14px; height: 14px; background: var(--paper);
-  border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); transform: rotate(45deg);
-}
-.xp { height: 10px; border-radius: 6px; background: var(--grid); overflow: hidden; }
-.xp i { display: block; height: 100%; background: var(--sun); border-radius: 6px; }
-.needs { display: flex; gap: 12px; flex-wrap: wrap; font-weight: 800; font-size: 0.95rem; margin-top: 2px; }
-.needs .off { opacity: .22; filter: grayscale(1); }
-.pet-pick { display: flex; flex-direction: column; gap: 10px; }
-.eggs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.egg-btn { background: var(--paper); border: 2px solid var(--line); border-radius: 14px; padding: 6px 4px; display: flex; flex-direction: column; align-items: center; font-weight: 800; }
-.egg-btn:hover { border-color: var(--blue); }
-.pet-result { display: flex; align-items: center; gap: 14px; text-align: left; width: 100%; background: var(--paper); border-radius: 16px; padding: 10px; }
-.pet-mini { width: 110px; flex: none; }
-.pet-result .score { font-size: 1.2rem; }
-.pet-result .news { font-weight: 800; }
-.sticker.grown, .sticker.locked { gap: 2px; padding: 8px 6px; }
-#grownList { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-.sticker .pet-svg { width: 100%; max-width: 110px; }
-@keyframes bob { 50% { transform: translateY(-4px) scaleY(1.02); } }
-@keyframes wobble { 0%, 70%, 100% { transform: rotate(0); } 76% { transform: rotate(-6deg); } 84% { transform: rotate(6deg); } 92% { transform: rotate(-3deg); } }
-@keyframes hop { 40% { transform: translateY(-28px); } 70% { transform: translateY(0) scaleY(.94); } }
-@keyframes blink { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
 
 /* ---------- Setup ---------- */
 .seg { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -357,7 +317,6 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       </form>
       <p id="helloSub">Vad vill du göra idag?</p>
     </div>
-    <div class="card pet-card" id="petCard"></div>
 
     <div class="card heat-card">
       <div class="section-head">
@@ -382,7 +341,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     </button>
     <button class="big-btn" data-go="collection">
       <span class="emoji">🦔</span>
-      <span><strong>Mina djur</strong><span class="sub" id="grownHome">Här bor dina fullvuxna vänner</span></span>
+      <span><strong>Min djursamling</strong><span class="sub"><b id="stickerHome">0</b> av 30 djur. Vinn fler genom att öva!</span></span>
     </button>
 
   </section>
@@ -470,15 +429,11 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   <!-- COLLECTION -->
   <section id="collection" class="menu" hidden>
     <div class="hello">
-      <span class="eyebrow">Mina djur</span>
-      <h1 id="collTitle">Mina djur</h1>
-      <p>När din vän är fullvuxen flyttar den hit, och du får ett nytt ägg.</p>
+      <span class="eyebrow">Min djursamling</span>
+      <h1 id="collTitle">0 av 30 djur</h1>
+      <p>Du vinner ett nytt djur när du får minst 8 av 10 rätt i en övning, eller när ditt rekord i Gröna rutan når nästa 5 %.</p>
     </div>
-    <div class="stickers" id="grownList"></div>
-    <div id="oldStickers" class="menu" hidden>
-      <h3>Klistermärken</h3>
-      <div class="stickers" id="stickers"></div>
-    </div>
+    <div class="stickers" id="stickers"></div>
     <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
   </section>
 </div>
@@ -515,8 +470,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   function defaults() {
     return { name: "", facts: {}, total: 0, stickers: [], sound: true,
-      speed: {}, typing: { 1: 2.0, 2: 2.5 }, bestPct: 0,
-      pet: null, grown: [], days: [], bestDays: 0, lastPlay: 0 };
+      speed: {}, typing: { 1: 2.0, 2: 2.5 }, bestPct: 0, milestone: 0 };
   }
   function load() {
     try {
@@ -618,244 +572,6 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       "<div><b>🟩 " + fast + "</b><span>av 55 helt gröna</span></div>";
   }
 
-  // ---------- Pet ----------
-  // The pet grows with growth points earned in every finished round (never lost), and eats the
-  // meadow: one finished round a day fills its food. A day streak unlocks things it can wear.
-  const PET_COLORS = [
-    { name: "Blått", body: "#7cc4ff", belly: "#dcf0ff", dark: "#4a93d6" },
-    { name: "Rosa", body: "#ff9fb8", belly: "#ffe3ea", dark: "#e06b8b" },
-    { name: "Gult", body: "#ffd25e", belly: "#fff3cc", dark: "#e0a92a" },
-    { name: "Lila", body: "#b9a2ff", belly: "#ece5ff", dark: "#8a6fe0" }
-  ];
-  // Growth points per round: 1 per correct answer, +1 per lightning-fast one in Gröna rutan,
-  // +2 per percentage point the record improves. About 20 daily rounds to grow up.
-  const STAGES = [
-    { xp: 0, label: "Ägg" }, { xp: 15, label: "Bebis" }, { xp: 100, label: "Liten" },
-    { xp: 250, label: "Ung" }, { xp: 450, label: "Stor" }, { xp: 700, label: "Fullvuxen" }
-  ];
-  const ITEMS = [
-    { days: 3, id: "scarf", label: "en halsduk" }, { days: 7, id: "hat", label: "en mössa" },
-    { days: 14, id: "glasses", label: "solglasögon" }, { days: 30, id: "crown", label: "en krona" }
-  ];
-  const OUTLINE = "#1c2a5c";
-  const TUFTS = [96, 58, 142, 34, 166, 78, 122, 46, 154, 110];
-
-  function today() { const t = new Date(); return Math.floor((t.getTime() - t.getTimezoneOffset() * 6e4) / DAY); }
-  function stageOf(xp) { let s = 0; STAGES.forEach((st, i) => { if (xp >= st.xp) s = i; }); return s; }
-  const playedToday = () => S.days.includes(today());
-  function food() {
-    if (!S.days.length) return 0;
-    return Math.max(0, Math.min(3, 3 - (today() - Math.max.apply(null, S.days))));
-  }
-  // Days in a row with at least one round. One missed day per 7 days is a free day and doesn't
-  // break it. Today only counts once played, so an unplayed today never breaks it either.
-  function streakDays() {
-    const played = new Set(S.days);
-    let d = today(), streak = 0, lastFree = Infinity;
-    if (!played.has(d)) d--;
-    for (;;) {
-      if (played.has(d)) { streak++; d--; continue; }
-      if (lastFree - d >= 7 && played.has(d - 1)) { lastFree = d; d--; continue; }
-      return streak;
-    }
-  }
-  const wornItems = () => ITEMS.filter((it) => (S.bestDays || 0) >= it.days).map((it) => it.id);
-  function petName() {
-    if (!S.pet) return "";
-    return S.pet.name || (stageOf(S.pet.xp) === 0 ? "Ägget" : "Din vän");
-  }
-  function petMood() {
-    const h = new Date().getHours();
-    if (Date.now() - (S.lastPlay || 0) < 15 * 6e4) return "happy";
-    if (h >= 21 || h < 7) return "sleep";
-    if (playedToday()) return "happy";
-    return food() <= 1 ? "hungry" : "ok";
-  }
-
-  function petSvg(colorIdx, stage, mood, opts) {
-    opts = opts || {};
-    const c = PET_COLORS[colorIdx] || PET_COLORS[0];
-    const o = ' stroke="' + OUTLINE + '" stroke-width="3" stroke-linejoin="round"';
-    const line = (d, w) => '<path d="' + d + '" fill="none" stroke="' + OUTLINE + '" stroke-width="' + (w || 3) + '" stroke-linecap="round" stroke-linejoin="round"/>';
-    let ground = "";
-    if (opts.meadow !== undefined) {
-      const g = Math.round(opts.meadow * 100);
-      ground = '<ellipse cx="100" cy="158" rx="90" ry="11" style="fill:color-mix(in oklab, var(--heat-hi) ' + g + '%, var(--soil))"/>';
-      for (let i = 0; i < Math.round(opts.meadow * TUFTS.length); i++) {
-        ground += '<path d="M' + (TUFTS[i] - 5) + ' 160 l2 -9 l3 8 l3 -10 l2 11" fill="none" style="stroke:var(--heat-hi)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
-      }
-    }
-    let pet;
-    if (stage === 0) {
-      const p = opts.progress || 0;
-      pet = '<g class="egg">' +
-        '<path d="M100 62 C128 62 140 102 140 122 C140 144 122 157 100 157 C78 157 60 144 60 122 C60 102 72 62 100 62 Z" fill="' + c.belly + '"' + o + "/>" +
-        '<circle cx="84" cy="102" r="7" fill="' + c.body + '"/><circle cx="116" cy="120" r="9" fill="' + c.body + '"/>' +
-        '<circle cx="90" cy="138" r="5" fill="' + c.body + '"/><circle cx="117" cy="90" r="4" fill="' + c.body + '"/>' +
-        (p > 0.3 ? line("M70 112 l9 6 l6 -7 l8 8 l7 -6", 2.5) : "") +
-        (p > 0.65 ? line("M101 66 l-5 10 l7 5 l-6 9", 2.5) : "") + "</g>";
-    } else {
-      const sc = [1, 0.62, 0.74, 0.84, 0.93, 1][stage];
-      const items = opts.items || [];
-      let back = "", face = "", wear = "";
-      if (stage >= 5) {
-        back += '<ellipse cx="52" cy="94" rx="22" ry="34" transform="rotate(-28 52 94)" fill="' + c.belly + '"' + o + "/>" +
-          '<ellipse cx="148" cy="94" rx="22" ry="34" transform="rotate(28 148 94)" fill="' + c.belly + '"' + o + "/>";
-      }
-      if (stage >= 3) {
-        back += '<path d="M140 134 Q178 130 172 96" fill="none" stroke="' + OUTLINE + '" stroke-width="15" stroke-linecap="round"/>' +
-          '<path d="M140 134 Q178 130 172 96" fill="none" stroke="' + c.body + '" stroke-width="9" stroke-linecap="round"/>';
-      }
-      if (stage >= 4) {
-        back += '<path d="M82 66 L88 36 L98 62 Z" fill="#fff3cc"' + o + '/><path d="M102 62 L112 36 L118 66 Z" fill="#fff3cc"' + o + "/>";
-      }
-      if (stage >= 2) {
-        const ry = stage >= 3 ? 22 : 15;
-        back += '<ellipse cx="68" cy="68" rx="12" ry="' + ry + '" transform="rotate(-24 68 68)" fill="' + c.body + '"' + o + "/>" +
-          '<ellipse cx="132" cy="68" rx="12" ry="' + ry + '" transform="rotate(24 132 68)" fill="' + c.body + '"' + o + "/>" +
-          '<ellipse cx="68" cy="68" rx="5" ry="' + (ry - 7) + '" transform="rotate(-24 68 68)" fill="' + c.belly + '"/>' +
-          '<ellipse cx="132" cy="68" rx="5" ry="' + (ry - 7) + '" transform="rotate(24 132 68)" fill="' + c.belly + '"/>';
-      }
-      const body = '<ellipse cx="100" cy="107" rx="52" ry="48" fill="' + c.body + '"' + o + "/>" +
-        '<ellipse cx="100" cy="124" rx="32" ry="24" fill="' + c.belly + '"/>' +
-        '<ellipse cx="78" cy="152" rx="14" ry="7" fill="' + c.dark + '"' + o + "/>" +
-        '<ellipse cx="122" cy="152" rx="14" ry="7" fill="' + c.dark + '"' + o + "/>" +
-        '<circle cx="66" cy="112" r="7" fill="#ff7a9a" opacity=".45"/><circle cx="134" cy="112" r="7" fill="#ff7a9a" opacity=".45"/>';
-      if (mood === "happy") {
-        face += line("M73 98 Q82 86 91 98", 3.5) + line("M109 98 Q118 86 127 98", 3.5) +
-          '<path d="M88 112 Q100 130 112 112 Z" fill="#d9406a"' + o + "/>";
-      } else if (mood === "sleep") {
-        face += line("M73 95 Q82 102 91 95", 3.5) + line("M109 95 Q118 102 127 95", 3.5) + line("M95 117 Q100 120 105 117") +
-          '<text x="150" y="60" font-size="20" font-weight="800" style="fill:var(--muted);font-family:var(--font-display)">z</text>' +
-          '<text x="163" y="44" font-size="15" font-weight="800" style="fill:var(--muted);font-family:var(--font-display)">z</text>';
-      } else {
-        const py = mood === "hungry" ? 99 : 97;
-        face += '<g class="eyes"><circle cx="82" cy="95" r="10" fill="#fff"' + o + '/><circle cx="83" cy="' + py + '" r="5.5" fill="' + OUTLINE + '"/><circle cx="85" cy="' + (py - 3) + '" r="2" fill="#fff"/>' +
-          '<circle cx="118" cy="95" r="10" fill="#fff"' + o + '/><circle cx="119" cy="' + py + '" r="5.5" fill="' + OUTLINE + '"/><circle cx="121" cy="' + (py - 3) + '" r="2" fill="#fff"/></g>';
-        face += mood === "hungry"
-          ? line("M72 83 L90 78") + line("M128 83 L110 78") + line("M91 121 Q100 113 109 121")
-          : line("M89 114 Q100 124 111 114");
-      }
-      if (stage === 1) {
-        wear += '<path d="M62 76 Q100 34 138 76 L130 68 L122 78 L114 66 L106 78 L98 66 L90 78 L82 66 L74 78 Z" fill="#fffaf0"' + o + "/>";
-      }
-      if (items.includes("scarf")) {
-        wear += '<path d="M60 128 Q100 146 140 128 L138 141 Q100 158 62 141 Z" fill="#e84b5a"' + o + "/>" +
-          '<path d="M116 142 L124 166 L110 165 L106 145 Z" fill="#e84b5a"' + o + "/>";
-      }
-      if (items.includes("glasses") && mood !== "sleep") {
-        wear += '<rect x="68" y="85" width="28" height="20" rx="8" fill="' + OUTLINE + '"/><rect x="104" y="85" width="28" height="20" rx="8" fill="' + OUTLINE + '"/>' +
-          line("M96 93 L104 93") + '<path d="M73 90 l8 0" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>';
-      }
-      if (items.includes("crown")) {
-        wear += '<path d="M72 66 L76 36 L88 52 L100 30 L112 52 L124 36 L128 66 Z" fill="#ffc83a"' + o + "/>";
-      } else if (items.includes("hat") && stage > 1) {
-        wear += '<path d="M66 68 Q100 18 134 68 Z" fill="#2c63de"' + o + '/><rect x="62" y="61" width="76" height="13" rx="6.5" fill="#ffc83a"' + o + "/>" +
-          '<circle cx="100" cy="28" r="8" fill="#ffc83a"' + o + "/>";
-      }
-      pet = '<g transform="translate(100 158) scale(' + sc + ') translate(-100 -158)"><g class="bob">' + back + body + face + wear + "</g></g>";
-    }
-    return '<svg viewBox="0 0 200 172" class="pet-svg" aria-hidden="true">' + ground + pet + "</svg>";
-  }
-
-  function petLine() {
-    if (!S.pet) return "";
-    const st = stageOf(S.pet.xp), mood = petMood();
-    if (st === 0) return pick(["Något rör sig där inne…", "Knack knack! Spela en runda så kläcks jag.", "Det är varmt och mysigt här inne."]);
-    if (mood === "sleep") return "Zzz… Jag sover. Men en runda väcker mig!";
-    if (st === 5) return pick(["Jag är fullvuxen nu! Tack för att du tog hand om mig.", "Titta så stor jag har blivit!"]);
-    if (mood === "hungry") return pick(["Jag är så hungrig… Ska vi spela en runda?", "Jag har saknat dig!"]);
-    if (boardPct() < 15) return pick(["Ängen har blivit lite brun. Ska vi göra den grön igen?", "Gröna rutor är min favoritmat!"]);
-    if (mood === "happy") return pick(["Mmm, vad gott! Tack!", "Jag älskar gröna rutor!", "Vi är ett bra lag!", "Du blir snabbare och snabbare!"]);
-    return pick(["Ska vi spela en runda idag?", "Jag är lite sugen på grönt gräs.", "Hej! Kul att se dig!"]);
-  }
-
-  function renderPet() {
-    const card = $("petCard");
-    if (!S.pet) {
-      card.className = "card pet-pick";
-      card.innerHTML = "<h3>Välj ditt ägg!</h3><p>Ägget kläcks när du spelar. Sen växer din nya vän ju mer du övar, och den vill äta en runda om dagen.</p>" +
-        '<div class="eggs">' + PET_COLORS.map((c, i) =>
-          '<button class="egg-btn" data-egg="' + i + '">' + petSvg(i, 0, "ok") + "<small>" + c.name + "</small></button>").join("") + "</div>";
-      return;
-    }
-    const st = stageOf(S.pet.xp), next = STAGES[st + 1], f = food(), streak = streakDays();
-    const from = STAGES[st].xp, pct = next ? Math.round((S.pet.xp - from) / (next.xp - from) * 100) : 100;
-    card.className = "card pet-card";
-    let info = "";
-    if (st >= 1 && !S.pet.name) {
-      info += '<form class="name-form" id="petNameForm"><input id="petNameInput" maxlength="16" placeholder="Vad ska din vän heta?" autocomplete="off" aria-label="Din väns namn"><button class="btn primary" type="submit">OK</button></form>';
-    } else {
-      info += '<h3 class="pet-name"></h3>';
-    }
-    info += '<span class="eyebrow">' + STAGES[st].label + "</span>" +
-      '<div class="xp" title="Tillväxt"><i style="width:' + pct + '%"></i></div>' +
-      '<span class="kbd-note">' + (next ? S.pet.xp + " / " + next.xp + " tillväxt till " + next.label.toLowerCase() : "Fullvuxen!") + "</span>";
-    if (st >= 1) {
-      info += '<div class="needs"><span title="Mat: en runda om dagen">' +
-        [0, 1, 2].map((i) => '<span class="' + (i < f ? "on" : "off") + '">🌿</span>').join("") + "</span>" +
-        '<span title="En missad dag i veckan är en vilodag och bryter inte raden">🔥 ' + streak + (streak === 1 ? " dag" : " dagar") + " i rad</span></div>";
-    }
-    if (st === 5) info += '<button class="btn sun" id="graduateBtn">Flytta till samlingen och få ett nytt ägg</button>';
-    card.innerHTML = '<p class="speech" id="petSpeech"></p>' +
-      '<button class="pet-stage" id="petStage" aria-label="Klappa ' + esc(petName()) + '">' +
-      petSvg(S.pet.color, st, petMood(), { meadow: boardPct() / 100, items: wornItems(), progress: S.pet.xp / STAGES[1].xp }) + "</button>" +
-      '<div class="pet-info">' + info + "</div>";
-    $("petSpeech").textContent = petLine();
-    const nameEl = card.querySelector(".pet-name");
-    if (nameEl) nameEl.textContent = petName();
-  }
-  $("petCard").addEventListener("click", (e) => {
-    const egg = e.target.closest("[data-egg]");
-    if (egg) {
-      S.pet = { color: Number(egg.dataset.egg), name: "", xp: 0, born: Date.now() };
-      save(); sfx.right(); renderPet(); return;
-    }
-    if (e.target.closest("#petStage")) {
-      const st = $("petStage");
-      st.classList.remove("jump"); void st.offsetWidth; st.classList.add("jump");
-      tone(880, 0, 0.08, "triangle", 0.08); tone(1320, 0.07, 0.1, "triangle", 0.06);
-      $("petSpeech").textContent = petLine();
-      return;
-    }
-    if (e.target.closest("#graduateBtn")) {
-      S.grown.push({ name: petName(), color: S.pet.color, born: S.pet.born, done: Date.now() });
-      S.pet = null; save(); sfx.fanfare(); confetti(160, 0.3); renderHome();
-    }
-  });
-  $("petCard").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const v = $("petNameInput").value.trim();
-    if (v) { S.pet.name = v; save(); renderPet(); }
-  });
-
-  // Called once per finished round: feeds the pet for today and adds growth.
-  function feedPet(gain) {
-    if (!S.pet) S.pet = { color: rand(PET_COLORS.length), name: "", xp: 0, born: Date.now() };
-    const t = today(), fedNow = !S.days.includes(t);
-    if (fedNow) S.days = S.days.concat(t).slice(-120);
-    S.lastPlay = Date.now();
-    const before = stageOf(S.pet.xp);
-    S.pet.xp += gain;
-    const after = stageOf(S.pet.xp), streak = streakDays(), oldBest = S.bestDays || 0;
-    S.bestDays = Math.max(oldBest, streak);
-    const newItem = ITEMS.find((it) => it.days > oldBest && it.days <= S.bestDays);
-    save();
-    return { gain: gain, before: before, after: after, fedNow: fedNow, streak: streak, newItem: newItem };
-  }
-  function petResultHtml(n) {
-    const name = esc(petName());
-    let html = '<div class="pet-result"><div class="pet-mini">' +
-      petSvg(S.pet.color, n.after, "happy", { items: wornItems(), progress: S.pet.xp / STAGES[1].xp }) + "</div><div>";
-    html += '<p class="score">+' + n.gain + " tillväxt</p>";
-    if (n.after > n.before) {
-      html += '<p class="news">' + (n.before === 0 ? "🐣 Ägget kläcktes! Ge din nya vän ett namn på startsidan." : "🎉 " + name + " växte! Nu: " + STAGES[n.after].label.toLowerCase() + ".") + "</p>";
-    }
-    if (n.fedNow && n.after > 0) html += "<p>🌿 " + name + " är mätt för idag!</p>";
-    if (n.newItem) html += '<p class="news">🎁 ' + n.streak + " dagar i rad! " + name + " fick " + n.newItem.label + ".</p>";
-    return html + "</div></div>";
-  }
-
   // ---------- Sound ----------
   let ctx = null;
   function tone(freq, start, dur, type, vol) {
@@ -948,8 +664,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   }
   function renderHome() {
     $("starCount").textContent = S.total;
-    $("grownHome").textContent = S.grown.length ? S.grown.length + (S.grown.length === 1 ? " fullvuxen vän" : " fullvuxna vänner") + " bor här" : "Här bor dina fullvuxna vänner";
-    renderPet();
+    $("stickerHome").textContent = S.stickers.length;
     if (S.name) {
       $("helloTitle").innerHTML = 'Hej, <span class="name"></span>!';
       $("helloTitle").querySelector(".name").textContent = S.name;
@@ -1224,10 +939,17 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   $("quitBtn").addEventListener("click", () => { clearTimeout(advanceTimeout); show("home"); });
 
   // ---------- Results ----------
+  function awardSticker() {
+    const free = ANIMALS.map((x, i) => i).filter((i) => !S.stickers.includes(i));
+    if (!free.length) return null;
+    const i = pick(free);
+    S.stickers.push(i); save();
+    return ANIMALS[i];
+  }
   function finish() {
     clearTimeout(advanceTimeout);
     const card = $("resultCard");
-    let html = "", gain = 0, celebrate = false;
+    let html = "", sticker = null, celebrate = false;
     const who = S.name ? ", " + S.name : "";
     if (G.mode === "practice") {
       // Score on first tries only: retries help learning but don't count twice.
@@ -1240,24 +962,26 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       html += '<div class="big-stars">' + starsHtml(stars) + "</div>";
       html += '<p class="score">' + firstTry + " av " + G.total + " rätt på första försöket</p>";
       if (G.bestStreak >= 3) html += "<p>Längsta svit: 🔥 " + G.bestStreak + " i rad</p>";
-      gain = G.correct;
-      celebrate = pct >= 0.8;
+      if (pct >= 0.8) { sticker = awardSticker(); celebrate = true; }
+      else html += "<p>Får du 8 av 10 rätt vinner du ett djur till din samling!</p>";
     } else {
-      const pct = boardPct(), boardGain = pct - G.startPct;
+      const pct = boardPct(), gain = pct - G.startPct;
       const record = S.bestPct > G.startBest + 0.05;
-      const title = record ? "Nytt rekord" + who + "!" : boardGain >= 0.05 ? "Brädet blev grönare" + who + "!" : "Bra kämpat" + who + "!";
+      const title = record ? "Nytt rekord" + who + "!" : gain >= 0.05 ? "Brädet blev grönare" + who + "!" : "Bra kämpat" + who + "!";
       html += '<span class="eyebrow">Gröna rutan</span>';
       html += "<h2>" + esc(title) + "</h2>";
       html += '<div class="board">' + boardHtml(G.touched) + "</div>";
       html += '<div class="heat-stats">' + statsHtml() + "</div>";
       html += '<p class="score">' + G.correct + " av " + G.total + " rätt" + (G.fast ? ", varav " + G.fast + " blixtsnabba ⚡" : "") + "</p>";
-      if (boardGain >= 0.05) html += "<p>Brädet blev " + fmtPct(boardGain) + " grönare den här rundan.</p>";
-      gain = G.correct + G.fast + Math.round(2 * Math.max(0, S.bestPct - G.startBest));
-      celebrate = record;
+      if (gain >= 0.05) html += "<p>Brädet blev " + fmtPct(gain) + " grönare den här rundan.</p>";
+      const m = Math.floor(S.bestPct / 5);
+      if (m > S.milestone) { S.milestone = m; save(); sticker = awardSticker(); }
+      else html += "<p>Nästa djur får du när ditt rekord når " + (S.milestone + 1) * 5 + " %.</p>";
+      celebrate = record || !!sticker;
     }
-    const n = feedPet(gain);
-    html += petResultHtml(n);
-    if (n.after > n.before || n.newItem) celebrate = true;
+    if (sticker) {
+      html += '<div class="sticker-reveal"><span class="eyebrow" style="color:inherit">Nytt djur!</span><span class="em">' + sticker[0] + "</span><b>" + sticker[1] + "</b></div>";
+    }
     if (G.missed.length) {
       html += '<span class="eyebrow">Öva lite extra på</span><div class="missed">' +
         G.missed.map((k) => { const [x, y] = k.split("x"); return "<span>" + x + " · " + y + " = " + x * y + "</span>"; }).join("") + "</div>";
@@ -1309,20 +1033,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   // ---------- Collection ----------
   function renderCollection() {
-    const n = S.grown.length;
-    $("collTitle").textContent = n ? n + (n === 1 ? " fullvuxen vän" : " fullvuxna vänner") : "Inga fullvuxna vänner än";
-    let html = S.grown.map((p) => '<div class="sticker grown">' + petSvg(p.color, 5, "happy") +
-      "<small>" + esc(p.name) + '</small><span class="kbd-note">' + new Date(p.done).toLocaleDateString("sv-SE") + "</span></div>").join("");
-    if (S.pet) {
-      const st = stageOf(S.pet.xp);
-      html += '<div class="sticker locked">' + petSvg(S.pet.color, st, "ok", { items: wornItems(), progress: S.pet.xp / STAGES[1].xp }) +
-        "<small>" + esc(petName()) + '</small><span class="kbd-note">Växer just nu</span></div>';
-    }
-    $("grownList").innerHTML = html;
-    // Stickers from the earlier version stay visible, but no new ones are handed out.
-    $("oldStickers").hidden = !S.stickers.length;
-    $("stickers").innerHTML = S.stickers.map((i) =>
-      '<div class="sticker"><span class="em">' + ANIMALS[i][0] + "</span><small>" + ANIMALS[i][1] + "</small></div>").join("");
+    $("collTitle").textContent = S.stickers.length + " av " + ANIMALS.length + " djur";
+    $("stickers").innerHTML = ANIMALS.map((an, i) =>
+      S.stickers.includes(i)
+        ? '<div class="sticker"><span class="em">' + an[0] + "</span><small>" + an[1] + "</small></div>"
+        : '<div class="sticker locked"><span class="em">?</span><small>Hemligt</small></div>'
+    ).join("");
   }
 
   renderSound();
