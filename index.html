@@ -531,12 +531,19 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   // Each fact (7·8 and 8·7 count as one) has an estimate E of her thinking time in seconds:
   // time from question to OK, minus a typing allowance, capped at C. A wrong answer scores C.
   // E is a weighted average where the newest answer weighs ALPHA. It starts at C, and when
-  // a fact isn't practised it fades back towards C with a half-life of HALF_LIFE_DAYS.
+  // a fact isn't practised it fades back towards C. Each fact has its own half-life for that fade:
+  // it starts at HL_START days, grows when she answers fast after a real gap (she remembered it over
+  // time) and shrinks after a wrong answer, so well-known facts fade slowly and shaky ones quickly.
   // These values are first guesses; tune them here.
   const SP = {
     C: 8,              // cap, penalty for a wrong answer and starting value (s)
     ALPHA: 0.3,        // weight of the newest answer
-    HALF_LIFE_DAYS: 2, // fading speed when a fact isn't practised
+    HL_START: 2,       // half-life (days) of a new fact's fading
+    HL_GROW: 1.6,      // ×half-life after a fast answer given at least HL_GAP half-lives after the last one
+    HL_GAP: 0.5,
+    HL_SHRINK: 0.5,    // ×half-life after a wrong answer
+    HL_MIN: 1,         // half-life limits (days)
+    HL_MAX: 60,
     GREEN: 1.0,        // thinking time (s) that counts as fully green
     B_ALPHA: 0.2,      // how fast the typing allowance follows her easy-question times
     ROUND: 20,         // questions per round
@@ -552,7 +559,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const s = S.speed[key];
     if (!s) return SP.C;
     const days = Math.max(0, (now - s.ts) / DAY);
-    return SP.C - (SP.C - s.e) * Math.pow(0.5, days / SP.HALF_LIFE_DAYS);
+    return SP.C - (SP.C - s.e) * Math.pow(0.5, days / (s.hl || SP.HL_START));
   }
   function greenness(key, now) {
     return clamp01((SP.C - estimate(key, now)) / (SP.C - SP.GREEN));
@@ -582,7 +589,11 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const prev = estimate(key, now);
     // A single slow correct answer (a distraction, a sneeze) can only make things a little worse.
     const score = ok ? Math.min(SP.C, prev + SP.MAX_RISE, Math.max(0, sec - typingAllowance(ans))) : SP.C;
-    const s = S.speed[key] || { e: SP.C, ts: now, n: 0, log: [], best: 0 };
+    const s = S.speed[key] || { e: SP.C, ts: now, n: 0, log: [], best: 0, hl: SP.HL_START };
+    const hl = s.hl || SP.HL_START, gap = s.n ? (now - s.ts) / DAY : 0;
+    if (!ok) s.hl = Math.max(SP.HL_MIN, hl * SP.HL_SHRINK);
+    else if (score <= SP.GREEN && s.n && gap >= SP.HL_GAP * hl) s.hl = Math.min(SP.HL_MAX, hl * SP.HL_GROW);
+    else s.hl = hl;
     s.e = (1 - SP.ALPHA) * prev + SP.ALPHA * score;
     s.ts = now; s.n++;
     s.log.push([now, a, b, Math.round(ms), ok ? 1 : 0, Math.round(rawMs)]);
@@ -591,6 +602,15 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     s.best = Math.max(s.best || 0, greenness(key, now)); // the plant's size never shrinks
     S.bestPct = Math.max(S.bestPct, boardPct());         // the record never fades
     return score;
+  }
+  // How many days until a plant gets thirsty if the fact isn't practised (null: it can't get thirsty yet).
+  // Thirsty means current greenness more than 0.33 below its best; greenness fades with the fact's half-life.
+  function daysUntilThirsty(key, now) {
+    const s = S.speed[key];
+    if (!s) return null;
+    const limit = (s.best || 0) - 0.33, u = (SP.C - estimate(key, now)) / (SP.C - SP.GREEN);
+    if (limit <= 0.02 || u <= limit) return null;
+    return (s.hl || SP.HL_START) * Math.log2(u / limit);
   }
   // Facts practised before plants existed start with their current greenness as their best.
   Object.keys(S.speed).forEach((k) => { if (S.speed[k].best == null) S.speed[k].best = greenness(k, Date.now()); });
@@ -1081,7 +1101,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       speciesName: (a, b) => SPECIES_NAMES[speciesOf(a, b).sp] };
   })();
 
-  if (location.hash === "#garden-debug") window.__garden = Garden;
+  if (location.hash === "#garden-debug") { window.__garden = Garden; window.__gangis = { S: S, recordSpeed: recordSpeed, daysUntilThirsty: daysUntilThirsty }; }
   // Mount a garden (canvas plus stake numbers) into a container.
   function mountGarden(el, opts) {
     let canvas = el.querySelector("canvas");
@@ -1238,6 +1258,11 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     else if (st.stage === 4) tip = "Den blommar! Svara snabbt ibland så håller den sig pigg.";
     else if (st.stage === 0) tip = "Svara rätt och snabbt på " + a + " · " + b + " så gror fröet.";
     else tip = "Svara rätt och snabbt på " + a + " · " + b + " några gånger till, så blir den " + STAGE_NAMES[st.stage + 1].toLowerCase() + ".";
+    const left = st.dry <= 0.4 ? daysUntilThirsty(st.key, now) : null;
+    if (left != null) {
+      const d = Math.round(left);
+      tip += left < 1 ? " Den behöver omsorg i morgon." : " Den klarar sig ungefär " + (d === 1 ? "en dag" : d + " dagar") + " till innan den blir törstig.";
+    }
     box.innerHTML =
       '<div class="zoom"><canvas class="pix" id="zoomCanvas" width="24" height="24"></canvas></div>' +
       '<div class="plot-text">' +

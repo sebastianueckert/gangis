@@ -28,7 +28,7 @@ Each fact (7·8 and 8·7 count as one, 55 facts) has an estimate of her *thinkin
 - The typing allowance is her running average time on the easy ×1 (one-digit answers) and ×10 (two-digit answers) questions.
 - Typo corrections don't count: if she presses ⌫, the time is the time until her first key plus the time from her last ⌫ to OK.
 - The estimate is a weighted average, `E ← 0.7·E + 0.3·score`, starting at `C`. One correct answer can raise `E` by at most 1.5 s, so a single slow moment barely shows.
-- Without practice, the estimate fades back towards `C` with a half-life of 2 days.
+- Without practice, the estimate fades back towards `C`. Each fact has its own half-life for this: it starts at 2 days, grows ×1.6 when she answers fast (≤ 1 s thinking time) at least half a half-life after the last time she saw that fact, and halves after a wrong answer (limits 1–60 days). Well-known facts fade slowly, shaky ones quickly. The info panel for a plant says roughly how many days it lasts before it gets thirsty.
 - A square is fully green at `E ≤ 1 s`. "Grönt nu" is the average greenness over all 55 facts; the record (🏆) is the best value ever reached and never fades.
 
 The parameters are first guesses and live in the `SP` object in `index.html`. The last 20 raw attempts per fact are stored too, so the scoring can be retuned later without losing history.
