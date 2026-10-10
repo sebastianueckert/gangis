@@ -220,6 +220,15 @@ button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulat
 .result { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .result h2 { font-size: clamp(1.8rem, 7vw, 2.3rem); }
 .result .score { font-family: var(--font-pixel); font-size: 1.25rem; font-weight: 700; }
+/* The way on stays in view at the bottom, however long the report gets. */
+.result-actions {
+  position: sticky; bottom: 0; z-index: 5;
+  padding: 22px 0 max(14px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent 0, var(--meadow) 20px);
+}
+.result-actions .btn { font-size: 1.15rem; padding: 14px 12px; white-space: nowrap; }
+.result-actions > .btn { flex: 1; }
+.result .plot-info { width: 100%; text-align: left; padding: 10px; background: var(--cream); border-radius: 14px; border: 2px solid var(--line); }
 .ledger { width: 100%; display: flex; flex-direction: column; text-align: left; font-weight: 700; }
 .ledger div { display: flex; justify-content: space-between; gap: 12px; padding: 5px 2px; border-bottom: 2px dashed var(--line); }
 .ledger div:last-child { border-bottom: 0; }
@@ -447,7 +456,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   <!-- RESULT -->
   <section id="result" class="menu" hidden>
     <div class="panel result" id="resultCard"></div>
-    <div class="row">
+    <div class="row result-actions">
       <button class="btn" data-go="home">Till trädgården</button>
       <button class="btn green grow" id="againBtn">Spela igen</button>
     </div>
@@ -1443,7 +1452,11 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         "Just nu blommar " + flowers + " av 55 plantor.</p></div>";
       return;
     }
-    const [a, b] = home.sel, st = plotOf(a, b, now);
+    fillPlotInfo(box, $("homeGarden"), home.sel, now);
+  }
+  // What one plant is and how it is doing, beside a close-up taken from the garden canvas.
+  function fillPlotInfo(box, gardenEl, sel, now) {
+    const [a, b] = sel, st = plotOf(a, b, now);
     const thirst = st.dry > 0.75 ? "Törstig" : st.dry > 0.4 ? "Lite törstig" : "Pigg";
     let tip;
     if (st.dry > 0.4) tip = "Den är törstig. Ett par snabba svar på " + a + " · " + b + " så piggnar den till.";
@@ -1456,7 +1469,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       tip += left < 1 ? " Den behöver omsorg i morgon." : " Den klarar sig ungefär " + (d === 1 ? "en dag" : d + " dagar") + " till innan den blir törstig.";
     }
     box.innerHTML =
-      '<div class="zoom"><canvas class="pix" id="zoomCanvas" width="24" height="24"></canvas></div>' +
+      '<div class="zoom"><canvas class="pix" width="24" height="24"></canvas></div>' +
       '<div class="plot-text">' +
       '<span class="eq">' + a + " · " + b + " = " + a * b + "</span>" +
       '<span class="note">Rad ' + a + " · kolumn " + b + " · " + Garden.speciesName(a, b) + "</span>" +
@@ -1464,7 +1477,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       "</span><b>" + STAGE_NAMES[st.stage] + "</b></div>" +
       '<div class="meter"><span>Vatten</span><span class="waterbar"><i style="width:' + Math.round((1 - st.dry) * 100) + '%"></i></span><b>' + thirst + "</b></div>" +
       '<p class="note">' + tip + "</p></div>";
-    const g = $("homeGarden").querySelector("canvas"), bx = Garden.plotBox(a, b), z = $("zoomCanvas").getContext("2d");
+    const g = gardenEl.querySelector("canvas"), bx = Garden.plotBox(a, b), z = box.querySelector(".zoom canvas").getContext("2d");
     z.imageSmoothingEnabled = false;
     z.drawImage(g, bx.x, bx.y, bx.w, bx.h, 0, 0, 24, 24);
   }
@@ -1783,17 +1796,18 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     countRound();
     const card = $("resultCard");
     const who = S.name ? ", " + S.name : "";
-    let html = "", celebrate = false;
+    // head: what the round was; then anything new that arrived, so it is seen first; then the details
+    let head = "", html = "", celebrate = false;
     if (G.mode === "practice") {
       // Score on first tries only: retries help learning but don't count twice.
       const firstTry = G.firstRight;
       const pct = firstTry / G.total;
       const stars = pct >= 0.95 ? 3 : pct >= 0.8 ? 2 : pct >= 0.5 ? 1 : 0;
       const title = stars === 3 ? "Fantastiskt" + who + "!" : stars === 2 ? "Jättebra" + who + "!" : stars === 1 ? "Bra kämpat" + who + "!" : "Bra att du övar" + who + "!";
-      html += '<span class="eyebrow">Tabell ' + G.tables.join(", ") + "</span>";
-      html += "<h2>" + esc(title) + "</h2>";
-      html += '<div class="big-stars">' + starsHtml(stars) + "</div>";
-      html += '<p class="score">' + firstTry + " av " + G.total + " rätt på första försöket</p>";
+      head += '<span class="eyebrow">Tabell ' + G.tables.join(", ") + "</span>";
+      head += "<h2>" + esc(title) + "</h2>";
+      head += '<div class="big-stars">' + starsHtml(stars) + "</div>";
+      head += '<p class="score">' + firstTry + " av " + G.total + " rätt på första försöket</p>";
       if (G.bestStreak >= 3) html += "<p>Längsta svit: 🔥 " + G.bestStreak + " i rad</p>";
       if (G.fixed) html += "<p>Rättade till: " + G.fixed + (G.fixed === 1 ? " fråga" : " frågor") + " som blev fel först.</p>";
       celebrate = pct >= 0.8;
@@ -1813,10 +1827,11 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       const nearNext = FACTS.filter(([a, b]) => after[factKey(a, b)].near).length;
       const record = S.bestPct > G.startBest + 0.05;
       const title = record ? "Nytt rekord" + who + "!" : grew || bloomed ? "Trädgården växte" + who + "!" : "Bra kämpat" + who + "!";
-      html += '<span class="eyebrow">Dagens rapport</span>';
-      html += "<h2>" + esc(title) + "</h2>";
+      head += '<span class="eyebrow">Dagens rapport</span>';
+      head += "<h2>" + esc(title) + "</h2>";
       html += '<div class="garden-frame" style="width:100%"><div class="garden" id="resultGarden"></div></div>';
-      html += '<p class="note">Plantorna du skötte om står i blöt jord och glittrar.</p>';
+      html += '<p class="note">Plantorna du skötte om står i blöt jord och glittrar. Tryck på en planta så ser du den närmare.</p>';
+      html += '<div class="plot-info" id="resultPlot" hidden></div>';
       if (cared.length) {
         html += '<span class="eyebrow">Plantorna du skötte om</span><div class="cared">' + cared.slice(0, 4).map((c) => {
           const [x, y] = c.k.split("x");
@@ -1844,9 +1859,10 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
     const u = unlocked(), newV = G.arrived || [], newD = u.decos.filter((id) => !G.unlockedBefore.decos.includes(id)),
       newRows = fullRows().filter((r) => !G.rowsBefore.includes(r));
+    let news = "";
     if (newV.length || newD.length || newRows.length) {
       celebrate = true;
-      html += '<div class="unlocks">' +
+      news = '<div class="unlocks">' +
         newRows.map((r) => '<div class="unlock"><span class="rosette-big" aria-hidden="true">🎀</span><span><span class="eyebrow">Hela raden blommar</span><b>Hela ' + r +
           ":ans rad blommar!</b>Du kan hela " + r + "-tabellen. Raden får en rosett.</span></div>").join("") +
         newV.map((w) => { const v = VISITORS.find((x) => x.id === w.id), [x, y] = w.key.split("x");
@@ -1860,7 +1876,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       html += '<span class="eyebrow">Öva lite extra på</span><div class="missed">' +
         G.missed.map((k) => { const [x, y] = k.split("x"); return "<span>" + x + " · " + y + " = " + x * y + "</span>"; }).join("") + "</div>";
     }
-    card.innerHTML = html;
+    card.innerHTML = head + news + html;
     card.querySelectorAll("canvas[data-icon]").forEach((c) => Garden.drawIcon(c, c.dataset.icon, c.dataset.id, false));
     card.querySelectorAll("canvas[data-mini]").forEach((c) => {
       const [x, y] = c.dataset.mini.split("x").map(Number), snap = c.dataset.when === "1" ? snapshot() : G.before;
@@ -1868,6 +1884,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     });
     $("againBtn").textContent = G.mode === "green" ? "En runda till!" : "Spela igen";
     show("result");
+    G.sel = null;
     if (G.mode === "green") {
       // the plants she cared for grow from their old size to their new one, in front of her eyes
       const after = snapshot(), grow = {};
@@ -1877,6 +1894,19 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     if (celebrate) { sfx.fanfare(); confetti(160, 0.3); }
     else sfx.right();
   }
+  // Tapping a plant in the report shows it up close, the same as in the garden at home.
+  $("resultCard").addEventListener("click", (e) => {
+    const garden = e.target.closest("#resultGarden");
+    if (!garden) return;
+    const cell = Garden.cellAt(garden.querySelector("canvas"), e.clientX, e.clientY);
+    G.sel = cell && !(G.sel && cell[0] === G.sel[0] && cell[1] === G.sel[1]) ? cell : null;
+    sfx.tap();
+    // drawn again at the new size, so the growing animation does not start over
+    mountGarden(garden, { wet: G.touched, sel: G.sel });
+    const box = $("resultPlot");
+    box.hidden = !G.sel;
+    if (G.sel) fillPlotInfo(box, garden, G.sel, Date.now());
+  });
   $("againBtn").addEventListener("click", () => {
     setup.mode = G.mode; setup.tables = G.tables.slice();
     startGame();
