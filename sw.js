@@ -1,9 +1,9 @@
 // Offline support: the app shell is cached on install. Pages are fetched network-first so an update
 // shows up on the next visit with a connection; the Google Fonts are cached as they are first used.
 // Bump VERSION when the list of shell files changes.
-const VERSION = "gangis-v1";
+const VERSION = "gangis-v2";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png",
-  "icons/icon-maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
+  "icons/icon-maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png", "icons/groddis.svg"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
