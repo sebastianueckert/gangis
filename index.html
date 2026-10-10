@@ -573,6 +573,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     B_ALPHA: 0.2,      // how fast the typing allowance follows her easy-question times
     ROUND: 20,         // questions per round
     MAX_RISE: 1.5,     // one correct answer can raise a fact's estimate by at most this (s)
+    EFFORT_STEP: 0.04, // every correct answer grows the plant this much, however slow ...
+    EFFORT_MAX: 0.4,   // ... up to this much in total,
+    EFFORT_CEIL: 0.55, // ... and never past this size: buds (60 %) and flowers still need speed
     LOG: 20            // raw attempts kept per fact, for later re-analysis
   };
   const DAY = 864e5;
@@ -624,7 +627,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     s.log.push([now, a, b, Math.round(ms), ok ? 1 : 0, Math.round(rawMs)]);
     if (s.log.length > SP.LOG) s.log.shift();
     S.speed[key] = s;
-    s.best = Math.max(s.best || 0, greenness(key, now)); // the plant's size never shrinks
+    s.best = Math.max(s.best || 0, greenness(key, now)); // the best speed ever; it never shrinks
+    if (ok) s.effort = Math.min(SP.EFFORT_MAX, (s.effort || 0) + SP.EFFORT_STEP);
     S.bestPct = Math.max(S.bestPct, boardPct());         // the record never fades
     return score;
   }
@@ -654,14 +658,21 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   // Thirst comes from how far its current greenness has fallen below that best.
   const STAGE_NAMES = ["Frö", "Grodd", "Planta", "Knopp", "Blomma"];
   function stageFromBest(best) { return best >= 0.999 ? 4 : best >= 0.6 ? 3 : best >= 0.4 ? 2 : best >= 0.2 ? 1 : 0; }
+  // A plant's size: its best speed so far, plus a little for every correct answer however slow.
+  // That effort can lift it to at most EFFORT_CEIL (a well-grown plant); buds and flowers need speed.
+  function sizeOf(s) {
+    if (!s) return 0;
+    const best = s.best || 0;
+    return best >= 0.999 ? 1 : Math.max(best, Math.min(SP.EFFORT_CEIL, best + (s.effort || 0)));
+  }
   function plotOf(a, b, now) {
     const key = factKey(a, b), s = S.speed[key];
-    const best = s ? s.best || 0 : 0, cur = greenness(key, now || Date.now());
-    const stage = stageFromBest(best);
+    const best = s ? s.best || 0 : 0, cur = greenness(key, now || Date.now()), size = sizeOf(s);
+    const stage = stageFromBest(size);
     const dry = stage >= 1 ? clamp01((best - cur - 0.15) / 0.45) : 0;
     // About to open: a bud whose current greenness is within about two fast answers of 100 %.
     const near = stage === 3 && cur >= 0.85;
-    return { key: key, best: best, cur: cur, stage: stage, dry: dry, near: near };
+    return { key: key, best: best, size: size, cur: cur, stage: stage, dry: dry, near: near };
   }
   function snapshot() {
     const now = Date.now(), m = {};
@@ -722,7 +733,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   // Garden maturity: the average size of all 55 plants (0..1). It only grows, and it grows with
   // every bit of progress, also on the hard facts, so visitors keep coming all the way.
   function maturity() {
-    return FACTS.reduce((t, [a, b]) => { const x = S.speed[factKey(a, b)]; return t + (x ? x.best || 0 : 0); }, 0) / FACTS.length;
+    return FACTS.reduce((t, [a, b]) => t + sizeOf(S.speed[factKey(a, b)]), 0) / FACTS.length;
   }
   // One visitor per 10 % of maturity. Each lands on a plant (the one that grew most when it came).
   const visitorsDue = () => Math.min(VISITORS.length, Math.floor(maturity() * 10 + 1e-9));
@@ -732,7 +743,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     // otherwise one of the biggest plants; ties are broken by a fixed shuffle so visitors spread out
     const mixKey = (k) => { const [a, b] = k.split("x").map(Number); return (a * 37 + b * 17) % 23; };
     const rest = FACTS.map(([a, b]) => factKey(a, b)).filter((k) => !taken.has(k));
-    rest.sort((x, y) => (((S.speed[y] || {}).best || 0) - ((S.speed[x] || {}).best || 0)) || mixKey(x) - mixKey(y));
+    rest.sort((x, y) => (sizeOf(S.speed[y]) - sizeOf(S.speed[x])) || mixKey(x) - mixKey(y));
     return rest[0] || prefer[0] || "1x1";
   }
   function arriveVisitors(prefer) {
@@ -1217,7 +1228,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         p.px(x, y, css(c));
       }
       const s = speciesOf(a, b);
-      plant(p, 11, 11, s.sp, s.vr, st.best, st.dry, false, hash2(a, b, 41), false);
+      plant(p, 11, 11, s.sp, s.vr, st.size, st.dry, false, hash2(a, b, 41), false);
     }
 
     // Icons for the visitors page: 24x24 pixels.
@@ -1288,7 +1299,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       fullRows: fullRows(),
       grow: opts.grow || null,
       onPop: (stage) => { tone(stage === 4 ? 1319 : 988, 0, 0.12, "triangle", 0.07); tone(stage === 4 ? 1760 : 1319, 0.08, 0.14, "triangle", 0.05); },
-      plot: (a, b) => { const st = plotOf(a, b, now); return { key: st.key, g: st.best, near: st.near && !wet.has(st.key), dry: wet.has(st.key) ? 0 : st.dry, wet: wet.has(st.key) }; }
+      plot: (a, b) => { const st = plotOf(a, b, now); return { key: st.key, g: st.size, near: st.near && !wet.has(st.key), dry: wet.has(st.key) ? 0 : st.dry, wet: wet.has(st.key) }; }
     });
     const flowers = FACTS.filter(([a, b]) => plotOf(a, b, now).stage === 4).length;
     canvas.setAttribute("aria-label", "Din trädgård med tio rader och tio kolumner. " + flowers + " av 55 plantor blommar.");
@@ -1782,7 +1793,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       const cared = [];
       G.touched.forEach((k) => {
         const b0 = G.before[k], b1 = after[k];
-        const gain = b1.best - b0.best, bloom = b1.stage === 4 && b0.stage < 4, perk = b0.dry > 0.4 && b1.dry <= 0.4;
+        const gain = b1.size - b0.size, bloom = b1.stage === 4 && b0.stage < 4, perk = b0.dry > 0.4 && b1.dry <= 0.4;
         if (gain >= 0.02) grew++;
         if (bloom) bloomed++;
         if (perk) perked++;
@@ -1850,7 +1861,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     if (G.mode === "green") {
       // the plants she cared for grow from their old size to their new one, in front of her eyes
       const after = snapshot(), grow = {};
-      G.touched.forEach((k) => { if (after[k].best - G.before[k].best > 0.005) grow[k] = [G.before[k].best, after[k].best]; });
+      G.touched.forEach((k) => { if (after[k].size - G.before[k].size > 0.005) grow[k] = [G.before[k].size, after[k].size]; });
       mountGarden($("resultGarden"), { wet: G.touched, grow: grow });
     }
     if (celebrate) { sfx.fanfare(); confetti(160, 0.3); }
@@ -1904,7 +1915,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const think = s.log.filter((l) => l[4]).map((l) => Math.max(0, l[3] / 1000 - typingAllowance(a * b))).slice(-10).sort((x, y) => x - y);
     const median = think.length ? (think.length % 2 ? think[(think.length - 1) / 2] : (think[think.length / 2 - 1] + think[think.length / 2]) / 2) : null;
     return { key: key, a: a, b: b, n: s.log.length, wrong: s.log.filter((l) => !l[4]).length, e: s.e, median: median,
-      hl: s.hl || SP.HL_START, size: Math.round((s.best || 0) * 100) };
+      hl: s.hl || SP.HL_START, size: Math.round(sizeOf(s) * 100) };
   }
   function renderParent() {
     const rows = FACTS.map(([a, b]) => factStats(a, b));

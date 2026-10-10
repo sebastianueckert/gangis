@@ -16,7 +16,7 @@ The look: a pixel-art garden (in the spirit of Stardew Valley and Minecraft) ins
 
 ## How the garden works
 
-- **Size** of a plant = the best greenness its fact has ever reached (below), drawn continuously: it gains size and leaves with every bit of progress, so each good round visibly changes the garden. Stages: seed < 20 %, sprout 20–40 %, plant 40–60 %, bud 60–99 % (the bud swells and colours up), flower at 100 %. Plants never shrink.
+- **Size** of a plant = the best greenness its fact has ever reached (below), plus a little for every correct answer however slow (+4 % each, at most +40 % and never past 55 %, so buds and flowers still need speed). It is drawn continuously: it gains size and leaves with every bit of progress, so each good round visibly changes the garden. Stages: seed < 20 %, sprout 20–40 %, plant 40–60 %, bud 60–99 % (the bud swells and colours up), flower at 100 %. Plants never shrink.
 - **About to open**: buds whose current greenness is at least 85 % (about two fast answers from flowering) sparkle.
 - **Thirst**: when a fact's current greenness falls more than 15 points below its best, the plant droops: pale cracked soil and yellowed leaves. A couple of good answers perk it up.
 - **Days in a row**: any finished round counts for the day and the start screen shows today's rounds. One missed day per week counts as rain. The streak is only a counter; no rewards depend on it.
