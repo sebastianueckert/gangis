@@ -139,6 +139,8 @@ button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulat
   position: absolute; transform: translate(-50%, -50%); pointer-events: none;
   font-family: var(--font-num); font-size: 2.5cqw; line-height: 1; color: var(--ink);
 }
+.garden .lbl.off { color: #5d5244; }
+.garden-reach { font-weight: 800; background: var(--sun-soft); border: 2px solid #f4df8c; border-radius: 14px; padding: 8px 12px; margin: 0; }
 .ticker { background: var(--sun-soft); color: var(--ink); font-size: 0.95rem; font-weight: 700; line-height: 1.4; padding: 9px 12px; border-radius: 16px; border: 2px solid #f4df8c; }
 .ticker b { font-family: var(--font-pixel); background: var(--sun); padding: 1px 8px; border-radius: 8px; margin-right: 8px; }
 .ticker button { background: none; border: 0; padding: 0; font-weight: 800; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
@@ -320,6 +322,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <button class="logo" id="logo" aria-label="Till trädgården">Gångis<span>·</span></button>
     <div class="top-right">
       <span class="tally" title="Rätta svar totalt">★ <span id="starCount">0</span></span>
+      <button class="icon-btn" data-go="settings" aria-label="Inställningar: vilka rader är med">⚙️</button>
       <button class="icon-btn" id="soundBtn" aria-label="Ljud av eller på">🔊</button>
     </div>
   </header>
@@ -465,6 +468,24 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
   </section>
 
+  <!-- SETTINGS: which rows are in the garden -->
+  <section id="settings" class="menu" hidden>
+    <div class="panel menu">
+      <span class="eyebrow">Inställningar</span>
+      <h1>Vilka rader är med?</h1>
+      <div class="tables" id="rowTables"></div>
+      <div class="row">
+        <button class="btn" id="rowsAll">Alla</button>
+        <button class="btn" id="rowsEasy">Lätta (1, 2, 5, 10)</button>
+      </div>
+      <p class="garden-reach" id="rowsReach"></p>
+      <p class="note">Tryck på en rad för att sätta på eller stänga av den. Bara raderna som är på frågas och växer. Där en rad är avstängd blir det gräs, och dit kommer inga besökare.
+        Med bara 2:an på frågas ändå 2 · 7, för den hör till 2-tabellen.
+        Hela trädgården är alla tio raderna, så med färre rader kommer du inte ända fram till 100&nbsp;%, och några besökare och saker väntar tills fler rader är på.</p>
+    </div>
+    <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
+  </section>
+
   <!-- PARENTS (hidden: tap the logo five times) -->
   <section id="parent" class="menu" hidden>
     <div class="panel menu">
@@ -540,9 +561,10 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     10: "Lägg till en nolla: 10 · 6 = 60."
   };
 
+  const ALL_ROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   function defaults() {
     return { name: "", facts: {}, total: 0, stickers: [], sound: true,
-      speed: {}, typing: { 1: 2.0, 2: 2.5 }, bestPct: 0, days: [], bestDays: 0 };
+      speed: {}, typing: { 1: 2.0, 2: 2.5 }, bestPct: 0, days: [], bestDays: 0, rows: ALL_ROWS.slice() };
   }
   function load() {
     try {
@@ -552,6 +574,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* ignore */ } }
   const S = load();
+  if (!Array.isArray(S.rows) || !S.rows.some((t) => ALL_ROWS.includes(t))) S.rows = ALL_ROWS.slice();
 
   const $ = (id) => document.getElementById(id);
   const rand = (n) => Math.floor(Math.random() * n);
@@ -589,8 +612,18 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     LOG: 20            // raw attempts kept per fact, for later re-analysis
   };
   const DAY = 864e5;
-  const FACTS = [];
-  for (let a = 1; a <= 10; a++) for (let b = a; b <= 10; b++) FACTS.push([a, b]);
+  const ALL_FACTS = [];
+  for (let a = 1; a <= 10; a++) for (let b = a; b <= 10; b++) ALL_FACTS.push([a, b]);
+  // Rows (tables) can be switched off in the settings. A fact is in play when its row or its
+  // column is on: with only the 2-table on, 2·7 is still asked (and grows at 2·7 and 7·2), but 7·8
+  // is not. FACTS holds the facts in play. Only they are asked and grow, but every score is still
+  // measured against all 55 facts: 100 % means the whole 10x10 table, so with rows off the garden
+  // can only get part of the way, and some visitors and decorations wait until more rows are on.
+  const rowOn = (t) => S.rows.includes(t);
+  const inPlay = (a, b) => rowOn(a) || rowOn(b);
+  let FACTS = ALL_FACTS;
+  function refreshFacts() { FACTS = ALL_FACTS.filter(([a, b]) => inPlay(a, b)); }
+  refreshFacts();
   const isEasy = (a, b) => a === 1 || b === 1 || a === 10 || b === 10;
 
   function estimate(key, now) {
@@ -604,7 +637,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   }
   function boardPct() {
     const now = Date.now();
-    return FACTS.reduce((s, f) => s + greenness(factKey(f[0], f[1]), now), 0) / FACTS.length * 100;
+    return FACTS.reduce((s, f) => s + greenness(factKey(f[0], f[1]), now), 0) / ALL_FACTS.length * 100;
   }
   function tableGreen(t) {
     const now = Date.now();
@@ -682,6 +715,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const dry = stage >= 1 ? clamp01((best - cur - 0.15) / 0.45) : 0;
     // About to open: a bud whose current greenness is within about two fast answers of 100 %.
     const near = stage === 3 && cur >= 0.85;
+    if (!inPlay(a, b)) return { key: key, best: best, size: 0, cur: cur, stage: 0, dry: 0, near: false, off: true };
     return { key: key, best: best, size: size, cur: cur, stage: stage, dry: dry, near: near };
   }
   function snapshot() {
@@ -724,13 +758,17 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     { id: "snigel", name: "Snigel", kind: "snail" }
   ];
   const DECOS = [
-    { id: "bench", name: "Bänk", how: "Rekord 25 %", has: () => S.bestPct >= 25 },
-    { id: "birdbox", name: "Fågelholk", how: "10 blommor", has: () => flowerCount() >= 10 },
-    { id: "pond", name: "Damm med groda", how: "Rekord 50 %", has: () => S.bestPct >= 50 },
-    { id: "hedgehog", name: "Igelkott", how: "25 blommor", has: () => flowerCount() >= 25 },
-    { id: "apple", name: "Äppelträd", how: "Rekord 75 %", has: () => S.bestPct >= 75 },
-    { id: "greenhouse", name: "Växthus", how: "Rekord 100 %", has: () => S.bestPct >= 99.95 }
+    { id: "bench", name: "Bänk", how: "Rekord 25 %", has: () => S.bestPct >= 25, reach: () => maxPct() >= 25 },
+    { id: "birdbox", name: "Fågelholk", how: "10 blommor", has: () => flowerCount() >= 10, reach: () => FACTS.length >= 10 },
+    { id: "pond", name: "Damm med groda", how: "Rekord 50 %", has: () => S.bestPct >= 50, reach: () => maxPct() >= 50 },
+    { id: "hedgehog", name: "Igelkott", how: "25 blommor", has: () => flowerCount() >= 25, reach: () => FACTS.length >= 25 },
+    { id: "apple", name: "Äppelträd", how: "Rekord 75 %", has: () => S.bestPct >= 75, reach: () => maxPct() >= 75 },
+    { id: "greenhouse", name: "Växthus", how: "Rekord 100 %", has: () => S.bestPct >= 99.95, reach: () => maxPct() >= 99.95 }
   ];
+  // How far the garden can get with the rows that are on (100 % only with all rows).
+  const maxPct = () => FACTS.length / ALL_FACTS.length * 100;
+  // How many visitors can come with the rows that are on (one per 10 % of the whole garden).
+  const visitorsReachable = () => Math.min(VISITORS.length, Math.floor(FACTS.length * 10 / ALL_FACTS.length + 1e-9));
   // Flowers never wilt away (size never shrinks), so this count only goes up.
   function flowerCount() {
     return FACTS.filter(([a, b]) => { const s = S.speed[factKey(a, b)]; return s && (s.best || 0) >= 0.999; }).length;
@@ -739,22 +777,37 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     for (let b = 1; b <= 10; b++) { const s = S.speed[factKey(a, b)]; if (!s || stageFromBest(s.best || 0) < 4) return false; }
     return true;
   }
-  const fullRows = () => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(rowBlooms);
-  // Garden maturity: the average size of all 55 plants (0..1). It only grows, and it grows with
+  const fullRows = () => ALL_ROWS.filter((r) => rowOn(r) && rowBlooms(r));
+  // Garden maturity: the size of the plants in play, averaged over all 55 plots (0..1). It only grows, and it grows with
   // every bit of progress, also on the hard facts, so visitors keep coming all the way.
   function maturity() {
-    return FACTS.reduce((t, [a, b]) => t + sizeOf(S.speed[factKey(a, b)]), 0) / FACTS.length;
+    return FACTS.reduce((t, [a, b]) => t + sizeOf(S.speed[factKey(a, b)]), 0) / ALL_FACTS.length;
   }
   // One visitor per 10 % of maturity. Each lands on a plant (the one that grew most when it came).
   const visitorsDue = () => Math.min(VISITORS.length, Math.floor(maturity() * 10 + 1e-9));
   function freePlant(prefer) {
     const taken = new Set(S.visits.map((v) => v.key));
-    for (const k of prefer) if (!taken.has(k)) return k;
+    const live = new Set(FACTS.map(([a, b]) => factKey(a, b)));
+    for (const k of prefer) if (!taken.has(k) && live.has(k)) return k;
     // otherwise one of the biggest plants; ties are broken by a fixed shuffle so visitors spread out
     const mixKey = (k) => { const [a, b] = k.split("x").map(Number); return (a * 37 + b * 17) % 23; };
     const rest = FACTS.map(([a, b]) => factKey(a, b)).filter((k) => !taken.has(k));
     rest.sort((x, y) => (sizeOf(S.speed[y]) - sizeOf(S.speed[x])) || mixKey(x) - mixKey(y));
-    return rest[0] || prefer[0] || "1x1";
+    return rest[0] || prefer.find((k) => FACTS.some(([a, b]) => factKey(a, b) === k)) || factKey(FACTS[0][0], FACTS[0][1]);
+  }
+  // Where a visitor sits: on its plant in a row that is on (7·2 and 2·7 are the same plant).
+  function visitSpot(key) {
+    const [a, b] = key.split("x").map(Number);
+    return rowOn(a) ? [a, b] : [b, a];
+  }
+  // Visitors never stay on a plant that is out of play: they move to a plant in a row that is on.
+  function rehomeVisitors() {
+    let moved = false;
+    S.visits.forEach((w) => {
+      const [a, b] = w.key.split("x").map(Number);
+      if (!inPlay(a, b)) { w.key = freePlant([]); moved = true; }
+    });
+    if (moved) save();
   }
   function arriveVisitors(prefer) {
     const added = [];
@@ -776,8 +829,13 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     });
     arriveVisitors([]);
   }
+  rehomeVisitors();
+  // Decorations stay once earned, also if rows are switched off later.
   function unlocked() {
-    return { visitors: S.visits.map((v) => v.id), decos: DECOS.filter((d) => d.has()).map((d) => d.id) };
+    const had = Array.isArray(S.decos) ? S.decos : [];
+    const decos = DECOS.filter((d) => had.includes(d.id) || d.has()).map((d) => d.id);
+    if (decos.length !== had.length) { S.decos = decos; save(); }
+    return { visitors: S.visits.map((v) => v.id), decos: decos };
   }
 
   // ---------- Garden drawing ----------
@@ -1018,7 +1076,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       return [GX + (b - 1) * C + 8 + Math.round((hash2(a, b, 31) - 0.5) * 4), GY + (a - 1) * C + 8 + Math.round((hash2(a, b, 37) - 0.5) * 4)];
     }
     function buildBase(opts, states) {
-      const sel = opts.sel || null, deco = opts.deco || {};
+      const sel = opts.sel || null, deco = opts.deco || {}, offRows = opts.offRows || [];
       const base = document.createElement("canvas");
       base.width = W; base.height = H;
       const ctx = base.getContext("2d");
@@ -1026,7 +1084,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       const moist = new Float32Array(W * H);
       for (let a = 1; a <= 10; a++) for (let b = 1; b <= 10; b++) {
         const st = states[a + "," + b];
-        if (st.dry <= 0.05 && !st.wet) continue;
+        if (st.off || (st.dry <= 0.05 && !st.wet)) continue;
         const cx0 = GX + (b - 1) * C + 8, cy0 = GY + (a - 1) * C + 8;
         for (let y = cy0 - 10; y <= cy0 + 10; y++) for (let x = cx0 - 10; x <= cx0 + 10; x++) {
           if (x < 0 || y < 0 || x >= W || y >= H) continue;
@@ -1047,7 +1105,10 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         let sd = inside ? -Math.min(x - bx0, bx1 - x, y - by0, by1 - y) : Math.hypot(qx, qy);
         if (inside && qx > 0 && qy > 0) sd = Math.hypot(qx, qy) - r;
         sd += (fbm(x * 0.18, y * 0.18, 3) - 0.5) * 6;
-        if (sd < 0) {
+        // plots out of play are lawn: nothing is planted there
+        const ca = Math.floor((y - GY) / C) + 1, cb = Math.floor((x - GX) / C) + 1;
+        const fallow = ca >= 1 && ca <= 10 && cb >= 1 && cb <= 10 && states[ca + "," + cb].off;
+        if (sd < 0 && !fallow) {
           col = mix(SOIL1, SOIL2, fbm(x * 0.25, y * 0.25, 1));
           const yy = (y - GY + 16) % 16;
           if ((yy < 2 || yy > 14.5) && vnoise(x * 0.4, y, 9) > 0.25) col = mix(col, [40, 22, 10], 0.32);
@@ -1094,10 +1155,10 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       if (deco.birdbox) birdbox(p, 182, 9);
 
       // numbered stakes: columns along the top, rows down the left
-      function plate(x, y, w, h, on) {
-        p.rect(x - 1, y - 1, w + 2, h + 2, "#3d2410");
-        p.rect(x, y, w, h, on ? "#ffd23f" : "#f3e6c4");
-        p.rect(x, y, w, 1, on ? "#fff3b0" : "#fffaf0");
+      function plate(x, y, w, h, on, off) {
+        p.rect(x - 1, y - 1, w + 2, h + 2, off ? "#6b5a48" : "#3d2410");
+        p.rect(x, y, w, h, on ? "#ffd23f" : off ? "#a99c84" : "#f3e6c4");
+        p.rect(x, y, w, 1, on ? "#fff3b0" : off ? "#bcb09a" : "#fffaf0");
         p.rect(x, y + h - 1, w, 1, "rgba(0,0,0,0.12)");
       }
       // a fully flowering row (and so also its column) gets a rosette on both its stakes
@@ -1108,12 +1169,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       for (let j = 0; j < 10; j++) {
         const sx = GX + j * C + 8;
         p.rect(sx, 17, 2, 9, "#6b4423"); p.rect(sx + 1, 17, 1, 9, "#4a2e14");
-        plate(sx - 5, 8, 11, 9, !!sel && sel[1] === j + 1);
+        plate(sx - 5, 8, 11, 9, !!sel && sel[1] === j + 1, offRows.includes(j + 1));
       }
       for (let i = 0; i < 10; i++) {
         const sy = GY + i * C + 8;
         p.rect(14, sy, 6, 2, "#6b4423"); p.rect(14, sy + 1, 6, 1, "#4a2e14");
-        plate(2, sy - 4, 12, 9, !!sel && sel[0] === i + 1);
+        plate(2, sy - 4, 12, 9, !!sel && sel[0] === i + 1, offRows.includes(i + 1));
       }
       (opts.fullRows || []).forEach((rw) => { rosette(GX + (rw - 1) * C + 8 + 6, 9); rosette(14, GY + (rw - 1) * C + 8 - 3); });
 
@@ -1160,7 +1221,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       const t = reduceMotion ? 0 : (now - ctl.start) / 1000;
       ctx.drawImage(ctl.base, 0, 0);
       for (let a = 1; a <= 10; a++) for (let b = 1; b <= 10; b++) {
-        const id = a + "," + b, st = ctl.states[id], g = growG(ctl, a, b, st, now), q = Math.round(g * 100);
+        const id = a + "," + b, st = ctl.states[id];
+        if (st.off) continue;
+        const g = growG(ctl, a, b, st, now), q = Math.round(g * 100);
         let sp = ctl.sprites[id];
         if (!sp || sp.q !== q) { sp = ctl.sprites[id] = { q: q, c: makeSprite(a, b, st, g) }; }
         const [x, y] = plotXY(a, b), stage = stageOfG(g);
@@ -1305,12 +1368,14 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     Garden.draw(canvas, {
       sel: opts.sel,
       deco: deco,
-      visitors: S.visits.map((w) => { const [x, y] = w.key.split("x").map(Number); return { v: VISITORS.find((v) => v.id === w.id), row: x, col: y }; }),
+      visitors: S.visits.map((w) => { const [x, y] = visitSpot(w.key); return { v: VISITORS.find((v) => v.id === w.id), row: x, col: y }; }),
+      offRows: ALL_ROWS.filter((t) => !rowOn(t)),
       fullRows: fullRows(),
       grow: opts.grow || null,
       onPop: (stage) => { tone(stage === 4 ? 1319 : 988, 0, 0.12, "triangle", 0.07); tone(stage === 4 ? 1760 : 1319, 0.08, 0.14, "triangle", 0.05); },
-      plot: (a, b) => { const st = plotOf(a, b, now); return { key: st.key, g: st.size, near: st.near && !wet.has(st.key), dry: wet.has(st.key) ? 0 : st.dry, wet: wet.has(st.key) }; }
+      plot: (a, b) => { const st = plotOf(a, b, now); return { key: st.key, g: st.size, near: st.near && !wet.has(st.key), dry: wet.has(st.key) ? 0 : st.dry, wet: wet.has(st.key) && !st.off, off: !!st.off }; }
     });
+    el.querySelectorAll(".lbl").forEach((l, i) => l.classList.toggle("off", !rowOn(i % 10 + 1)));
     const flowers = FACTS.filter(([a, b]) => plotOf(a, b, now).stage === 4).length;
     canvas.setAttribute("aria-label", "Din trädgård med tio rader och tio kolumner. " + flowers + " av 55 plantor blommar.");
     return canvas;
@@ -1372,13 +1437,14 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   }
 
   // ---------- Navigation ----------
-  const SCREENS = ["home", "setup", "game", "result", "explore", "collection", "parent"];
+  const SCREENS = ["home", "setup", "game", "result", "explore", "collection", "settings", "parent"];
   function show(name) {
     SCREENS.forEach((s) => { $(s).hidden = s !== name; });
     if (name === "home") renderHome();
     if (name === "setup") renderSetup();
     if (name === "explore") renderExplore();
     if (name === "collection") renderCollection();
+    if (name === "settings") renderRows();
     if (name === "parent") renderParent();
     window.scrollTo(0, 0);
   }
@@ -1403,6 +1469,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   // ---------- Home: the garden ----------
   const home = { sel: null };
   function renderHome() {
+    if (home.sel && !inPlay(home.sel[0], home.sel[1])) home.sel = null;
     $("starCount").textContent = S.total;
     $("nameForm").hidden = !!S.name;
     document.querySelector(".reset-row").hidden = !S.name && !Object.keys(S.speed).length;
@@ -1423,7 +1490,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     else items.push("Trädgården väntar på dig idag.");
     if (near) items.push("✨ " + (near === 1 ? "En knopp är nära" : near + " knoppar är nära") + " att slå ut.");
     if (thirsty) items.push(thirsty === 1 ? "En planta är törstig." : thirsty + " plantor är törstiga.");
-    if (S.visits.length < VISITORS.length) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Nästa besökare kommer vid " + (S.visits.length + 1) * 10 + "\u00a0%.");
+    if (S.visits.length < visitorsReachable()) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Nästa besökare kommer vid " + (S.visits.length + 1) * 10 + "\u00a0%.");
+    else if (S.visits.length < VISITORS.length) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Sätt på fler rader ⚙ så kan fler besökare komma.");
     const t = $("ticker");
     t.innerHTML = "<b>Nytt</b>";
     const hello = document.createElement("button");
@@ -1470,7 +1538,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   }
   $("homeGarden").addEventListener("click", (e) => {
     const canvas = $("homeGarden").querySelector("canvas");
-    const cell = Garden.cellAt(canvas, e.clientX, e.clientY);
+    let cell = Garden.cellAt(canvas, e.clientX, e.clientY);
+    if (cell && !inPlay(cell[0], cell[1])) cell = null; // nothing grows there
     home.sel = cell && !(home.sel && cell[0] === home.sel[0] && cell[1] === home.sel[1]) ? cell : null;
     sfx.tap();
     mountGarden($("homeGarden"), { sel: home.sel });
@@ -1499,7 +1568,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   }
   function renderSetup() {
     let html = "";
-    for (let t = 1; t <= 10; t++) html += tileHtml(t, setup.tables.includes(t));
+    setup.tables = setup.tables.filter(rowOn);
+    S.rows.forEach((t) => { html += tileHtml(t, setup.tables.includes(t)); });
     $("setupTables").innerHTML = html;
     document.querySelectorAll("#countSeg button").forEach((b) => {
       b.setAttribute("aria-pressed", String(Number(b.dataset.n) === setup.count));
@@ -1514,8 +1584,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     setup.tables = setup.tables.includes(t) ? setup.tables.filter((x) => x !== t) : setup.tables.concat(t).sort((a, c) => a - c);
     sfx.tap(); renderSetup();
   });
-  $("selAll").addEventListener("click", () => { setup.tables = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; renderSetup(); });
-  $("selEasy").addEventListener("click", () => { setup.tables = [1, 2, 5, 10]; renderSetup(); });
+  $("selAll").addEventListener("click", () => { setup.tables = S.rows.slice(); renderSetup(); });
+  $("selEasy").addEventListener("click", () => { setup.tables = [1, 2, 5, 10].filter(rowOn); renderSetup(); });
   $("selNone").addEventListener("click", () => { setup.tables = []; renderSetup(); });
   $("countSeg").addEventListener("click", (e) => {
     const b = e.target.closest("button");
@@ -1849,7 +1919,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       html += '<div class="unlocks">' +
         newRows.map((r) => '<div class="unlock"><span class="rosette-big" aria-hidden="true">🎀</span><span><span class="eyebrow">Hela raden blommar</span><b>Hela ' + r +
           ":ans rad blommar!</b>Du kan hela " + r + "-tabellen. Raden får en rosett.</span></div>").join("") +
-        newV.map((w) => { const v = VISITORS.find((x) => x.id === w.id), [x, y] = w.key.split("x");
+        newV.map((w) => { const v = VISITORS.find((x) => x.id === w.id), [x, y] = visitSpot(w.key);
           return '<div class="unlock"><canvas class="pix" data-icon="visitor" data-id="' + w.id + '"></canvas><span><span class="eyebrow">Ny besökare</span><b>' + v.name +
             "</b>Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Den landade på " + x + " · " + y + ".</span></div>"; }).join("") +
         newD.map((id) => { const d = DECOS.find((x) => x.id === id);
@@ -1927,6 +1997,32 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     return { key: key, a: a, b: b, n: s.log.length, wrong: s.log.filter((l) => !l[4]).length, e: s.e, median: median,
       hl: s.hl || SP.HL_START, size: Math.round(sizeOf(s) * 100) };
   }
+  function renderRows() {
+    $("rowTables").innerHTML = ALL_ROWS.map((t) =>
+      '<button class="tile' + (rowOn(t) ? " sel" : "") + '" data-t="' + t + '" aria-pressed="' + rowOn(t) + '"><b>' + t + "</b></button>").join("");
+    const v = visitorsReachable(), d = DECOS.filter((x) => x.reach()).length;
+    $("rowsReach").textContent = FACTS.length === ALL_FACTS.length
+      ? "Alla 55 plantor är med. Hela trädgården kan blomma!"
+      : FACTS.length + " av 55 plantor är med. Trädgården kan växa till " + Math.round(maxPct()) + "\u00a0%, med " +
+        v + " av " + VISITORS.length + " besökare och " + d + " av " + DECOS.length + " saker.";
+  }
+  function setRows(rows) {
+    if (!rows.length) return; // at least one row stays on
+    S.rows = rows.slice().sort((a, b) => a - b);
+    refreshFacts();
+    rehomeVisitors();
+    save();
+    renderRows();
+  }
+  $("rowTables").addEventListener("click", (e) => {
+    const b = e.target.closest(".tile");
+    if (!b) return;
+    const t = Number(b.dataset.t);
+    sfx.tap();
+    setRows(rowOn(t) ? S.rows.filter((x) => x !== t) : S.rows.concat(t));
+  });
+  $("rowsAll").addEventListener("click", () => setRows(ALL_ROWS));
+  $("rowsEasy").addEventListener("click", () => setRows([1, 2, 5, 10]));
   function renderParent() {
     const rows = FACTS.map(([a, b]) => factStats(a, b));
     const answered = rows.filter((r) => r.n), total = answered.reduce((t, r) => t + r.n, 0);
@@ -1936,7 +2032,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const med = allThink.length ? allThink[Math.floor(allThink.length / 2)] : null;
     $("limitNote").textContent = fmtS(SP.GREEN);
     $("parentSummary").innerHTML = "Skrivtid på lätta frågor (×1 och ×10): <b>" + fmtS(S.typing[1]) + " s</b> för ensiffriga svar, <b>" + fmtS(S.typing[2]) + " s</b> för tvåsiffriga. " +
-      "Sparade svar: <b>" + total + "</b> på " + answered.length + " av 55 fakta. Median tänketid för alla rätta svar: <b>" + fmtS(med) + " s</b>. " +
+      "Sparade svar: <b>" + total + "</b> på " + answered.length + " av " + FACTS.length + " fakta. Median tänketid för alla rätta svar: <b>" + fmtS(med) + " s</b>. " +
       "Gränsen för blomma är " + fmtS(SP.GREEN) + " s tänketid.";
     if (parentSort === "slow") rows.sort((x, y) => (y.n ? y.e : -1) - (x.n ? x.e : -1));
     $("parentTable").innerHTML = "<thead><tr><th>Fakta</th><th>Typisk</th><th>Median</th><th>Svar</th><th>Fel</th><th>Halv.</th><th>Stl.</th></tr></thead><tbody>" +
@@ -1967,19 +2063,21 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     $("collTitle").textContent = "Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%";
     const pending = VISITORS.filter((v) => !S.visits.some((w) => w.id === v.id));
     $("visitorList").innerHTML = S.visits.map((w) => {
-      const v = VISITORS.find((x) => x.id === w.id), [x, y] = w.key.split("x");
+      const v = VISITORS.find((x) => x.id === w.id), [x, y] = visitSpot(w.key);
       return '<div class="panel vcard"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="false"></canvas>' +
         "<b>" + v.name + "</b><small>Bor på " + x + " · " + y + "</small></div>";
-    }).join("") + pending.map((v, i) =>
-      '<div class="panel vcard locked"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="true"></canvas>' +
-      "<b>???</b><small>Kommer vid " + (S.visits.length + i + 1) * 10 + "\u00a0%</small></div>").join("");
+    }).join("") + pending.map((v, i) => {
+      const at = S.visits.length + i + 1, reach = at <= visitorsReachable();
+      return '<div class="panel vcard locked"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="true"></canvas>' +
+        "<b>???</b><small>Kommer vid " + at * 10 + "\u00a0%" + (reach ? "" : ". Sätt på fler rader") + "</small></div>";
+    }).join("");
     const rows = fullRows();
-    $("rowBadges").innerHTML = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((r) =>
+    $("rowBadges").innerHTML = S.rows.map((r) =>
       '<span class="row-badge' + (rows.includes(r) ? " on" : "") + '">' + (rows.includes(r) ? "🎀 " : "") + '<b class="num">' + r + "</b>:an</span>").join("");
     $("decoList").innerHTML = DECOS.map((d) => {
       const has = u.decos.includes(d.id);
       return '<div class="panel vcard' + (has ? "" : " locked") + '"><canvas class="pix" data-icon="deco" data-id="' + d.id + '" data-locked="' + !has + '"></canvas>' +
-        "<b>" + (has ? d.name : "???") + "</b><small>" + d.how + "</small></div>";
+        "<b>" + (has ? d.name : "???") + "</b><small>" + d.how + (has || d.reach() ? "" : ". Sätt på fler rader") + "</small></div>";
     }).join("");
     document.querySelectorAll("#collection canvas[data-icon]").forEach((c) => Garden.drawIcon(c, c.dataset.icon, c.dataset.id, c.dataset.locked === "true"));
     // Stickers from the first version stay visible, but no new ones are handed out.
