@@ -1654,11 +1654,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   }
 
   // Watering round: favour grey and half-green facts, still mix in some green ones.
+  // Unpractised facts are fully grey (g = 0), so they weigh as much as the slowest ones.
   function greenPick() {
     const now = Date.now();
     const pool = FACTS.map(([a, b]) => {
       const key = factKey(a, b), g = greenness(key, now);
-      let w = S.speed[key] ? 0.4 + 2.6 * (1 - g) : 1.2;
+      let w = 0.4 + 2.6 * (1 - g);
       if (isEasy(a, b)) w *= 0.6;
       return { a: a, b: b, w: G.recent.includes(key) ? 0 : w };
     });
