@@ -37,4 +37,10 @@ Each fact (7·8 and 8·7 count as one, 55 facts) has an estimate of her *thinkin
 
 The parameters are first guesses and live in the `SP` object in `index.html`. The last 20 raw attempts per fact are stored too, so the scoring can be retuned later without losing history.
 
+## Switching rows off
+
+In the parent view (tap the Gångis logo five times) the top panel, *Inställningar*, turns rows (tables) on and off, for a younger child who only does some of them. A fact is in play when its row or its column is on: with only the 2- and 5-tables on, 2·7 is still asked (and its plant grows at 2·7 and 7·2), but 7·8 is not. Plots out of play turn into lawn: nothing is asked there, nothing grows there and no visitors land there (visitors already in the garden move to a plant in a row that is on). The stakes of switched-off rows are greyed out, and *Öva tabeller* only offers the rows that are on.
+
+Every score is measured against the plants in play, so the goals are the same as for the full 10×10 table: "Grönt nu", the record, garden maturity and the visitors still go to 100 %, every full row that is on still gets its rosette, and the flower goals for the bird box and hedgehog (10 and 25 of 55) shrink in proportion. Answers already given are kept, so switching a row back on brings its plants back as they were. At least one row always stays on.
+
 Progress is saved in the browser (localStorage). Tap the Gångis logo five times for a hidden parent view with typing allowance, per-fact thinking times, half-lives and a "Kopiera data" button. To start over, tap "Hej, …!" in the news line on the start screen and choose "Börja om från början".
