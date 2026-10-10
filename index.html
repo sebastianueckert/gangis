@@ -140,6 +140,7 @@ button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulat
   font-family: var(--font-num); font-size: 2.5cqw; line-height: 1; color: var(--ink);
 }
 .garden .lbl.off { color: #5d5244; }
+.garden-reach { font-weight: 800; background: var(--sun-soft); border: 2px solid #f4df8c; border-radius: 14px; padding: 8px 12px; margin: 0; }
 .ticker { background: var(--sun-soft); color: var(--ink); font-size: 0.95rem; font-weight: 700; line-height: 1.4; padding: 9px 12px; border-radius: 16px; border: 2px solid #f4df8c; }
 .ticker b { font-family: var(--font-pixel); background: var(--sun); padding: 1px 8px; border-radius: 8px; margin-right: 8px; }
 .ticker button { background: none; border: 0; padding: 0; font-weight: 800; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
@@ -321,6 +322,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <button class="logo" id="logo" aria-label="Till trädgården">Gångis<span>·</span></button>
     <div class="top-right">
       <span class="tally" title="Rätta svar totalt">★ <span id="starCount">0</span></span>
+      <button class="icon-btn" data-go="settings" aria-label="Inställningar: vilka rader är med">⚙️</button>
       <button class="icon-btn" id="soundBtn" aria-label="Ljud av eller på">🔊</button>
     </div>
   </header>
@@ -466,8 +468,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
   </section>
 
-  <!-- PARENTS (hidden: tap the logo five times) -->
-  <section id="parent" class="menu" hidden>
+  <!-- SETTINGS: which rows are in the garden -->
+  <section id="settings" class="menu" hidden>
     <div class="panel menu">
       <span class="eyebrow">Inställningar</span>
       <h1>Vilka rader är med?</h1>
@@ -476,10 +478,16 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         <button class="btn" id="rowsAll">Alla</button>
         <button class="btn" id="rowsEasy">Lätta (1, 2, 5, 10)</button>
       </div>
-      <p class="note">Tryck på en rad för att stänga av eller sätta på den. En avstängd rad frågas inte, och där växer ingenting och inga besökare kommer.
-        En fråga är med om minst en av faktorerna är på: med bara 2:an på frågas 2 · 7, och den plantan växer på rad 2 (och i kolumn 2).
-        Procenten, besökarna och sakerna i trädgården räknas bara på plantorna som är med, så allt går fortfarande att nå. <span id="rowsCount"></span></p>
+      <p class="garden-reach" id="rowsReach"></p>
+      <p class="note">Tryck på en rad för att sätta på eller stänga av den. Bara raderna som är på frågas och växer. Där en rad är avstängd blir det gräs, och dit kommer inga besökare.
+        Med bara 2:an på frågas ändå 2 · 7, för den hör till 2-tabellen.
+        Hela trädgården är alla tio raderna, så med färre rader kommer du inte ända fram till 100&nbsp;%, och några besökare och saker väntar tills fler rader är på.</p>
     </div>
+    <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
+  </section>
+
+  <!-- PARENTS (hidden: tap the logo five times) -->
+  <section id="parent" class="menu" hidden>
     <div class="panel menu">
       <span class="eyebrow">För föräldrar</span>
       <h1>Svarstider</h1>
@@ -606,10 +614,11 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   const DAY = 864e5;
   const ALL_FACTS = [];
   for (let a = 1; a <= 10; a++) for (let b = a; b <= 10; b++) ALL_FACTS.push([a, b]);
-  // Rows (tables) can be switched off in the parent view. A fact is in play when its row or its
+  // Rows (tables) can be switched off in the settings. A fact is in play when its row or its
   // column is on: with only the 2-table on, 2·7 is still asked (and grows at 2·7 and 7·2), but 7·8
-  // is not. FACTS holds the facts in play; every score is measured against them, so 100 %, all
-  // visitors and all decorations stay reachable whichever rows are on.
+  // is not. FACTS holds the facts in play. Only they are asked and grow, but every score is still
+  // measured against all 55 facts: 100 % means the whole 10x10 table, so with rows off the garden
+  // can only get part of the way, and some visitors and decorations wait until more rows are on.
   const rowOn = (t) => S.rows.includes(t);
   const inPlay = (a, b) => rowOn(a) || rowOn(b);
   let FACTS = ALL_FACTS;
@@ -628,7 +637,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   }
   function boardPct() {
     const now = Date.now();
-    return FACTS.reduce((s, f) => s + greenness(factKey(f[0], f[1]), now), 0) / FACTS.length * 100;
+    return FACTS.reduce((s, f) => s + greenness(factKey(f[0], f[1]), now), 0) / ALL_FACTS.length * 100;
   }
   function tableGreen(t) {
     const now = Date.now();
@@ -749,15 +758,17 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     { id: "snigel", name: "Snigel", kind: "snail" }
   ];
   const DECOS = [
-    { id: "bench", name: "Bänk", how: () => "Rekord 25 %", has: () => S.bestPct >= 25 },
-    { id: "birdbox", name: "Fågelholk", how: () => flowersFor(10) + " blommor", has: () => flowerCount() >= flowersFor(10) },
-    { id: "pond", name: "Damm med groda", how: () => "Rekord 50 %", has: () => S.bestPct >= 50 },
-    { id: "hedgehog", name: "Igelkott", how: () => flowersFor(25) + " blommor", has: () => flowerCount() >= flowersFor(25) },
-    { id: "apple", name: "Äppelträd", how: () => "Rekord 75 %", has: () => S.bestPct >= 75 },
-    { id: "greenhouse", name: "Växthus", how: () => "Rekord 100 %", has: () => S.bestPct >= 99.95 }
+    { id: "bench", name: "Bänk", how: "Rekord 25 %", has: () => S.bestPct >= 25, reach: () => maxPct() >= 25 },
+    { id: "birdbox", name: "Fågelholk", how: "10 blommor", has: () => flowerCount() >= 10, reach: () => FACTS.length >= 10 },
+    { id: "pond", name: "Damm med groda", how: "Rekord 50 %", has: () => S.bestPct >= 50, reach: () => maxPct() >= 50 },
+    { id: "hedgehog", name: "Igelkott", how: "25 blommor", has: () => flowerCount() >= 25, reach: () => FACTS.length >= 25 },
+    { id: "apple", name: "Äppelträd", how: "Rekord 75 %", has: () => S.bestPct >= 75, reach: () => maxPct() >= 75 },
+    { id: "greenhouse", name: "Växthus", how: "Rekord 100 %", has: () => S.bestPct >= 99.95, reach: () => maxPct() >= 99.95 }
   ];
-  // The flower goals are set for all 55 plants; with rows switched off they shrink in proportion.
-  const flowersFor = (n) => Math.max(1, Math.round(n * FACTS.length / ALL_FACTS.length));
+  // How far the garden can get with the rows that are on (100 % only with all rows).
+  const maxPct = () => FACTS.length / ALL_FACTS.length * 100;
+  // How many visitors can come with the rows that are on (one per 10 % of the whole garden).
+  const visitorsReachable = () => Math.min(VISITORS.length, Math.floor(FACTS.length * 10 / ALL_FACTS.length + 1e-9));
   // Flowers never wilt away (size never shrinks), so this count only goes up.
   function flowerCount() {
     return FACTS.filter(([a, b]) => { const s = S.speed[factKey(a, b)]; return s && (s.best || 0) >= 0.999; }).length;
@@ -767,10 +778,10 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     return true;
   }
   const fullRows = () => ALL_ROWS.filter((r) => rowOn(r) && rowBlooms(r));
-  // Garden maturity: the average size of all plants in play (0..1). It only grows, and it grows with
+  // Garden maturity: the size of the plants in play, averaged over all 55 plots (0..1). It only grows, and it grows with
   // every bit of progress, also on the hard facts, so visitors keep coming all the way.
   function maturity() {
-    return FACTS.reduce((t, [a, b]) => t + sizeOf(S.speed[factKey(a, b)]), 0) / FACTS.length;
+    return FACTS.reduce((t, [a, b]) => t + sizeOf(S.speed[factKey(a, b)]), 0) / ALL_FACTS.length;
   }
   // One visitor per 10 % of maturity. Each lands on a plant (the one that grew most when it came).
   const visitorsDue = () => Math.min(VISITORS.length, Math.floor(maturity() * 10 + 1e-9));
@@ -819,8 +830,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     arriveVisitors([]);
   }
   rehomeVisitors();
+  // Decorations stay once earned, also if rows are switched off later.
   function unlocked() {
-    return { visitors: S.visits.map((v) => v.id), decos: DECOS.filter((d) => d.has()).map((d) => d.id) };
+    const had = Array.isArray(S.decos) ? S.decos : [];
+    const decos = DECOS.filter((d) => had.includes(d.id) || d.has()).map((d) => d.id);
+    if (decos.length !== had.length) { S.decos = decos; save(); }
+    return { visitors: S.visits.map((v) => v.id), decos: decos };
   }
 
   // ---------- Garden drawing ----------
@@ -1362,7 +1377,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     });
     el.querySelectorAll(".lbl").forEach((l, i) => l.classList.toggle("off", !rowOn(i % 10 + 1)));
     const flowers = FACTS.filter(([a, b]) => plotOf(a, b, now).stage === 4).length;
-    canvas.setAttribute("aria-label", "Din trädgård med tio rader och tio kolumner. " + flowers + " av " + FACTS.length + " plantor blommar.");
+    canvas.setAttribute("aria-label", "Din trädgård med tio rader och tio kolumner. " + flowers + " av 55 plantor blommar.");
     return canvas;
   }
 
@@ -1422,13 +1437,14 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   }
 
   // ---------- Navigation ----------
-  const SCREENS = ["home", "setup", "game", "result", "explore", "collection", "parent"];
+  const SCREENS = ["home", "setup", "game", "result", "explore", "collection", "settings", "parent"];
   function show(name) {
     SCREENS.forEach((s) => { $(s).hidden = s !== name; });
     if (name === "home") renderHome();
     if (name === "setup") renderSetup();
     if (name === "explore") renderExplore();
     if (name === "collection") renderCollection();
+    if (name === "settings") renderRows();
     if (name === "parent") renderParent();
     window.scrollTo(0, 0);
   }
@@ -1474,7 +1490,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     else items.push("Trädgården väntar på dig idag.");
     if (near) items.push("✨ " + (near === 1 ? "En knopp är nära" : near + " knoppar är nära") + " att slå ut.");
     if (thirsty) items.push(thirsty === 1 ? "En planta är törstig." : thirsty + " plantor är törstiga.");
-    if (S.visits.length < VISITORS.length) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Nästa besökare kommer vid " + (S.visits.length + 1) * 10 + "\u00a0%.");
+    if (S.visits.length < visitorsReachable()) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Nästa besökare kommer vid " + (S.visits.length + 1) * 10 + "\u00a0%.");
+    else if (S.visits.length < VISITORS.length) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Sätt på fler rader ⚙ så kan fler besökare komma.");
     const t = $("ticker");
     t.innerHTML = "<b>Nytt</b>";
     const hello = document.createElement("button");
@@ -1491,7 +1508,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       const flowers = FACTS.filter(([a, b]) => plotOf(a, b, now).stage === 4).length;
       box.innerHTML = '<div class="plot-text"><b style="font-family: var(--font-pixel); font-size: 1.15rem;">Tryck på en planta</b>' +
         "<p>Då ser du vilket tal den är, hur stor den har blivit och om den är törstig. " +
-        "Just nu blommar " + flowers + " av " + FACTS.length + " plantor.</p></div>";
+        "Just nu blommar " + flowers + " av 55 plantor.</p></div>";
       return;
     }
     const [a, b] = home.sel, st = plotOf(a, b, now);
@@ -1906,7 +1923,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
           return '<div class="unlock"><canvas class="pix" data-icon="visitor" data-id="' + w.id + '"></canvas><span><span class="eyebrow">Ny besökare</span><b>' + v.name +
             "</b>Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Den landade på " + x + " · " + y + ".</span></div>"; }).join("") +
         newD.map((id) => { const d = DECOS.find((x) => x.id === id);
-          return '<div class="unlock"><canvas class="pix" data-icon="deco" data-id="' + id + '"></canvas><span><span class="eyebrow">Nytt i trädgården</span><b>' + d.name + "</b>" + d.how() + ".</span></div>"; }).join("") +
+          return '<div class="unlock"><canvas class="pix" data-icon="deco" data-id="' + id + '"></canvas><span><span class="eyebrow">Nytt i trädgården</span><b>' + d.name + "</b>" + d.how + ".</span></div>"; }).join("") +
         "</div>";
     }
     if (G.missed.length) {
@@ -1983,16 +2000,19 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   function renderRows() {
     $("rowTables").innerHTML = ALL_ROWS.map((t) =>
       '<button class="tile' + (rowOn(t) ? " sel" : "") + '" data-t="' + t + '" aria-pressed="' + rowOn(t) + '"><b>' + t + "</b></button>").join("");
-    $("rowsCount").textContent = "Just nu är " + FACTS.length + " av " + ALL_FACTS.length + " plantor med.";
+    const v = visitorsReachable(), d = DECOS.filter((x) => x.reach()).length;
+    $("rowsReach").textContent = FACTS.length === ALL_FACTS.length
+      ? "Alla 55 plantor är med. Hela trädgården kan blomma!"
+      : FACTS.length + " av 55 plantor är med. Trädgården kan växa till " + Math.round(maxPct()) + "\u00a0%, med " +
+        v + " av " + VISITORS.length + " besökare och " + d + " av " + DECOS.length + " saker.";
   }
   function setRows(rows) {
     if (!rows.length) return; // at least one row stays on
     S.rows = rows.slice().sort((a, b) => a - b);
     refreshFacts();
     rehomeVisitors();
-    S.bestPct = Math.max(S.bestPct, boardPct());
     save();
-    renderParent();
+    renderRows();
   }
   $("rowTables").addEventListener("click", (e) => {
     const b = e.target.closest(".tile");
@@ -2004,7 +2024,6 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   $("rowsAll").addEventListener("click", () => setRows(ALL_ROWS));
   $("rowsEasy").addEventListener("click", () => setRows([1, 2, 5, 10]));
   function renderParent() {
-    renderRows();
     const rows = FACTS.map(([a, b]) => factStats(a, b));
     const answered = rows.filter((r) => r.n), total = answered.reduce((t, r) => t + r.n, 0);
     const allThink = [];
@@ -2047,16 +2066,18 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       const v = VISITORS.find((x) => x.id === w.id), [x, y] = visitSpot(w.key);
       return '<div class="panel vcard"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="false"></canvas>' +
         "<b>" + v.name + "</b><small>Bor på " + x + " · " + y + "</small></div>";
-    }).join("") + pending.map((v, i) =>
-      '<div class="panel vcard locked"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="true"></canvas>' +
-      "<b>???</b><small>Kommer vid " + (S.visits.length + i + 1) * 10 + "\u00a0%</small></div>").join("");
+    }).join("") + pending.map((v, i) => {
+      const at = S.visits.length + i + 1, reach = at <= visitorsReachable();
+      return '<div class="panel vcard locked"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="true"></canvas>' +
+        "<b>???</b><small>Kommer vid " + at * 10 + "\u00a0%" + (reach ? "" : ". Sätt på fler rader") + "</small></div>";
+    }).join("");
     const rows = fullRows();
     $("rowBadges").innerHTML = S.rows.map((r) =>
       '<span class="row-badge' + (rows.includes(r) ? " on" : "") + '">' + (rows.includes(r) ? "🎀 " : "") + '<b class="num">' + r + "</b>:an</span>").join("");
     $("decoList").innerHTML = DECOS.map((d) => {
       const has = u.decos.includes(d.id);
       return '<div class="panel vcard' + (has ? "" : " locked") + '"><canvas class="pix" data-icon="deco" data-id="' + d.id + '" data-locked="' + !has + '"></canvas>' +
-        "<b>" + (has ? d.name : "???") + "</b><small>" + d.how() + "</small></div>";
+        "<b>" + (has ? d.name : "???") + "</b><small>" + d.how + (has || d.reach() ? "" : ". Sätt på fler rader") + "</small></div>";
     }).join("");
     document.querySelectorAll("#collection canvas[data-icon]").forEach((c) => Garden.drawIcon(c, c.dataset.icon, c.dataset.id, c.dataset.locked === "true"));
     // Stickers from the first version stay visible, but no new ones are handed out.
