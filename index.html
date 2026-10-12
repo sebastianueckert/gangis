@@ -1618,6 +1618,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       total: green ? SP.ROUND : setup.count,
       answered: 0, fresh: 0, firstRight: 0, freshRight: 0, correct: 0, fast: 0, streak: 0, bestStreak: 0, retried: 0, fixed: 0,
       retry: [], missed: [], recent: [], asked: new Set(), thirstPicks: 0,
+      budAt: Math.floor(Math.random() * SP.ROUND), budAsked: false,
       q: null, input: "", locked: false, hinted: false, qStart: 0, interrupted: false, waiting: false,
       startPct: boardPct(), startBest: S.bestPct, touched: new Set(),
       before: snapshot(), unlockedBefore: unlocked(), rowsBefore: fullRows()
@@ -1659,9 +1660,15 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   // After that, favour grey and half-green facts, still mix in some green ones; plants that are
   // still dry weigh extra, so a thirsty one can get the couple of answers it needs to perk up.
   // Unpractised facts are fully grey (g = 0), so they weigh as much as the slowest ones.
+  // Every round also asks at least one bud, at a random point in the round (budAt), so a flower
+  // can open: the buds closest to opening are the most likely.
   function greenPick() {
     const now = Date.now();
     const plots = FACTS.map(([a, b]) => Object.assign({ a: a, b: b }, plotOf(a, b, now)));
+    const buds = plots.filter((p) => p.stage === 3 && !G.recent.includes(p.key));
+    if (buds.length && !G.budAsked && G.fresh >= G.budAt) {
+      return drawWeighted(buds.map((p) => ({ a: p.a, b: p.b, w: (0.2 + p.cur) * (p.near ? 3 : 1) })));
+    }
     const thirsty = plots.filter((p) => p.dry > 0.4 && !G.asked.has(p.key) && !G.recent.includes(p.key));
     if (thirsty.length && G.thirstPicks < SP.THIRST_MAX) {
       G.thirstPicks++;
@@ -1684,6 +1691,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     G.q = q || (G.mode === "green" ? greenPick() : practicePick());
     G.recent = [factKey(G.q.a, G.q.b)].concat(G.recent).slice(0, 3);
     G.asked.add(factKey(G.q.a, G.q.b));
+    if (G.mode === "green" && plotOf(G.q.a, G.q.b).stage === 3) G.budAsked = true;
     G.input = ""; G.locked = false; G.hinted = false;
     $("qa").textContent = G.q.a; $("qb").textContent = G.q.b;
     $("retryTag").hidden = !G.q.retry;
