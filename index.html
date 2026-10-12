@@ -1495,7 +1495,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     $("resWater").textContent = roundsToday();
     $("resDays").textContent = streakDays();
     $("resNow").textContent = Math.round(boardPct()) + " %";
-    $("resBest").textContent = Math.round(S.bestPct) + " %";
+    $("resBest").textContent = Math.floor(S.bestPct) + " %";
     mountGarden($("homeGarden"), { sel: home.sel });
     renderTicker();
     renderPlotInfo();
@@ -2132,6 +2132,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   });
 
   // ---------- Visitors ----------
+  // The record (speed) is not the same as how much the garden has grown (size), so say where the record is now.
+  const progress = (d) => d.how.startsWith("Rekord") ? " (nu " + Math.floor(S.bestPct) + "\u00a0%)" : " (nu " + flowerCount() + ")";
   function renderCollection() {
     const u = unlocked();
     $("collTitle").textContent = "Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%";
@@ -2141,9 +2143,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       return '<div class="panel vcard"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="false"></canvas>' +
         "<b>" + v.name + "</b><small>Bor på " + x + " · " + y + "</small></div>";
     }).join("") + pending.map((v, i) => {
-      const at = S.visits.length + i + 1, reach = at <= visitorsReachable();
+      const at = S.visits.length + i + 1, reach = at <= visitorsReachable(), due = at <= visitorsDue();
       return '<div class="panel vcard locked"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="true"></canvas>' +
-        "<b>???</b><small>Kommer vid " + at * 10 + "\u00a0%" + (reach ? "" : ". Sätt på fler rader") + "</small></div>";
+        "<b>???</b><small>" + (due ? "Är på väg! Kommer efter nästa runda" : "Kommer vid " + at * 10 + "\u00a0%" + (reach ? "" : ". Sätt på fler rader")) + "</small></div>";
     }).join("");
     const rows = fullRows();
     $("rowBadges").innerHTML = S.rows.map((r) =>
@@ -2151,7 +2153,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     $("decoList").innerHTML = DECOS.map((d) => {
       const has = u.decos.includes(d.id);
       return '<div class="panel vcard' + (has ? "" : " locked") + '"><canvas class="pix" data-icon="deco" data-id="' + d.id + '" data-locked="' + !has + '"></canvas>' +
-        "<b>" + (has ? d.name : "???") + "</b><small>" + d.how + (has || d.reach() ? "" : ". Sätt på fler rader") + "</small></div>";
+        "<b>" + (has ? d.name : "???") + "</b><small>" + d.how + (has ? "" : d.reach() ? progress(d) : ". Sätt på fler rader") + "</small></div>";
     }).join("");
     document.querySelectorAll("#collection canvas[data-icon]").forEach((c) => Garden.drawIcon(c, c.dataset.icon, c.dataset.id, c.dataset.locked === "true"));
     // Stickers from the first version stay visible, but no new ones are handed out.
