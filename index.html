@@ -268,7 +268,12 @@ table.mult td, table.mult th { width: 40px; height: 36px; text-align: center; fo
 table.mult th { color: var(--muted); font-size: 0.75rem; }
 table.mult td { background: var(--card); border: 2px solid var(--line); cursor: pointer; }
 table.mult td.band { background: #eef7ea; }
-table.mult td.on { background: var(--sun); border-color: var(--sun-edge); }
+table.mult td.hard { background: var(--bad-soft); border-color: #ff9c94; color: var(--bad); }
+table.mult td.on { background: var(--sun); border-color: var(--sun-edge); color: var(--ink); }
+table.mult td.on.hard { border-color: var(--bad); }
+.hard-legend { margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--muted); }
+.hard-legend i { display: inline-block; width: 14px; height: 14px; vertical-align: -2px; margin-right: 6px; border-radius: 4px; background: var(--bad-soft); border: 2px solid #ff9c94; }
+.hard-note { background: var(--bad-soft); border: 2px solid #ffc2bc; border-radius: 14px; padding: 8px 12px; margin: 0; font-weight: 700; }
 table.mult th.band { color: var(--ink); background: var(--sun); }
 .explain { display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center; }
 .explain .eq { font-family: var(--font-num); font-size: 1.5rem; line-height: 1.3; }
@@ -472,6 +477,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       <h1>Multiplikationstabellen</h1>
       <p>Tryck på en ruta. Raden och kolumnen lyser upp, och du ser talet som prickar.</p>
       <div class="grid-wrap"><table class="mult" id="multTable"></table></div>
+      <p class="hard-legend" id="hardLegend" hidden></p>
     </div>
     <div class="panel explain" id="explain"></div>
     <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
@@ -619,6 +625,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     EFFORT_STEP: 0.04, // every correct answer grows the plant this much, however slow ...
     EFFORT_MAX: 0.4,   // ... up to this much in total,
     EFFORT_CEIL: 0.55, // ... and never past this size: buds (60 %) and flowers still need speed
+    HARD_SEEN: 2,      // a fact can be marked hard in Utforska once she has answered it this often ...
+    HARD_WRONG: 3,     // ... and she missed it in one of her last this many tries,
+    HARD_THINK: 3,     // ... or her typical (median) thinking time on it lately is at least this (s)
     LOG: 20            // raw attempts kept per fact, for later re-analysis
   };
   const DAY = 864e5;
@@ -1618,6 +1627,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       total: green ? SP.ROUND : setup.count,
       answered: 0, fresh: 0, firstRight: 0, freshRight: 0, correct: 0, fast: 0, streak: 0, bestStreak: 0, retried: 0, fixed: 0,
       retry: [], missed: [], recent: [], asked: new Set(), thirstPicks: 0,
+      budAt: Math.floor(Math.random() * SP.ROUND), budAsked: false,
       q: null, input: "", locked: false, hinted: false, qStart: 0, interrupted: false, waiting: false,
       startPct: boardPct(), startBest: S.bestPct, touched: new Set(),
       before: snapshot(), unlockedBefore: unlocked(), rowsBefore: fullRows()
@@ -1659,9 +1669,15 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   // After that, favour grey and half-green facts, still mix in some green ones; plants that are
   // still dry weigh extra, so a thirsty one can get the couple of answers it needs to perk up.
   // Unpractised facts are fully grey (g = 0), so they weigh as much as the slowest ones.
+  // Every round also asks at least one bud, at a random point in the round (budAt), so a flower
+  // can open: the buds closest to opening are the most likely.
   function greenPick() {
     const now = Date.now();
     const plots = FACTS.map(([a, b]) => Object.assign({ a: a, b: b }, plotOf(a, b, now)));
+    const buds = plots.filter((p) => p.stage === 3 && !G.recent.includes(p.key));
+    if (buds.length && !G.budAsked && G.fresh >= G.budAt) {
+      return drawWeighted(buds.map((p) => ({ a: p.a, b: p.b, w: (0.2 + p.cur) * (p.near ? 3 : 1) })));
+    }
     const thirsty = plots.filter((p) => p.dry > 0.4 && !G.asked.has(p.key) && !G.recent.includes(p.key));
     if (thirsty.length && G.thirstPicks < SP.THIRST_MAX) {
       G.thirstPicks++;
@@ -1684,6 +1700,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     G.q = q || (G.mode === "green" ? greenPick() : practicePick());
     G.recent = [factKey(G.q.a, G.q.b)].concat(G.recent).slice(0, 3);
     G.asked.add(factKey(G.q.a, G.q.b));
+    if (G.mode === "green" && plotOf(G.q.a, G.q.b).stage === 3) G.budAsked = true;
     G.input = ""; G.locked = false; G.hinted = false;
     $("qa").textContent = G.q.a; $("qb").textContent = G.q.b;
     $("retryTag").hidden = !G.q.retry;
@@ -1995,25 +2012,41 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   // ---------- Explore ----------
   const ex = { a: 6, b: 7 };
+  // A fact is hard right now when she has missed it lately or still needs long to think about it.
+  // This looks at her recent answers rather than E, since E starts at C and needs a few answers to come down.
+  function isHard(a, b) {
+    const s = S.speed[factKey(a, b)];
+    if (!s || s.log.length < SP.HARD_SEEN) return false;
+    if (s.log.slice(-SP.HARD_WRONG).some((l) => !l[4])) return true;
+    const t = factStats(a, b).median;
+    return t != null && t >= SP.HARD_THINK;
+  }
   function renderExplore() {
+    const hard = {};
+    let nHard = 0;
+    ALL_FACTS.forEach(([a, b]) => { if (isHard(a, b)) { hard[factKey(a, b)] = true; nHard++; } });
     let html = "<tr><th>·</th>";
     for (let c = 1; c <= 10; c++) html += '<th class="' + (c === ex.b ? "band" : "") + '">' + c + "</th>";
     html += "</tr>";
     for (let r = 1; r <= 10; r++) {
       html += '<tr><th class="' + (r === ex.a ? "band" : "") + '">' + r + "</th>";
       for (let c = 1; c <= 10; c++) {
-        const cls = r === ex.a && c === ex.b ? "on" : (r === ex.a && c < ex.b) || (c === ex.b && r < ex.a) ? "band" : "";
-        html += '<td class="' + cls + '" data-r="' + r + '" data-c="' + c + '">' + r * c + "</td>";
+        let cls = r === ex.a && c === ex.b ? "on" : (r === ex.a && c < ex.b) || (c === ex.b && r < ex.a) ? "band" : "";
+        if (hard[factKey(r, c)]) cls += " hard";
+        html += '<td class="' + cls.trim() + '" data-r="' + r + '" data-c="' + c + '">' + r * c + "</td>";
       }
       html += "</tr>";
     }
     $("multTable").innerHTML = html;
+    $("hardLegend").hidden = !nHard;
+    $("hardLegend").innerHTML = '<i></i>Röda rutor är knepiga för dig just nu. Dem kan du gärna titta lite extra på!';
     const a = ex.a, b = ex.b;
     const sum = [];
     for (let i = 0; i < a; i++) sum.push(b);
     $("explain").innerHTML =
       '<div class="eq">' + a + ' <span class="op">·</span> ' + b + ' <span class="op">=</span> ' + a * b + "</div>" +
       '<p class="note">' + NUM_WORDS[a].replace(/^./, (c) => c.toUpperCase()) + " gånger " + NUM_WORDS[b] + " är samma som " + (a <= 6 ? sum.join(" + ") : a + " stycken " + b + ":or") + ".</p>" +
+      (hard[factKey(a, b)] ? '<p class="hard-note">Den här är lite knepig för dig just nu. Titta på prickarna och knepet, så sitter den snart!</p>' : "") +
       dotsHtml(a, b) +
       (a !== b ? '<p class="note">Ordningen spelar ingen roll: ' + b + " · " + a + " = " + a * b + " också! Därför växer samma planta på båda ställena i trädgården.</p>" : '<p class="note">' + a + " · " + a + " är en kvadrat! Prickarna bildar en fyrkant.</p>") +
       '<div class="tip"><b>Knep för ' + a + "-tabellen:</b> " + TIPS[a] + "</div>" +
