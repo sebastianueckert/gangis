@@ -298,6 +298,25 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 .sticker .em { font-size: 2.2rem; line-height: 1.2; }
 .sticker small { font-weight: 800; font-size: 0.78rem; }
 
+/* ---------- 100 %: the big surprise ---------- */
+.finale { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(20, 50, 30, 0.72); animation: fadeIn .4s backwards; }
+.finale-card { width: 100%; max-width: 420px; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 22px 18px; text-align: center; background: var(--card); color: var(--ink); border-radius: 24px; border: 3px solid var(--sun);
+  box-shadow: 0 6px 0 var(--sun-edge), 0 0 0 8px rgba(255, 200, 0, 0.25); animation: pop .6s backwards; }
+.finale-card h2 { margin: 0; font-family: var(--font-pixel); font-size: 1.6rem; line-height: 1.1; }
+.finale-card p { margin: 0; font-weight: 700; }
+.finale-pct { font-family: var(--font-num); font-size: 2.6rem; color: var(--good); text-shadow: 0 4px 0 var(--good-soft); animation: starIn .7s .2s backwards; }
+.gift { font-size: 5.5rem; line-height: 1; background: none; border: 0; padding: 8px; cursor: pointer; animation: wiggle 1.2s ease-in-out infinite; }
+.gift-hint { font-family: var(--font-pixel); font-size: 1.15rem; color: var(--accent); }
+.finale-reveal { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px; width: 100%; background: var(--sun-soft);
+  border-radius: 18px; border: 2px solid #f4df8c; animation: flipIn .7s backwards; }
+.finale-reveal canvas { width: 144px; height: 144px; border-radius: 18px; }
+.finale-reveal .trophy { font-size: 5rem; line-height: 1; }
+.finale-reveal b { font-family: var(--font-pixel); font-size: 1.6rem; line-height: 1.1; }
+@keyframes wiggle { 0%, 60%, 100% { transform: rotate(0) scale(1); } 70% { transform: rotate(-10deg) scale(1.08); } 80% { transform: rotate(10deg) scale(1.08); } 90% { transform: rotate(-6deg); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
 /* ---------- Parent view ---------- */
 .ptable { border-collapse: collapse; width: 100%; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
 .ptable th, .ptable td { padding: 4px 3px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
@@ -331,6 +350,18 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 </head>
 <body>
 <canvas id="confetti" aria-hidden="true"></canvas>
+<div id="finale" class="finale" hidden role="dialog" aria-modal="true" aria-labelledby="finaleTitle">
+  <div class="finale-card">
+    <span class="eyebrow">Grönt nu</span>
+    <div class="finale-pct">100 %</div>
+    <h2 id="finaleTitle">Hela trädgården lyser grönt!</h2>
+    <p id="finaleText"></p>
+    <button class="gift" id="finaleGift" type="button" aria-label="Öppna presenten">🎁</button>
+    <span class="gift-hint" id="finaleHint">Tryck på presenten!</span>
+    <div class="finale-reveal" id="finaleReveal" hidden></div>
+    <button class="btn green" id="finaleClose" type="button" hidden>Hurra!</button>
+  </div>
+</div>
 <div class="app">
   <header class="topbar panel">
     <button class="logo" id="logo" aria-label="Till trädgården">Gångis<span>·</span></button>
@@ -528,10 +559,14 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <div class="panel menu">
       <span class="eyebrow">Trädgårdens besökare</span>
       <h1 id="collTitle">Besökare</h1>
-      <p id="collIntro">Ett nytt djur kommer varje gång trädgården har vuxit tio procent till. Saker i trädgården får du när fler plantor blommar och när du slår ditt rekord. Allt här stannar för alltid.</p>
+      <p id="collIntro">Ett nytt djur kommer varje gång trädgården har vuxit tio procent till (det sista redan vid 95 %). Saker i trädgården får du när fler plantor blommar och när du slår ditt rekord. Allt här stannar för alltid.</p>
     </div>
     <h2 class="section-title">Djur</h2>
     <div class="visit-grid" id="visitorList"></div>
+    <div id="guestBox" class="menu" hidden>
+      <h2 class="section-title">Sällsynta gäster</h2>
+      <div class="visit-grid" id="guestList"></div>
+    </div>
     <h2 class="section-title">Hela rader</h2>
     <div class="panel">
       <p class="note">När en hel rad blommar kan du hela den tabellen, och raden får en rosett.</p>
@@ -833,6 +868,31 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     { id: "grashoppa", name: "Gräshoppa", kind: "grasshopper" },
     { id: "snigel", name: "Snigel", kind: "snail" }
   ];
+  // The maturity at which each visitor comes: one per 10 %, but the last one (the snail) already at
+  // 95 %, so that 100 % is kept for the big surprises below.
+  const VISITOR_AT = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95];
+  // Rare guests: one moves in each time "Grönt nu" reaches 100 % (again). They are a surprise, so the
+  // visitors page only shows the ones that have come. The unicorn is kept for last.
+  const GUESTS = [
+    { id: "kanin", name: "Kanin", text: "En kanin har flyttat in på gräsmattan." },
+    { id: "ekorre", name: "Ekorre", text: "En ekorre har flyttat in vid bänken. Den har med sig en nöt." },
+    { id: "uggla", name: "Uggla", text: "En uggla har flyttat in i det stora trädet." },
+    { id: "guldfisk", name: "Guldfiskar", text: "Två guldfiskar simmar nu runt i dammen." },
+    { id: "rav", name: "Räv", text: "En räv har flyttat in på gräsmattan." },
+    { id: "pafagel", name: "Påfågel", text: "En påfågel visar upp sina fjädrar vid gången." },
+    { id: "alva", name: "Älva", text: "En älva flyger runt över trädgården och lämnar glitter efter sig." },
+    { id: "enhorning", name: "Enhörning", text: "En enhörning! Den kommer bara till de allra finaste trädgårdarna." }
+  ];
+  // "Grönt nu" shows as 100 % from 99.5 %, so that is when it counts.
+  const isFull = (pct) => Math.round(pct) >= 100;
+  // Grönt nu has just reached 100 %: count it, and the next rare guest (if any is left) moves in.
+  function reachFull() {
+    S.fullTimes = (S.fullTimes || 0) + 1;
+    const had = S.guests || [], g = GUESTS.find((x) => !had.includes(x.id)) || null;
+    if (g) S.guests = had.concat(g.id);
+    save();
+    return { n: S.fullTimes, guest: g };
+  }
   const DECOS = [
     { id: "bench", name: "Bänk", how: "Rekord 25 %", has: () => S.bestPct >= 25, reach: () => maxPct() >= 25 },
     { id: "birdbox", name: "Fågelholk", how: "10 blommor", has: () => flowerCount() >= 10, reach: () => FACTS.length >= 10 },
@@ -843,8 +903,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   ];
   // How far the garden can get with the rows that are on (100 % only with all rows).
   const maxPct = () => FACTS.length / ALL_FACTS.length * 100;
-  // How many visitors can come with the rows that are on (one per 10 % of the whole garden).
-  const visitorsReachable = () => Math.min(VISITORS.length, Math.floor(FACTS.length * 10 / ALL_FACTS.length + 1e-9));
+  // How many visitors can come with the rows that are on (the garden can't grow past their share).
+  const visitorsReachable = () => VISITOR_AT.filter((at) => FACTS.length / ALL_FACTS.length + 1e-9 >= at).length;
   // Flowers never wilt away (size never shrinks), so this count only goes up.
   function flowerCount() {
     return FACTS.filter(([a, b]) => { const s = S.speed[factKey(a, b)]; return s && (s.best || 0) >= 0.999; }).length;
@@ -859,8 +919,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   function maturity() {
     return FACTS.reduce((t, [a, b]) => t + sizeOf(S.speed[factKey(a, b)]), 0) / ALL_FACTS.length;
   }
-  // One visitor per 10 % of maturity. Each lands on a plant (the one that grew most when it came).
-  const visitorsDue = () => Math.min(VISITORS.length, Math.floor(maturity() * 10 + 1e-9));
+  // One visitor per step of VISITOR_AT. Each lands on a plant (the one that grew most when it came).
+  const visitorsDue = () => VISITOR_AT.filter((at) => maturity() + 1e-9 >= at).length;
   function freePlant(prefer) {
     const taken = new Set(S.visits.map((v) => v.key));
     const live = new Set(FACTS.map(([a, b]) => factKey(a, b)));
@@ -1093,6 +1153,71 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
           p.px(x + 4, y, "#8a8070"); p.px(x + 4, y - 1, "#8a8070"); break;
       }
     }
+    // Rare guests, drawn around (x, y). t moves them a little; roam is 1 in the garden (the guldfiskar swim
+    // round the pond, the älva flies over the whole bed) and 0 for the icons.
+    const RAINBOW = ["#e8445a", "#ffb000", "#ffd23f", "#7ad04f", "#4f7df0", "#b07cf5"];
+    function guest(p, id, x, y, t, roam) {
+      let k;
+      switch (id) {
+        case "kanin":
+          if (Math.sin(t * 1.7) > 0.93) y -= 2;
+          p.disc(x, y + 1, 2.6, "#cdbba6"); p.disc(x + 3, y - 1, 1.8, "#cdbba6");
+          p.rect(x + 2, y - 6, 1, 4, "#cdbba6"); p.rect(x + 4, y - 6, 1, 4, "#cdbba6"); p.px(x + 2, y - 5, "#f0a0b0"); p.px(x + 4, y - 5, "#f0a0b0");
+          p.px(x + 4, y - 1, "#1c1c1c"); p.px(x + 5, y, "#f0a0b0"); p.disc(x - 3, y, 1, "#ffffff"); p.rect(x - 1, y + 3, 2, 1, "#a8957e"); break;
+        case "ekorre":
+          k = Math.sin(t * 3) > 0.6 ? 1 : 0;
+          p.disc(x - 3 - k, y - 2, 2.4, "#c8642c"); p.disc(x - 2 - k, y - 5, 1.8, "#c8642c"); p.px(x - 3 - k, y - 3, "#e08848");
+          p.disc(x, y, 2.2, "#b8582a"); p.px(x + 1, y + 1, "#f0d0a0"); p.disc(x + 2, y - 2, 1.6, "#b8582a");
+          p.px(x + 2, y - 4, "#8a3e1a"); p.px(x + 3, y - 2, "#1c1c1c"); p.disc(x + 3, y + 1, 0.8, "#7a4a22"); break;
+        case "uggla":
+          p.disc(x, y, 3, "#8a6a48"); p.disc(x, y + 1, 1.8, "#d9c4a0"); p.px(x - 2, y - 3, "#5a4028"); p.px(x + 2, y - 3, "#5a4028");
+          if (Math.floor(t * 2) % 9 === 8) { p.rect(x - 2, y - 1, 2, 1, "#5a4028"); p.rect(x + 1, y - 1, 2, 1, "#5a4028"); }
+          else { p.rect(x - 2, y - 2, 2, 2, "#fff3b0"); p.rect(x + 1, y - 2, 2, 2, "#fff3b0"); p.px(x - 1, y - 1, "#1c1c1c"); p.px(x + 1, y - 1, "#1c1c1c"); }
+          p.px(x, y, "#e0a92a"); p.px(x - 1, y + 3, "#e0a92a"); p.px(x + 1, y + 3, "#e0a92a"); break;
+        case "guldfisk":
+          for (k = 0; k < 2; k++) {
+            const a = t * 0.6 + k * Math.PI + 0.8, fx = x + Math.cos(a) * (roam ? 13 : 4), fy = y + Math.sin(a) * (roam ? 5 : 3);
+            const dir = roam ? (Math.sin(a) > 0 ? -1 : 1) : (k ? -1 : 1);
+            p.disc(fx, fy, 1.3, "#ff7a12"); p.px(fx - 2 * dir, fy, "#ffb84a"); p.px(fx - 2 * dir, fy - 1, "#ffb84a"); p.px(fx + dir, fy - 1, "#1c1c1c");
+          }
+          break;
+        case "rav":
+          k = Math.sin(t * 2.5) > 0.5 ? 1 : 0;
+          p.disc(x - 5, y - k, 1.7, "#e0702a"); p.px(x - 7, y - 1 - k, "#ffffff"); p.px(x - 6, y - k, "#ffffff");
+          p.rect(x - 3, y - 1, 7, 3, "#e0702a"); p.rect(x - 2, y + 2, 1, 2, "#2b1a0a"); p.rect(x + 2, y + 2, 1, 2, "#2b1a0a"); p.px(x + 3, y, "#ffffff");
+          p.disc(x + 4, y - 2, 1.8, "#e0702a"); p.px(x + 3, y - 4, "#2b1a0a"); p.px(x + 5, y - 4, "#2b1a0a");
+          p.px(x + 5, y - 1, "#ffffff"); p.px(x + 4, y - 2, "#1c1c1c"); p.px(x + 6, y - 2, "#2b1a0a"); break;
+        case "pafagel":
+          p.disc(x, y - 2, 3.4, "#2f8a5a");
+          for (k = 0; k < 9; k++) {
+            const a = Math.PI + (k + 0.5) / 9 * Math.PI;
+            p.disc(x + Math.cos(a) * 5, y - 1 + Math.sin(a) * 5, 1.3, "#2a9a6a");
+            p.px(x + Math.cos(a) * 5.4, y - 1 + Math.sin(a) * 5.4, (k + Math.floor(t * 2)) % 2 ? "#4f7df0" : "#ffd23f");
+          }
+          p.disc(x, y + 1, 1.6, "#2f5fb3"); p.disc(x, y - 1, 1, "#3a6fd0"); p.px(x, y - 3, "#3a6fd0");
+          p.px(x, y - 1, "#ffffff"); p.px(x + 1, y - 1, "#e0a92a"); break;
+        case "alva":
+          if (roam) {
+            const at = (u) => [x + Math.sin(u * 0.37) * 70, y + Math.sin(u * 0.53 + 1) * 70];
+            [0.5, 0.35, 0.2].forEach((d, n) => { const q = at(t - d); p.px(q[0], q[1] + 1, n ? "#fff3a0" : "rgba(255,243,160,0.5)"); });
+            [x, y] = at(t).map(Math.round);
+          }
+          if (Math.floor(t * 8) % 2) { p.rect(x - 2, y - 2, 2, 3, "rgba(225,245,255,0.9)"); p.rect(x + 1, y - 2, 2, 3, "rgba(225,245,255,0.9)"); }
+          else { p.rect(x - 3, y - 1, 3, 2, "rgba(225,245,255,0.9)"); p.rect(x + 1, y - 1, 3, 2, "rgba(225,245,255,0.9)"); }
+          p.rect(x, y, 1, 3, "#ff8fb0"); p.px(x, y - 1, "#ffe0c8"); p.px(x, y - 2, "#ffd23f"); p.px(x + 2, y + 1, "#ffffff"); break;
+        case "enhorning":
+          p.rect(x - 5, y - 1, 10, 4, "#fbfbff"); p.rect(x - 5, y + 2, 10, 1, "#e2e2ee");
+          [-4, -2, 2, 4].forEach((o) => { p.rect(x + o, y + 3, 1, 3, "#e8e8f2"); p.px(x + o, y + 5, "#c0a060"); });
+          p.rect(x + 3, y - 4, 2, 4, "#fbfbff"); p.rect(x + 4, y - 5, 4, 3, "#fbfbff"); p.px(x + 7, y - 3, "#f0c0d0");
+          p.px(x + 6, y - 6, "#ffd23f"); p.px(x + 7, y - 7, "#ffd23f"); p.px(x + 8, y - 8, "#ffe98a"); p.px(x + 5, y - 4, "#1c1c1c");
+          RAINBOW.forEach((c, i) => { p.px(x + 3, y - 5 + i, c); p.px(x - 6 - (i % 2), y - 1 + i, c); });
+          if (Math.floor(t * 3) % 4 === 0) { p.px(x + 9, y - 9, "#ffffff"); p.px(x + 10, y - 8, "#fff3a0"); }
+          break;
+      }
+    }
+    // Where each rare guest lives in the garden (the älva roams from here).
+    const GUEST_SPOT = { kanin: [113, 223], ekorre: [97, 203], uggla: [12, 15], guldfisk: [28, 213], rav: [136, 224],
+      pafagel: [152, 201], alva: [104, 110], enhorning: [157, 222] };
     function tree(p, cx, cy, r, fruit) {
       const blobs = [[0, 0, r], [-r * 0.45, r * 0.25, r * 0.7], [r * 0.4, r * 0.3, r * 0.65], [r * 0.1, -r * 0.4, r * 0.7]];
       blobs.forEach((bl) => p.disc(cx + bl[0], cy + bl[1], bl[2], "#2c6e2c"));
@@ -1342,6 +1467,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         }
         visitor(p, w.v, Math.round(x), Math.round(y), flap);
       });
+      (ctl.opts.guests || []).forEach((id) => guest(p, id, GUEST_SPOT[id][0], GUEST_SPOT[id][1], t, 1));
     }
     function tick(ctl, now) {
       ctl.raf = 0;
@@ -1390,6 +1516,15 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         const v = VISITORS.find((x) => x.id === id);
         ctx.save(); ctx.translate(12, 12); ctx.scale(2, 2); ctx.translate(-12, -12);
         visitor(p, v, 12, 12); ctx.restore();
+      } else if (kind === "guest") {
+        // drawn at 1x, then scaled up without smoothing so every pixel stays sharp; [zoom, dx, dy] keeps each one inside
+        if (id === "guldfisk") p.disc(12, 12, 10, "#4f95cf");
+        const [z, dx, dy] = { kanin: [2, -1, 1], ekorre: [2, 0, 2], rav: [1.5, 1, 0], pafagel: [2, 0, 2], alva: [3, 0, 0], enhorning: [1.3, -2, 2] }[id] || [2, 0, 0];
+        const one = document.createElement("canvas");
+        one.width = 24; one.height = 24;
+        guest(pen(one.getContext("2d")), id, 12 + dx, 12 + dy, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(one, 12 - 12 * z, 12 - 12 * z, 24 * z, 24 * z);
       } else {
         ({ bench: () => bench(p, 1, 8), birdbox: () => birdbox(p, 6, 2), pond: () => pond(p, 12, 12, 10, 7, true),
           hedgehog: () => { ctx.save(); ctx.translate(12, 12); ctx.scale(2, 2); ctx.translate(-12, -12); hedgehog(p, 11, 12); ctx.restore(); },
@@ -1423,7 +1558,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       speciesName: (a, b) => SPECIES_NAMES[speciesOf(a, b).sp] };
   })();
 
-  if (location.hash === "#garden-debug") { window.__garden = Garden; window.__gangis = { S: S, recordSpeed: recordSpeed, daysUntilThirsty: daysUntilThirsty }; }
+  if (location.hash === "#garden-debug") { window.__garden = Garden; window.__gangis = { S: S, recordSpeed: recordSpeed, daysUntilThirsty: daysUntilThirsty, reachFull: reachFull, showFinale: (f) => showFinale(f) }; }
   // Mount a garden (canvas plus stake numbers) into a container.
   function mountGarden(el, opts) {
     let canvas = el.querySelector("canvas");
@@ -1447,6 +1582,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       visitors: S.visits.map((w) => { const [x, y] = visitSpot(w.key); return { v: VISITORS.find((v) => v.id === w.id), row: x, col: y }; }),
       offRows: ALL_ROWS.filter((t) => !rowOn(t)),
       fullRows: fullRows(),
+      guests: S.guests || [],
       grow: opts.grow || null,
       onPop: (stage) => { tone(stage === 4 ? 1319 : 988, 0, 0.12, "triangle", 0.07); tone(stage === 4 ? 1760 : 1319, 0.08, 0.14, "triangle", 0.05); },
       plot: (a, b) => { const st = plotOf(a, b, now); return { key: st.key, g: st.size, near: st.near && !wet.has(st.key), dry: wet.has(st.key) ? 0 : st.dry, wet: wet.has(st.key) && !st.off, off: !!st.off }; }
@@ -1479,26 +1615,34 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     right: () => { tone(784, 0, 0.12, "triangle"); tone(1047, 0.1, 0.2, "triangle"); },
     wrong: () => { tone(260, 0, 0.18, "sine", 0.15); tone(220, 0.15, 0.25, "sine", 0.12); },
     streak: () => [784, 988, 1175, 1568].forEach((f, i) => tone(f, i * 0.08, 0.15, "square", 0.06)),
-    fanfare: () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, i * 0.12, 0.22, "triangle", 0.15))
+    fanfare: () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, i * 0.12, 0.22, "triangle", 0.15)),
+    finale: () => {
+      [523, 659, 784, 1047, 880, 1047, 1175, 1319, 1568].forEach((f, i) => tone(f, i * 0.13, i === 8 ? 0.7 : 0.22, "triangle", 0.15));
+      [262, 330, 392, 523].forEach((f) => tone(f, 1.04, 0.8, "sine", 0.06));
+    }
   };
 
   // ---------- Confetti (petals) ----------
   const confettiCanvas = $("confetti"), cfx = confettiCanvas.getContext("2d");
   let parts = [], raf = 0;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  function confetti(n, originY) {
+  function confetti(n, originY, originX) {
     if (reduceMotion) return;
     const w = confettiCanvas.width = window.innerWidth, h = confettiCanvas.height = window.innerHeight;
     const cols = ["#ffd23f", "#e8445a", "#ff8fb0", "#ffffff", "#7fd2ff", "#8fd16a", "#b07cf5"];
     for (let i = 0; i < n; i++) {
       parts.push({
-        x: w / 2 + (Math.random() - 0.5) * w * 0.4, y: h * (originY || 0.35),
+        x: w * (originX || 0.5) + (Math.random() - 0.5) * w * 0.4, y: h * (originY || 0.35),
         vx: (Math.random() - 0.5) * 14, vy: -Math.random() * 14 - 4,
         s: 6 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4,
         c: pick(cols), life: 0
       });
     }
     if (!raf) raf = requestAnimationFrame(step);
+  }
+  // Bursts all over the screen for a few seconds: the 100 % surprise.
+  function fireworks() {
+    for (let k = 0; k < 9; k++) setTimeout(() => confetti(70, 0.2 + Math.random() * 0.4, 0.15 + Math.random() * 0.7), k * 380);
   }
   function step() {
     cfx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
@@ -1565,8 +1709,11 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     else if (rainedYesterday()) items.push("Det regnade i går, så trädgården klarade sig. Idag väntar den på dig.");
     else items.push("Trädgården väntar på dig idag.");
     if (near) items.push("✨ " + (near === 1 ? "En knopp är nära" : near + " knoppar är nära") + " att slå ut.");
+    // A hint that something happens at 100 %, without saying what.
+    if (maxPct() >= 99.95 && boardPct() >= 90 && !isFull(boardPct()))
+      items.push(S.fullTimes ? "🎁 Når Grönt nu 100\u00a0% igen händer något nytt…" : "🎁 Något händer när Grönt nu når 100\u00a0%…");
     if (thirsty) items.push(thirsty === 1 ? "En planta är törstig." : thirsty + " plantor är törstiga.");
-    if (S.visits.length < visitorsReachable()) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Nästa besökare kommer vid " + (S.visits.length + 1) * 10 + "\u00a0%.");
+    if (S.visits.length < visitorsReachable()) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Nästa besökare kommer vid " + Math.round(VISITOR_AT[S.visits.length] * 100) + "\u00a0%.");
     else if (S.visits.length < VISITORS.length) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Sätt på fler rader ⚙ så kan fler besökare komma.");
     const t = $("ticker");
     t.innerHTML = "<b>Nytt</b>";
@@ -2007,6 +2154,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         "<div><span>Rekord</span><b>" + fmtPct(S.bestPct) + "</b></div></div>";
       celebrate = record || bloomed > 0;
       G.arrived = arriveVisitors(cared.map((c) => c.k));
+      // Grönt nu reached 100 % (again): the big surprise, shown over the report.
+      if (isFull(pct) && !isFull(G.startPct)) G.finale = reachFull();
     }
     const n = roundsToday();
     html += '<p class="water-note">' + (n === 1 ? "Första rundan idag." : "Runda " + n + " idag.") +
@@ -2015,9 +2164,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const u = unlocked(), newV = G.arrived || [], newD = u.decos.filter((id) => !G.unlockedBefore.decos.includes(id)),
       newRows = fullRows().filter((r) => !G.rowsBefore.includes(r));
     let news = "";
-    if (newV.length || newD.length || newRows.length) {
+    const newG = G.finale && G.finale.guest;
+    if (newV.length || newD.length || newRows.length || newG) {
       celebrate = true;
       news = '<div class="unlocks">' +
+        (newG ? '<div class="unlock"><canvas class="pix" data-icon="guest" data-id="' + newG.id + '"></canvas><span><span class="eyebrow">Sällsynt gäst</span><b>' +
+          newG.name + "</b>" + newG.text + "</span></div>" : "") +
         newRows.map((r) => '<div class="unlock"><span class="rosette-big" aria-hidden="true">🎀</span><span><span class="eyebrow">Hela raden blommar</span><b>Hela ' + r +
           ":ans rad blommar!</b>Du kan hela " + r + "-tabellen. Raden får en rosett.</span></div>").join("") +
         newV.map((w) => { const v = VISITORS.find((x) => x.id === w.id), [x, y] = visitSpot(w.key);
@@ -2046,9 +2198,32 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       G.touched.forEach((k) => { if (after[k].size - G.before[k].size > 0.005) grow[k] = [G.before[k].size, after[k].size]; });
       mountGarden($("resultGarden"), { wet: G.touched, grow: grow });
     }
-    if (celebrate) { sfx.fanfare(); confetti(160, 0.3); }
+    if (G.finale) showFinale(G.finale);
+    else if (celebrate) { sfx.fanfare(); confetti(160, 0.3); }
     else sfx.right();
   }
+
+  // ---------- 100 %: the big surprise ----------
+  // Shown over the report each time Grönt nu reaches 100 %. She opens the present herself; inside is
+  // the next rare guest, or a trophy once they have all moved in.
+  const ordinal = (n) => n + ([1, 2].includes(n % 10) && ![11, 12].includes(n % 100) ? ":a" : ":e");
+  function showFinale(f) {
+    $("finaleText").textContent = f.n === 1 ? "Alla plantor blommar och är pigga på samma gång. Det är det svåraste som finns i Gångis!" :
+      "Du har gjort det igen! Det är " + ordinal(f.n) + " gången.";
+    const r = $("finaleReveal");
+    r.innerHTML = f.guest
+      ? '<span class="eyebrow">Sällsynt gäst</span><canvas class="pix" data-icon="guest" data-id="' + f.guest.id + '"></canvas><b>' + f.guest.name + "</b><p>" + f.guest.text + "</p>"
+      : '<span class="eyebrow">Guldpokal</span><span class="trophy">🏆</span><b>' + ordinal(f.n) + " gången!</b><p>Alla sällsynta gäster bor redan här. Du är en riktig mästarträdgårdsmästare!</p>";
+    r.querySelectorAll("canvas[data-icon]").forEach((c) => Garden.drawIcon(c, "guest", c.dataset.id, false));
+    r.hidden = true; $("finaleClose").hidden = true; $("finaleGift").hidden = false; $("finaleHint").hidden = false;
+    $("finale").hidden = false;
+    sfx.fanfare(); confetti(120, 0.3);
+  }
+  $("finaleGift").addEventListener("click", () => {
+    $("finaleGift").hidden = true; $("finaleHint").hidden = true; $("finaleReveal").hidden = false; $("finaleClose").hidden = false;
+    sfx.finale(); fireworks();
+  });
+  $("finaleClose").addEventListener("click", () => { sfx.tap(); $("finale").hidden = true; });
   // Tapping a plant in the report shows it up close, the same as in the garden at home.
   $("resultCard").addEventListener("click", (e) => {
     const garden = e.target.closest("#resultGarden");
@@ -2206,10 +2381,14 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       return '<div class="panel vcard"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="false"></canvas>' +
         "<b>" + v.name + "</b><small>Bor på " + x + " · " + y + "</small></div>";
     }).join("") + pending.map((v, i) => {
-      const at = S.visits.length + i + 1, reach = at <= visitorsReachable(), due = at <= visitorsDue();
+      const at = S.visits.length + i + 1, reach = at <= visitorsReachable(), due = at <= visitorsDue(), pct = Math.round(VISITOR_AT[at - 1] * 100);
       return '<div class="panel vcard locked"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="true"></canvas>' +
-        "<b>???</b><small>" + (due ? "Är på väg! Kommer efter nästa runda" : "Kommer vid " + at * 10 + "\u00a0%" + (reach ? "" : ". Sätt på fler rader")) + "</small></div>";
+        "<b>???</b><small>" + (due ? "Är på väg! Kommer efter nästa runda" : "Kommer vid " + pct + "\u00a0%" + (reach ? "" : ". Sätt på fler rader")) + "</small></div>";
     }).join("");
+    const guests = S.guests || [];
+    $("guestBox").hidden = !guests.length;
+    $("guestList").innerHTML = guests.map((id) => '<div class="panel vcard"><canvas class="pix" data-icon="guest" data-id="' + id + '" data-locked="false"></canvas>' +
+      "<b>" + GUESTS.find((g) => g.id === id).name + "</b><small>Kom när Grönt nu nådde 100\u00a0%</small></div>").join("");
     const rows = fullRows();
     $("rowBadges").innerHTML = S.rows.map((r) =>
       '<span class="row-badge' + (rows.includes(r) ? " on" : "") + '">' + (rows.includes(r) ? "🎀 " : "") + '<b class="num">' + r + "</b>:an</span>").join("");
