@@ -639,8 +639,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     EFFORT_MAX: 0.4,   // ... up to this much in total,
     EFFORT_CEIL: 0.55, // ... and never past this size: buds (60 %) and flowers still need speed
     HARD_SEEN: 2,      // a fact can be marked hard in Utforska once she has answered it this often ...
-    HARD_WRONG: 3,     // ... and she missed it in one of her last this many tries,
-    HARD_THINK: 3,     // ... or her typical (median) thinking time on it lately is at least this (s)
+    HARD_WRONG: 3,     // ... and she missed it in one of her last this many tries without making up for it,
+    HARD_THINK: 3,     // ... or her typical thinking time on it is at least this (s)
     LOG: 20            // raw attempts kept per fact, for later re-analysis
   };
   const DAY = 864e5;
@@ -768,6 +768,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     S.greenLimit = SP.GREEN;
     save();
   }
+  // The record never lies below what the garden shows now (after a model change, today's greenness
+  // can be counted more generously than when the record was set).
+  if (boardPct() > S.bestPct) { S.bestPct = boardPct(); save(); }
 
   // ---------- The garden's state ----------
   // Size comes from the best greenness a fact has ever had (never shrinks).
@@ -2066,14 +2069,20 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   // ---------- Explore ----------
   const ex = { a: 6, b: 7 };
-  // A fact is hard right now when she has missed it lately or still needs long to think about it.
-  // This looks at her recent answers rather than E, since E starts at C and needs a few answers to come down.
+  // A fact is hard right now when she missed it in one of her last HARD_WRONG tries and hasn't made up
+  // for it yet with a correct answer under HARD_THINK, or when her typical time on it (which only her
+  // answers move) is HARD_THINK or more. So a flowering plant is only red if it really has slipped,
+  // and one good answer clears a slip.
   function isHard(a, b) {
     const s = S.speed[factKey(a, b)];
     if (!s || s.log.length < SP.HARD_SEEN) return false;
-    if (s.log.slice(-SP.HARD_WRONG).some((l) => !l[4])) return true;
-    const t = factStats(a, b).median;
-    return t != null && t >= SP.HARD_THINK;
+    const recent = s.log.slice(-SP.HARD_WRONG);
+    let missed = false;
+    recent.forEach((l) => {
+      if (!l[4]) missed = true;
+      else if (l[3] / 1000 - typingAllowance(a * b) < SP.HARD_THINK) missed = false;
+    });
+    return missed || Math.exp(s.m) >= SP.HARD_THINK;
   }
   function renderExplore() {
     const hard = {};
