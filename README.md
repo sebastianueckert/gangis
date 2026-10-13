@@ -13,7 +13,7 @@ The look: a pixel-art garden (in the spirit of Stardew Valley and Minecraft) ins
 - **The garden** (start screen): a generated top-down pixel garden built on the 10×10 table. Fact a·b grows at row a, column b, with numbered stakes along the edges; tapping a plant ties planting strings along its row and column and shows the fact. 7·8 and 8·7 grow the same (randomly chosen) plant, so the garden is mirrored along the diagonal.
 - **Sköt om trädgården**: 20 questions, picked mostly from the facts that need it. Thirsty plants come first: each one is asked early in the round (up to 12 of the 20 questions), and plants that are still dry after that come up more often. Every round also asks at least one bud (at a random point in the round), most likely one that is about to open, so a flower can bloom. A missed question comes back once, 3 questions later, on top of the 20; that second try counts like any answer, so a fast correct one makes up for the miss. Only these rounds make plants grow. The report shows the plants she cared for (before → after) and how many buds can open next round.
 - **Öva tabeller**: relaxed practice of the tables you pick. Missed questions come back, and dot hints are available.
-- **Utforska tabellerna**: an interactive 10×10 table with dot pictures and a tip for each table. Facts that are hard for her right now are shown in red (both 7·8 and 8·7), and the explanation says so when she taps one. A fact counts as hard once she has answered it at least twice and either missed it in one of her last 3 tries or her median thinking time over her last 10 correct answers is 3 s or more (`HARD_*` in `SP`). This uses her recent answers rather than the estimate `E`, which starts at `C` and needs a few answers to come down.
+- **Utforska tabellerna**: an interactive 10×10 table with dot pictures and a tip for each table. Facts that are hard for her right now are shown in red (both 7·8 and 8·7), and the explanation says so when she taps one. A fact counts as hard once she has answered it at least twice and either missed it in one of her last 3 tries or her median thinking time over her last 10 correct answers is 3 s or more (`HARD_*` in `SP`). This uses her recent answers rather than the typical time, which starts at `C` and needs a few answers to come down.
 - **Trädgårdens besökare**: everything that has come to stay in the garden.
 
 ## How the garden works
@@ -31,9 +31,22 @@ Each fact (7·8 and 8·7 count as one, 55 facts) has an estimate of her *thinkin
 - One answer scores `time to OK − typing allowance`, capped at `C = 8 s`. A wrong answer scores `C`.
 - The typing allowance is her running average time on the easy ×1 (one-digit answers) and ×10 (two-digit answers) questions.
 - Typo corrections don't count: if she presses ⌫, the time is the time until her first key plus the time from her last ⌫ to OK.
-- The estimate is a weighted average, `E ← 0.7·E + 0.3·score`, starting at `C`. One correct answer can raise `E` by at most 1.5 s, so a single slow moment barely shows.
-- Without practice, the estimate fades back towards `C`. Each fact has its own half-life for this: it starts at 2 days, grows ×1.6 when she answers fast (≤ 1 s thinking time) at least half a half-life after the last time she saw that fact, and halves after a wrong answer (limits 1–60 days). Well-known facts fade slowly, shaky ones quickly. The info panel for a plant says roughly how many days it lasts before it gets thirsty.
-- A fact is fully green at `E ≤ 1.5 s` (raised from 1 s; stored sizes are rescaled once when the limit changes). "Grönt nu" is the average greenness over all 55 facts; the record (🏆) is the best value ever reached and never fades.
+- The estimate has two parts, both on a log scale (1 s vs 2 s weighs like 4 s vs 8 s):
+  - **Typical time** `m`: her usual thinking time on the fact. Only answers move it, never the passing of time.
+  - **Uncertainty** `v`: how sure we are about `m`. Every answer makes it smaller, and it grows again while the fact isn't practised.
+- An answer moves the typical time by the share `v / (v + NOISE²)`. When we're unsure (a new fact, or after a break), one answer counts for a lot, so one fast answer after a week off brings the fact straight back. When we're sure, it counts for less, though always at least 1/4 (the uncertainty never drops below `V_MIN`). A fact's first answer counts for 1/3. A single slow correct answer counts as at most 1.5 s slower than the cautious time below, so one distracted moment barely shows.
+- Without practice the uncertainty grows by `DRIFT` per half-life. Each fact has its own half-life: it starts at 2 days, grows ×1.6 when she answers fast (≤ 1.5 s thinking time) at least half a half-life after the last time she saw that fact, and halves after a wrong answer (limits 1–60 days). Well-known facts stay certain for a long time, shaky ones don't. The info panel for a plant says roughly how many days it lasts before it gets thirsty.
+- The garden counts with the **cautious time** `e^(m + √v)`, meaning "we're fairly sure she's at least this fast". A fact is fully green when the cautious time is 1.8 s or less. Because the uncertainty never drops below its floor, the cautious time is always about 20 % above her typical time, so a flower needs a typical time of about 1.5 s. "Grönt nu" is the average greenness over all 55 facts; the record (🏆) is the best value ever reached and never fades.
+
+What that means for each plant:
+
+| | Comes from | Changes when |
+|---|---|---|
+| **Greenness** (current) | `(C − cautious time) / (C − 1.8 s)` | falls while the fact isn't practised (the uncertainty grows), rises with answers |
+| **Size** | the best greenness ever reached right after an answer, plus the effort bonus | only answers make it grow; it never shrinks |
+| **Thirst** | how far the current greenness is below the best (`(best − greenness − 0.15) / 0.45`) | grows with time off, and one fast answer usually fixes it |
+
+Saves from the earlier model (one estimate that faded back towards `C`) are converted once when the app loads: the old estimate becomes the typical time, sizes, effort, half-lives, the record and stored answers are kept, and the old save is copied to `gangis-v1-before-uncertainty` in localStorage.
 
 The parameters are first guesses and live in the `SP` object in `index.html`. The last 20 raw attempts per fact are stored too, so the scoring can be retuned later without losing history.
 
@@ -43,4 +56,4 @@ The ⚙ button at the top opens *Vilka rader är med?*, where rows (tables) are 
 
 100 % still means the whole 10×10 table. "Grönt nu", the record and garden maturity count the plants in play over all 55 plots, so with fewer rows the garden can only get part of the way (19 of 55 plants with rows 2 and 5, so at most 35 %, 3 of 10 visitors and 2 of 6 decorations). The settings screen says how far the garden can get, and the visitors page marks visitors and decorations that need more rows. Visitors and decorations already earned are kept when rows are switched off, and answers already given are kept, so switching a row back on brings its plants back as they were. At least one row always stays on.
 
-Progress is saved in the browser (localStorage). Tap the Gångis logo five times for a hidden parent view with typing allowance, per-fact thinking times, half-lives and a "Kopiera data" button. To start over, tap "Hej, …!" in the news line on the start screen and choose "Börja om från början".
+Progress is saved in the browser (localStorage). Tap the Gångis logo five times for a hidden parent view with typing allowance, per-fact typical and current cautious thinking times, half-lives and a "Kopiera data" button. To start over, tap "Hej, …!" in the news line on the start screen and choose "Börja om från början".
