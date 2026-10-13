@@ -515,9 +515,10 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       <p class="note" id="copyNote" hidden></p>
       <textarea id="copyBox" class="copy-box" readonly hidden aria-label="Data att kopiera"></textarea>
       <div class="grid-wrap"><table class="ptable" id="parentTable"></table></div>
-      <p class="note"><b>Typisk</b>: tänketiden som trädgården räknar med (tid till OK minus skrivtiden på lätta frågor, viktat mot de senaste svaren). Blomma kräver högst <span id="limitNote">1,5</span> s.
+      <p class="note"><b>Typisk</b>: hennes vanliga tänketid (tid till OK minus skrivtiden på lätta frågor, viktat mot de senaste svaren). Blomma kräver ungefär högst <span id="limitNote">1,5</span> s.
+        <b>Nu</b>: den försiktiga tänketiden som trädgården räknar med just nu. Utan övning blir trädgården osäkrare och räknar med mer tid, så plantan blir törstig. Ett snabbt svar gör den säker igen.
         <b>Median</b>: mitten av de senaste rätta svarens tänketid. <b>Svar/Fel</b>: bland de sparade senaste svaren (högst 20 per fakta).
-        <b>Halv.</b>: hur många dagar det tar innan tänketiden har glidit halvvägs tillbaka utan övning. <b>Stl.</b>: plantans storlek (bästa nivån hittills).</p>
+        <b>Halv.</b>: hur länge faktan håller utan övning (dagar). Ju längre, desto långsammare växer osäkerheten. <b>Stl.</b>: plantans storlek (bästa nivån hittills).</p>
     </div>
     <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
   </section>
@@ -601,27 +602,39 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
   // ---------- Speed model ----------
-  // Each fact (7·8 and 8·7 count as one) has an estimate E of her thinking time in seconds:
+  // Each fact (7·8 and 8·7 count as one) has an estimate of her thinking time in seconds:
   // time from question to OK, minus a typing allowance, capped at C. A wrong answer scores C.
-  // E is a weighted average where the newest answer weighs ALPHA. It starts at C, and when
-  // a fact isn't practised it fades back towards C. Each fact has its own half-life for that fade:
-  // it starts at HL_START days, grows when she answers fast after a real gap (she remembered it over
-  // time) and shrinks after a wrong answer, so well-known facts fade slowly and shaky ones quickly.
+  // The estimate has two parts, both in log seconds (so 1 s vs 2 s weighs like 4 s vs 8 s):
+  //   m  her typical thinking time. Only answers move it, never the passing of time.
+  //   v  how unsure we are about m. It shrinks with every answer and grows while the fact isn't
+  //      practised, by DRIFT per half-life. Each fact has its own half-life: it starts at HL_START
+  //      days, grows when she answers fast after a real gap (she remembered it over time) and
+  //      shrinks after a wrong answer, so well-known facts stay certain long and shaky ones don't.
+  // An answer moves m by the share K = v / (v + NOISE²): a lot when we are unsure (one fast
+  // answer after a break brings the fact straight back), less when we are sure.
+  // The garden uses the cautious time e^(m + √v), "fairly sure she is at least this fast": it is
+  // fully green at GREEN or less. The floor V_MIN keeps that about 20 % above her typical time,
+  // so GREEN = 1.8 s means a typical time of about 1.5 s, as before.
   // These values are first guesses; tune them here.
   const SP = {
     C: 8,              // cap, penalty for a wrong answer and starting value (s)
-    ALPHA: 0.3,        // weight of the newest answer
-    HL_START: 2,       // half-life (days) of a new fact's fading
+    NOISE: 0.35,       // spread of one answer around her typical time (log s)
+    V_NEW: 0.35 * 0.35 / 2, // uncertainty of a fact never answered: its first answer weighs 1/3
+    V_MIN: 0.35 * 0.35 / 3, // uncertainty floor: every answer weighs at least 1/4
+    DRIFT: 1,          // growth of the uncertainty per half-life without practice
+    T_MIN: 0.3,        // thinking times below this count as this (log of 0)
+    HL_START: 2,       // half-life (days) of a new fact
     HL_GROW: 1.6,      // ×half-life after a fast answer given at least HL_GAP half-lives after the last one
     HL_GAP: 0.5,
     HL_SHRINK: 0.5,    // ×half-life after a wrong answer
     HL_MIN: 1,         // half-life limits (days)
     HL_MAX: 60,
-    GREEN: 1.5,        // thinking time (s) that counts as fully green
+    GREEN: 1.8,        // cautious thinking time (s) that counts as fully green
+    FAST: 1.5,         // one answer this fast (s) is "blixtsnabbt" and can grow the half-life
     B_ALPHA: 0.2,      // how fast the typing allowance follows her easy-question times
     ROUND: 20,         // questions per round
     THIRST_MAX: 12,    // at most this many of a round's questions go first to thirsty plants
-    MAX_RISE: 1.5,     // one correct answer can raise a fact's estimate by at most this (s)
+    MAX_RISE: 1.5,     // one correct answer counts as at most this much slower than the cautious time (s)
     EFFORT_STEP: 0.04, // every correct answer grows the plant this much, however slow ...
     EFFORT_MAX: 0.4,   // ... up to this much in total,
     EFFORT_CEIL: 0.55, // ... and never past this size: buds (60 %) and flowers still need speed
@@ -645,14 +658,20 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   refreshFacts();
   const isEasy = (a, b) => a === 1 || b === 1 || a === 10 || b === 10;
 
+  // A fact's typical time m and uncertainty v (both log s) now, after the time since its last answer.
   function estimate(key, now) {
     const s = S.speed[key];
-    if (!s) return SP.C;
+    if (!s) return { m: Math.log(SP.C), v: SP.V_NEW };
     const days = Math.max(0, (now - s.ts) / DAY);
-    return SP.C - (SP.C - s.e) * Math.pow(0.5, days / (s.hl || SP.HL_START));
+    return { m: s.m, v: s.v + SP.DRIFT * days / (s.hl || SP.HL_START) };
+  }
+  // The cautious thinking time the garden counts with: "fairly sure she is at least this fast".
+  function cautious(key, now) {
+    const st = estimate(key, now);
+    return Math.min(SP.C, Math.exp(st.m + Math.sqrt(st.v)));
   }
   function greenness(key, now) {
-    return clamp01((SP.C - estimate(key, now)) / (SP.C - SP.GREEN));
+    return clamp01((SP.C - cautious(key, now)) / (SP.C - SP.GREEN));
   }
   function boardPct() {
     const now = Date.now();
@@ -670,21 +689,24 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     return d === 1 ? S.typing[1] : S.typing[2] + (d - 2) * 0.5;
   }
   // ms is the time with typo corrections cut out (see check()); rawMs is the plain time to OK.
+  // Returns the thinking time the answer counted as (s).
   function recordSpeed(a, b, ms, ok, rawMs) {
     const now = Date.now(), key = factKey(a, b), ans = a * b, sec = ms / 1000, d = String(ans).length;
     if (ok && isEasy(a, b) && d <= 2) {
       const old = S.typing[d];
       S.typing[d] = Math.max(0.6, (1 - SP.B_ALPHA) * old + SP.B_ALPHA * Math.min(sec, old * 2));
     }
-    const prev = estimate(key, now);
+    const st = estimate(key, now);
     // A single slow correct answer (a distraction, a sneeze) can only make things a little worse.
-    const score = ok ? Math.min(SP.C, prev + SP.MAX_RISE, Math.max(0, sec - typingAllowance(ans))) : SP.C;
-    const s = S.speed[key] || { e: SP.C, ts: now, n: 0, log: [], best: 0, hl: SP.HL_START };
+    const score = ok ? Math.min(SP.C, cautious(key, now) + SP.MAX_RISE, Math.max(0, sec - typingAllowance(ans))) : SP.C;
+    const s = S.speed[key] || { m: st.m, v: st.v, ts: now, n: 0, log: [], best: 0, hl: SP.HL_START };
     const hl = s.hl || SP.HL_START, gap = s.n ? (now - s.ts) / DAY : 0;
     if (!ok) s.hl = Math.max(SP.HL_MIN, hl * SP.HL_SHRINK);
-    else if (score <= SP.GREEN && s.n && gap >= SP.HL_GAP * hl) s.hl = Math.min(SP.HL_MAX, hl * SP.HL_GROW);
+    else if (score <= SP.FAST && s.n && gap >= SP.HL_GAP * hl) s.hl = Math.min(SP.HL_MAX, hl * SP.HL_GROW);
     else s.hl = hl;
-    s.e = (1 - SP.ALPHA) * prev + SP.ALPHA * score;
+    const k = st.v / (st.v + SP.NOISE * SP.NOISE);
+    s.m = st.m + k * (Math.log(Math.max(SP.T_MIN, score)) - st.m);
+    s.v = Math.max(SP.V_MIN, (1 - k) * st.v);
     s.ts = now; s.n++;
     s.log.push([now, a, b, Math.round(ms), ok ? 1 : 0, Math.round(rawMs)]);
     if (s.log.length > SP.LOG) s.log.shift();
@@ -695,25 +717,57 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     return score;
   }
   // How many days until a plant gets thirsty if the fact isn't practised (null: it can't get thirsty yet).
-  // Thirsty means current greenness more than 0.33 below its best; greenness fades with the fact's half-life.
+  // Thirsty means current greenness more than 0.33 below its best, i.e. a cautious time above tLim;
+  // that happens once the uncertainty has grown to (ln tLim - m)².
   function daysUntilThirsty(key, now) {
     const s = S.speed[key];
     if (!s) return null;
-    const limit = (s.best || 0) - 0.33, u = (SP.C - estimate(key, now)) / (SP.C - SP.GREEN);
-    if (limit <= 0.02 || u <= limit) return null;
-    return (s.hl || SP.HL_START) * Math.log2(u / limit);
+    const limit = (s.best || 0) - 0.33;
+    if (limit <= 0.02 || greenness(key, now) <= limit) return null;
+    const st = estimate(key, now), tLim = SP.C - limit * (SP.C - SP.GREEN), need = Math.log(tLim) - st.m;
+    if (need <= 0) return null;
+    return Math.max(0, need * need - st.v) * (s.hl || SP.HL_START) / SP.DRIFT;
   }
-  // If the green limit changed since the sizes were stored, rescale them: the same thinking time now
-  // gives (C - E)/(C - new limit) instead of (C - E)/(C - old limit). Versions before this used 1 s.
+  // Earlier versions kept one estimate E per fact that faded back towards C over time. Convert those
+  // facts once: E becomes the typical time, with a small uncertainty if she has answered it a few
+  // times. Sizes (best), the effort bonus, half-lives, the record and the stored answers are kept as
+  // they are, so no plant shrinks. The old data is copied aside first, just in case.
+  if (Object.keys(S.speed).some((k) => S.speed[k].m == null)) {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw && !localStorage.getItem(KEY + "-before-uncertainty")) localStorage.setItem(KEY + "-before-uncertainty", raw);
+    } catch (e) { /* ignore */ }
+    const OLD_GREEN = 1.5, now = Date.now();
+    // Bring sizes stored under an even older green limit (1 s) up to date first, as the old version did.
+    if (S.greenLimit !== OLD_GREEN) {
+      const f = (SP.C - (S.greenLimit || 1)) / (SP.C - OLD_GREEN);
+      Object.keys(S.speed).forEach((k) => { if (S.speed[k].best != null) S.speed[k].best = Math.min(1, S.speed[k].best * f); });
+      S.bestPct = Math.min(100, S.bestPct * f);
+    }
+    Object.keys(S.speed).forEach((k) => {
+      const s = S.speed[k];
+      if (s.m != null) return;
+      const e = s.e == null ? SP.C : s.e;
+      if (s.best == null) { // practised before plants existed: its old current greenness is its best
+        const old = SP.C - (SP.C - e) * Math.pow(0.5, Math.max(0, (now - s.ts) / DAY) / (s.hl || SP.HL_START));
+        s.best = clamp01((SP.C - old) / (SP.C - OLD_GREEN));
+      }
+      s.m = Math.log(Math.max(SP.T_MIN, e));
+      s.v = (s.n || 0) >= 3 ? SP.V_MIN : SP.V_NEW;
+      delete s.e;
+    });
+    S.greenLimit = SP.GREEN;
+    save();
+  }
+  // If the green limit changes later, rescale the sizes: the same cautious time T now gives
+  // (C - T)/(C - new limit) instead of (C - T)/(C - old limit).
   if (S.greenLimit !== SP.GREEN) {
-    const f = (SP.C - (S.greenLimit || 1)) / (SP.C - SP.GREEN);
+    const f = (SP.C - (S.greenLimit || SP.GREEN)) / (SP.C - SP.GREEN);
     Object.keys(S.speed).forEach((k) => { if (S.speed[k].best != null) S.speed[k].best = Math.min(1, S.speed[k].best * f); });
     S.bestPct = Math.min(100, S.bestPct * f);
     S.greenLimit = SP.GREEN;
     save();
   }
-  // Facts practised before plants existed start with their current greenness as their best.
-  Object.keys(S.speed).forEach((k) => { if (S.speed[k].best == null) S.speed[k].best = greenness(k, Date.now()); });
 
   // ---------- The garden's state ----------
   // Size comes from the best greenness a fact has ever had (never shrinks).
@@ -1765,7 +1819,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
     let quick = false;
     if (G.mode === "green" && !G.interrupted) {
-      quick = ok && recordSpeed(a, b, ms, ok, rawMs) <= SP.GREEN;
+      quick = ok && recordSpeed(a, b, ms, ok, rawMs) <= SP.FAST;
       G.touched.add(key);
       paintChip();
     }
@@ -2068,7 +2122,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     if (!s) return { key: key, a: a, b: b, n: 0 };
     const think = s.log.filter((l) => l[4]).map((l) => Math.max(0, l[3] / 1000 - typingAllowance(a * b))).slice(-10).sort((x, y) => x - y);
     const median = think.length ? (think.length % 2 ? think[(think.length - 1) / 2] : (think[think.length / 2 - 1] + think[think.length / 2]) / 2) : null;
-    return { key: key, a: a, b: b, n: s.log.length, wrong: s.log.filter((l) => !l[4]).length, e: s.e, median: median,
+    return { key: key, a: a, b: b, n: s.log.length, wrong: s.log.filter((l) => !l[4]).length, e: Math.exp(s.m), now: cautious(key, Date.now()), median: median,
       hl: s.hl || SP.HL_START, size: Math.round(sizeOf(s) * 100) };
   }
   function renderRows() {
@@ -2104,22 +2158,22 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     answered.forEach((r) => S.speed[r.key].log.filter((l) => l[4]).forEach((l) => allThink.push(Math.max(0, l[3] / 1000 - typingAllowance(r.a * r.b)))));
     allThink.sort((x, y) => x - y);
     const med = allThink.length ? allThink[Math.floor(allThink.length / 2)] : null;
-    $("limitNote").textContent = fmtS(SP.GREEN);
+    $("limitNote").textContent = fmtS(SP.FAST);
     $("parentSummary").innerHTML = "Skrivtid på lätta frågor (×1 och ×10): <b>" + fmtS(S.typing[1]) + " s</b> för ensiffriga svar, <b>" + fmtS(S.typing[2]) + " s</b> för tvåsiffriga. " +
       "Sparade svar: <b>" + total + "</b> på " + answered.length + " av " + FACTS.length + " fakta. Median tänketid för alla rätta svar: <b>" + fmtS(med) + " s</b>. " +
-      "Gränsen för blomma är " + fmtS(SP.GREEN) + " s tänketid.";
+      "Blomma kräver en typisk tänketid på ungefär " + fmtS(SP.FAST) + " s.";
     if (parentSort === "slow") rows.sort((x, y) => (y.n ? y.e : -1) - (x.n ? x.e : -1));
-    $("parentTable").innerHTML = "<thead><tr><th>Fakta</th><th>Typisk</th><th>Median</th><th>Svar</th><th>Fel</th><th>Halv.</th><th>Stl.</th></tr></thead><tbody>" +
-      rows.map((r) => "<tr" + (r.n && r.e > SP.GREEN ? ' class="slow"' : "") + "><td>" + r.a + " · " + r.b + "</td>" +
-        (r.n ? "<td>" + fmtS(r.e) + " s</td><td>" + fmtS(r.median) + " s</td><td>" + r.n + "</td><td>" + r.wrong + "</td><td>" + fmtS(r.hl) + " d</td><td>" + r.size + " %</td>"
-          : '<td colspan="6" class="none">inte övad än</td>') + "</tr>").join("") + "</tbody>";
+    $("parentTable").innerHTML = "<thead><tr><th>Fakta</th><th>Typisk</th><th>Nu</th><th>Median</th><th>Svar</th><th>Fel</th><th>Halv.</th><th>Stl.</th></tr></thead><tbody>" +
+      rows.map((r) => "<tr" + (r.n && r.e > SP.FAST ? ' class="slow"' : "") + "><td>" + r.a + " · " + r.b + "</td>" +
+        (r.n ? "<td>" + fmtS(r.e) + " s</td><td>" + fmtS(r.now) + " s</td><td>" + fmtS(r.median) + " s</td><td>" + r.n + "</td><td>" + r.wrong + "</td><td>" + fmtS(r.hl) + " d</td><td>" + r.size + " %</td>"
+          : '<td colspan="7" class="none">inte övad än</td>') + "</tr>").join("") + "</tbody>";
     $("sortTable").setAttribute("aria-pressed", String(parentSort === "table"));
     $("sortSlow").setAttribute("aria-pressed", String(parentSort === "slow"));
   }
   $("sortTable").addEventListener("click", () => { parentSort = "table"; renderParent(); });
   $("sortSlow").addEventListener("click", () => { parentSort = "slow"; renderParent(); });
   $("copyData").addEventListener("click", () => {
-    const text = JSON.stringify({ version: 1, greenLimit: SP.GREEN, typing: S.typing, speed: S.speed });
+    const text = JSON.stringify({ version: 2, model: { green: SP.GREEN, noise: SP.NOISE, vMin: SP.V_MIN, drift: SP.DRIFT }, typing: S.typing, speed: S.speed });
     const fallback = () => {
       $("copyBox").hidden = false; $("copyBox").value = text; $("copyBox").focus(); $("copyBox").select();
       $("copyNote").hidden = false; $("copyNote").textContent = "Det gick inte att kopiera automatiskt. Texten är markerad nedan, kopiera den själv.";
