@@ -633,7 +633,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   const clamp01 = (v) => Math.min(1, Math.max(0, v));
   const factKey = (a, b) => Math.min(a, b) + "x" + Math.max(a, b);
   const fact = (a, b) => S.facts[factKey(a, b)] || { r: 0, w: 0, last: false };
-  const fmtPct = (v) => (Math.round(v * 10) / 10).toLocaleString("sv-SE") + " %";
+  // Every percentage is shown rounded to a whole number, and everything that happens "at N %" uses
+  // that same rounded number, so nothing unlocks later (or earlier) than the screen says.
+  const shownPct = (v) => Math.round(v);
   function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
   // ---------- Speed model ----------
@@ -883,8 +885,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     { id: "alva", name: "Älva", text: "En älva flyger runt över trädgården och lämnar glitter efter sig." },
     { id: "enhorning", name: "Enhörning", text: "En enhörning! Den kommer bara till de allra finaste trädgårdarna." }
   ];
-  // "Grönt nu" shows as 100 % from 99.5 %, so that is when it counts.
-  const isFull = (pct) => Math.round(pct) >= 100;
+  // "Grönt nu" and the record show as 100 % from 99.5 %, so that is when it counts.
+  const isFull = (pct) => shownPct(pct) >= 100;
   // Grönt nu has just reached 100 %: count it, and the next rare guest (if any is left) moves in.
   function reachFull() {
     S.fullTimes = (S.fullTimes || 0) + 1;
@@ -894,12 +896,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     return { n: S.fullTimes, guest: g };
   }
   const DECOS = [
-    { id: "bench", name: "Bänk", how: "Rekord 25 %", has: () => S.bestPct >= 25, reach: () => maxPct() >= 25 },
+    { id: "bench", name: "Bänk", how: "Rekord 25 %", has: () => shownPct(S.bestPct) >= 25, reach: () => maxPct() >= 25 },
     { id: "birdbox", name: "Fågelholk", how: "10 blommor", has: () => flowerCount() >= 10, reach: () => FACTS.length >= 10 },
-    { id: "pond", name: "Damm med groda", how: "Rekord 50 %", has: () => S.bestPct >= 50, reach: () => maxPct() >= 50 },
+    { id: "pond", name: "Damm med groda", how: "Rekord 50 %", has: () => shownPct(S.bestPct) >= 50, reach: () => maxPct() >= 50 },
     { id: "hedgehog", name: "Igelkott", how: "25 blommor", has: () => flowerCount() >= 25, reach: () => FACTS.length >= 25 },
-    { id: "apple", name: "Äppelträd", how: "Rekord 75 %", has: () => S.bestPct >= 75, reach: () => maxPct() >= 75 },
-    { id: "greenhouse", name: "Växthus", how: "Rekord 100 %", has: () => S.bestPct >= 99.95, reach: () => maxPct() >= 99.95 }
+    { id: "apple", name: "Äppelträd", how: "Rekord 75 %", has: () => shownPct(S.bestPct) >= 75, reach: () => maxPct() >= 75 },
+    { id: "greenhouse", name: "Växthus", how: "Rekord 100 %", has: () => isFull(S.bestPct), reach: () => isFull(maxPct()) }
   ];
   // How far the garden can get with the rows that are on (100 % only with all rows).
   const maxPct = () => FACTS.length / ALL_FACTS.length * 100;
@@ -1695,8 +1697,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     document.querySelector(".reset-row").hidden = !S.name && !Object.keys(S.speed).length;
     $("resWater").textContent = roundsToday();
     $("resDays").textContent = streakDays();
-    $("resNow").textContent = Math.round(boardPct()) + " %";
-    $("resBest").textContent = Math.floor(S.bestPct) + " %";
+    $("resNow").textContent = shownPct(boardPct()) + " %";
+    $("resBest").textContent = shownPct(S.bestPct) + " %";
     mountGarden($("homeGarden"), { sel: home.sel });
     renderTicker();
     renderPlotInfo();
@@ -1710,7 +1712,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     else items.push("Trädgården väntar på dig idag.");
     if (near) items.push("✨ " + (near === 1 ? "En knopp är nära" : near + " knoppar är nära") + " att slå ut.");
     // A hint that something happens at 100 %, without saying what.
-    if (maxPct() >= 99.95 && boardPct() >= 90 && !isFull(boardPct()))
+    if (isFull(maxPct()) && boardPct() >= 90 && !isFull(boardPct()))
       items.push(S.fullTimes ? "🎁 Når Grönt nu 100\u00a0% igen händer något nytt…" : "🎁 Något händer när Grönt nu når 100\u00a0%…");
     if (thirsty) items.push(thirsty === 1 ? "En planta är törstig." : thirsty + " plantor är törstiga.");
     if (S.visits.length < visitorsReachable()) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Nästa besökare kommer vid " + Math.round(VISITOR_AT[S.visits.length] * 100) + "\u00a0%.");
@@ -2127,7 +2129,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       });
       cared.sort((x, y) => y.score - x.score);
       const nearNext = FACTS.filter(([a, b]) => after[factKey(a, b)].near).length;
-      const record = S.bestPct > G.startBest + 0.05;
+      const record = shownPct(S.bestPct) > shownPct(G.startBest);
       const title = record ? "Nytt rekord" + who + "!" : grew || bloomed ? "Trädgården växte" + who + "!" : "Bra kämpat" + who + "!";
       head += '<span class="eyebrow">Dagens rapport</span>';
       head += "<h2>" + esc(title) + "</h2>";
@@ -2150,8 +2152,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
         "<div><span>Plantor som växte</span><b>" + grew + "</b></div>" +
         "<div><span>Nya blommor</span><b>" + bloomed + "</b></div>" +
         "<div><span>Piggnade till</span><b>" + perked + "</b></div>" +
-        '<div><span>Grönt nu</span><b class="up">' + Math.round(G.startPct) + " → " + Math.round(pct) + " %</b></div>" +
-        "<div><span>Rekord</span><b>" + fmtPct(S.bestPct) + "</b></div></div>";
+        '<div><span>Grönt nu</span><b class="up">' + shownPct(G.startPct) + " → " + shownPct(pct) + " %</b></div>" +
+        "<div><span>Rekord</span><b>" + shownPct(S.bestPct) + " %</b></div></div>";
       celebrate = record || bloomed > 0;
       G.arrived = arriveVisitors(cared.map((c) => c.k));
       // Grönt nu reached 100 % (again): the big surprise, shown over the report.
@@ -2371,7 +2373,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   // ---------- Visitors ----------
   // The record (speed) is not the same as how much the garden has grown (size), so say where the record is now.
-  const progress = (d) => d.how.startsWith("Rekord") ? " (nu " + Math.floor(S.bestPct) + "\u00a0%)" : " (nu " + flowerCount() + ")";
+  const progress = (d) => d.how.startsWith("Rekord") ? " (nu " + shownPct(S.bestPct) + "\u00a0%)" : " (nu " + flowerCount() + ")";
   function renderCollection() {
     const u = unlocked();
     $("collTitle").textContent = "Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%";
