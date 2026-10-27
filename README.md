@@ -1,6 +1,6 @@
 # Gångis
 
-A small single-page app (in Swedish) for learning the multiplication tables 1–10.
+A small single-page app (in Swedish or German) for learning the multiplication tables 1–10.
 
 **▶ [Spela Gångis](https://sebastianueckert.github.io/gangis/)**
 
@@ -50,6 +50,10 @@ What that means for each plant:
 Saves from the earlier model (one estimate that faded back towards `C`) are converted once when the app loads: the old estimate becomes the typical time, sizes, effort, half-lives, the record and stored answers are kept, and the old save is copied to `gangis-v1-before-uncertainty` in localStorage.
 
 The parameters are first guesses and live in the `SP` object in `index.html`. The last 20 raw attempts per fact are stored too, so the scoring can be retuned later without losing history.
+
+## Language
+
+The app speaks Swedish or German. The language is chosen at the bottom of the ⚙ screen (*Språk* / *Sprache*) and saved with the progress; on a device set to German it starts in German. All texts live in the `TXT` object in `index.html` (`TXT.sv` and `TXT.de`); texts written in the page itself carry a `data-i18n` key, with the Swedish in the HTML and the German in `TXT.de.page`.
 
 ## Switching rows off
 

@@ -352,39 +352,39 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 <canvas id="confetti" aria-hidden="true"></canvas>
 <div id="finale" class="finale" hidden role="dialog" aria-modal="true" aria-labelledby="finaleTitle">
   <div class="finale-card">
-    <span class="eyebrow">Grönt nu</span>
+    <span class="eyebrow" data-i18n="greenNow">Grönt nu</span>
     <div class="finale-pct">100 %</div>
-    <h2 id="finaleTitle">Hela trädgården lyser grönt!</h2>
+    <h2 id="finaleTitle" data-i18n="finaleTitle">Hela trädgården lyser grönt!</h2>
     <p id="finaleText"></p>
-    <button class="gift" id="finaleGift" type="button" aria-label="Öppna presenten">🎁</button>
-    <span class="gift-hint" id="finaleHint">Tryck på presenten!</span>
+    <button class="gift" id="finaleGift" type="button" aria-label="Öppna presenten" data-i18n-attr="aria-label=openGift">🎁</button>
+    <span class="gift-hint" id="finaleHint" data-i18n="giftHint">Tryck på presenten!</span>
     <div class="finale-reveal" id="finaleReveal" hidden></div>
-    <button class="btn green" id="finaleClose" type="button" hidden>Hurra!</button>
+    <button class="btn green" id="finaleClose" type="button" hidden data-i18n="hurra">Hurra!</button>
   </div>
 </div>
 <div class="app">
   <header class="topbar panel">
-    <button class="logo" id="logo" aria-label="Till trädgården">Gångis<span>·</span></button>
+    <button class="logo" id="logo" aria-label="Till trädgården" data-i18n-attr="aria-label=toGarden">Gångis<span>·</span></button>
     <div class="top-right">
-      <span class="tally" title="Rätta svar totalt">★ <span id="starCount">0</span></span>
-      <button class="icon-btn" data-go="settings" aria-label="Inställningar: vilka rader är med">⚙️</button>
-      <button class="icon-btn" id="soundBtn" aria-label="Ljud av eller på">🔊</button>
+      <span class="tally" title="Rätta svar totalt" data-i18n-attr="title=starsTitle">★ <span id="starCount">0</span></span>
+      <button class="icon-btn" data-go="settings" aria-label="Inställningar: rader och språk" data-i18n-attr="aria-label=settingsAria">⚙️</button>
+      <button class="icon-btn" id="soundBtn" aria-label="Ljud av eller på" data-i18n-attr="aria-label=soundAria">🔊</button>
     </div>
   </header>
 
   <!-- HOME: the garden -->
   <section id="home" class="menu">
     <form class="panel name-form" id="nameForm" hidden>
-      <label for="nameInput" style="font-family: var(--font-pixel); font-weight: 700;">Vad heter du?</label>
-      <input id="nameInput" maxlength="20" autocomplete="off" placeholder="Ditt namn">
-      <button class="btn green" type="submit">Spara</button>
+      <label for="nameInput" style="font-family: var(--font-pixel); font-weight: 700;" data-i18n="askName">Vad heter du?</label>
+      <input id="nameInput" maxlength="20" autocomplete="off" placeholder="Ditt namn" data-i18n-attr="placeholder=namePh">
+      <button class="btn green" type="submit" data-i18n="save">Spara</button>
       <div class="reset-row">
-        <button type="button" class="link-btn" id="resetAsk">Börja om från början …</button>
+        <button type="button" class="link-btn" id="resetAsk" data-i18n="resetAsk">Börja om från början …</button>
         <div id="resetConfirm" class="reset-confirm" hidden>
-          <p><b>Börja om från början?</b> Allt försvinner: trädgården, rekordet, besökarna, dagarna i rad och namnet. Det går inte att ångra.</p>
+          <p data-i18n="resetText"><b>Börja om från början?</b> Allt försvinner: trädgården, rekordet, besökarna, dagarna i rad och namnet. Det går inte att ångra.</p>
           <div class="row">
-            <button type="button" class="btn" id="resetNo">Avbryt</button>
-            <button type="button" class="btn danger" id="resetYes">Ja, börja om</button>
+            <button type="button" class="btn" id="resetNo" data-i18n="cancel">Avbryt</button>
+            <button type="button" class="btn danger" id="resetYes" data-i18n="resetYes">Ja, börja om</button>
           </div>
         </div>
       </div>
@@ -393,19 +393,19 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     <div class="res" id="resBar">
       <div class="res-chip">
         <svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="2" fill="#6fb2f2"/><rect x="6" y="3" width="4" height="2" fill="#6fb2f2"/><rect x="5" y="5" width="6" height="3" fill="#6fb2f2"/><rect x="4" y="8" width="8" height="4" fill="#6fb2f2"/><rect x="5" y="12" width="6" height="2" fill="#4a8fd6"/><rect x="6" y="7" width="2" height="3" fill="#d6ecff"/></svg>
-        <span><b id="resWater">0</b><small>rundor idag</small></span>
+        <span><b id="resWater">0</b><small data-i18n="resRounds">rundor idag</small></span>
       </div>
       <div class="res-chip">
         <svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="3" fill="#ff7a2f"/><rect x="6" y="4" width="4" height="3" fill="#ff7a2f"/><rect x="5" y="7" width="6" height="5" fill="#ff7a2f"/><rect x="6" y="12" width="4" height="2" fill="#ff7a2f"/><rect x="7" y="8" width="2" height="5" fill="#ffd23f"/></svg>
-        <span><b id="resDays">0</b><small>dagar</small></span>
+        <span><b id="resDays">0</b><small data-i18n="resDays">dagar</small></span>
       </div>
       <div class="res-chip">
         <svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="2" width="2" height="5" fill="#3fa34a"/><rect x="9" y="7" width="5" height="2" fill="#3fa34a"/><rect x="7" y="9" width="2" height="5" fill="#3fa34a"/><rect x="2" y="7" width="5" height="2" fill="#3fa34a"/><rect x="6" y="6" width="4" height="4" fill="#2a7a35"/></svg>
-        <span><b id="resNow">0 %</b><small>grönt nu</small></span>
+        <span><b id="resNow">0 %</b><small data-i18n="resNow">grönt nu</small></span>
       </div>
       <div class="res-chip">
         <svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="10" height="6" fill="#ffd23f"/><rect x="1" y="3" width="2" height="3" fill="#ffd23f"/><rect x="13" y="3" width="2" height="3" fill="#ffd23f"/><rect x="5" y="8" width="6" height="2" fill="#e0a92a"/><rect x="7" y="10" width="2" height="3" fill="#e0a92a"/><rect x="4" y="13" width="8" height="2" fill="#8b5a2b"/></svg>
-        <span><b id="resBest">0 %</b><small>rekord</small></span>
+        <span><b id="resBest">0 %</b><small data-i18n="resBest">rekord</small></span>
       </div>
     </div>
 
@@ -417,20 +417,20 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
     <button class="btn green big-water" id="greenBtn">
       <svg width="34" height="34" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="6" width="8" height="7" fill="#d9e3ea"/><rect x="2" y="12" width="8" height="1" fill="#8a99a6"/><rect x="10" y="7" width="2" height="2" fill="#d9e3ea"/><rect x="12" y="5" width="2" height="2" fill="#d9e3ea"/><rect x="0" y="7" width="2" height="4" fill="#8a99a6"/><rect x="13" y="8" width="1" height="2" fill="#6fb2f2"/><rect x="14" y="10" width="1" height="2" fill="#6fb2f2"/><rect x="13" y="12" width="1" height="2" fill="#6fb2f2"/></svg>
-      <span><b>SKÖT OM TRÄDGÅRDEN</b><small>20 frågor. Vilka plantor växer nu?</small></span>
+      <span><b data-i18n="careTitle">SKÖT OM TRÄDGÅRDEN</b><small data-i18n="careSub">20 frågor. Vilka plantor växer nu?</small></span>
     </button>
     <div class="tools">
       <button class="btn" data-go="setup">
         <svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="10" y="1" width="3" height="3" fill="#e8445a"/><rect x="8" y="3" width="3" height="3" fill="#e0a92a"/><rect x="6" y="5" width="3" height="3" fill="#e0a92a"/><rect x="4" y="7" width="3" height="3" fill="#e0a92a"/><rect x="2" y="10" width="3" height="3" fill="#2b1a0a"/></svg>
-        Öva tabeller
+        <span data-i18n="practice">Öva tabeller</span>
       </button>
       <button class="btn" data-go="explore">
         <svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="2" width="6" height="2" fill="#2b1a0a"/><rect x="1" y="4" width="2" height="6" fill="#2b1a0a"/><rect x="9" y="4" width="2" height="6" fill="#2b1a0a"/><rect x="3" y="10" width="6" height="2" fill="#2b1a0a"/><rect x="3" y="4" width="6" height="6" fill="#bfe6f2"/><rect x="10" y="10" width="2" height="2" fill="#8b5a2b"/><rect x="12" y="12" width="3" height="3" fill="#8b5a2b"/></svg>
-        Utforska
+        <span data-i18n="explore">Utforska</span>
       </button>
       <button class="btn" data-go="collection">
         <svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="3" width="6" height="5" fill="#ffffff"/><rect x="9" y="3" width="6" height="5" fill="#ffffff"/><rect x="2" y="8" width="5" height="4" fill="#ffd23f"/><rect x="9" y="8" width="5" height="4" fill="#ffd23f"/><rect x="7" y="2" width="2" height="12" fill="#2b1a0a"/></svg>
-        Besökare
+        <span data-i18n="visitors">Besökare</span>
       </button>
     </div>
   </section>
@@ -438,24 +438,24 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   <!-- SETUP -->
   <section id="setup" class="menu" hidden>
     <div class="panel menu">
-      <span class="eyebrow">Öva tabeller</span>
-      <h1>Vilka tabeller?</h1>
+      <span class="eyebrow" data-i18n="practice">Öva tabeller</span>
+      <h1 data-i18n="whichTables">Vilka tabeller?</h1>
       <div class="tables" id="setupTables"></div>
       <div class="row">
-        <button class="btn" id="selAll">Alla</button>
-        <button class="btn" id="selEasy">Lätta (1, 2, 5, 10)</button>
-        <button class="btn" id="selNone">Rensa</button>
+        <button class="btn" id="selAll" data-i18n="all">Alla</button>
+        <button class="btn" id="selEasy" data-i18n="easy">Lätta (1, 2, 5, 10)</button>
+        <button class="btn" id="selNone" data-i18n="clear">Rensa</button>
       </div>
-      <span class="eyebrow">Hur många frågor?</span>
+      <span class="eyebrow" data-i18n="howMany">Hur många frågor?</span>
       <div class="seg" id="countSeg">
         <button data-n="10">10</button>
         <button data-n="15">15</button>
         <button data-n="25">25</button>
       </div>
-      <p class="note">Övningen räknas till dina dagar i rad, men plantorna växer bara när du sköter om trädgården.</p>
+      <p class="note" data-i18n="practiceNote">Övningen räknas till dina dagar i rad, men plantorna växer bara när du sköter om trädgården.</p>
     </div>
     <div class="row">
-      <button class="btn" data-go="home">Tillbaka</button>
+      <button class="btn" data-go="home" data-i18n="back">Tillbaka</button>
       <button class="btn green grow" id="startBtn">Kör!</button>
     </div>
   </section>
@@ -463,32 +463,32 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   <!-- GAME -->
   <section id="game" class="menu" hidden>
     <div class="game-top">
-      <button class="icon-btn" id="quitBtn" aria-label="Avsluta">✕</button>
+      <button class="icon-btn" id="quitBtn" aria-label="Avsluta" data-i18n-attr="aria-label=quit">✕</button>
       <div class="progress" id="progress"><i id="progressBar"></i></div>
-      <span class="streak" id="streak" title="Rätt i rad">🔥 0</span>
+      <span class="streak" id="streak" title="Rätt i rad" data-i18n-attr="title=streakTitle">🔥 0</span>
     </div>
     <div class="panel question" id="qCard">
-      <canvas class="plant-chip pix" id="plantChip" width="22" height="22" title="Din planta i trädgården" hidden></canvas>
+      <canvas class="plant-chip pix" id="plantChip" width="22" height="22" title="Din planta i trädgården" data-i18n-attr="title=plantChipTitle" hidden></canvas>
       <p class="spoken" id="spoken"></p>
-      <p class="retry-tag" id="retryTag" hidden>Ett försök till!</p>
+      <p class="retry-tag" id="retryTag" hidden data-i18n="retryTag">Ett försök till!</p>
       <div class="equation" aria-live="polite">
         <span id="qa">7</span><span class="op">·</span><span id="qb">8</span><span class="op">=</span>
         <span class="answer-box empty" id="answer"></span>
       </div>
       <p class="feedback" id="feedback"></p>
       <div class="hint" id="hint" hidden></div>
-      <button class="btn sun next-btn" id="nextBtn" hidden>Nästa →</button>
+      <button class="btn sun next-btn" id="nextBtn" hidden data-i18n="next">Nästa →</button>
     </div>
     <div class="pad" id="pad">
       <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
       <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
       <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
-      <button data-k="del" class="del" aria-label="Sudda">⌫</button><button data-k="0">0</button>
+      <button data-k="del" class="del" aria-label="Sudda" data-i18n-attr="aria-label=del">⌫</button><button data-k="0">0</button>
       <button data-k="ok" class="ok">OK</button>
     </div>
     <div class="game-foot">
-      <button class="btn" id="hintBtn">Visa prickar</button>
-      <span class="note">Du kan också skriva med tangentbordet och trycka Enter.</span>
+      <button class="btn" id="hintBtn" data-i18n="showDots">Visa prickar</button>
+      <span class="note" data-i18n="kbNote">Du kan också skriva med tangentbordet och trycka Enter.</span>
     </div>
   </section>
 
@@ -496,7 +496,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   <section id="result" class="menu" hidden>
     <div class="panel result" id="resultCard"></div>
     <div class="row result-actions">
-      <button class="btn" data-go="home">Till trädgården</button>
+      <button class="btn" data-go="home" data-i18n="toGarden">Till trädgården</button>
       <button class="btn green grow" id="againBtn">Spela igen</button>
     </div>
   </section>
@@ -504,81 +504,88 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   <!-- EXPLORE -->
   <section id="explore" class="menu" hidden>
     <div class="panel menu">
-      <span class="eyebrow">Utforska</span>
-      <h1>Multiplikationstabellen</h1>
-      <p>Tryck på en ruta. Raden och kolumnen lyser upp, och du ser talet som prickar.</p>
+      <span class="eyebrow" data-i18n="explore">Utforska</span>
+      <h1 data-i18n="multTitle">Multiplikationstabellen</h1>
+      <p data-i18n="exploreIntro">Tryck på en ruta. Raden och kolumnen lyser upp, och du ser talet som prickar.</p>
       <div class="grid-wrap"><table class="mult" id="multTable"></table></div>
       <p class="hard-legend" id="hardLegend" hidden></p>
     </div>
     <div class="panel explain" id="explain"></div>
-    <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
+    <div class="row"><button class="btn" data-go="home" data-i18n="back">Tillbaka</button></div>
   </section>
 
   <!-- SETTINGS: which rows are in the garden -->
   <section id="settings" class="menu" hidden>
     <div class="panel menu">
-      <span class="eyebrow">Inställningar</span>
-      <h1>Vilka rader är med?</h1>
+      <span class="eyebrow" data-i18n="settings">Inställningar</span>
+      <h1 data-i18n="whichRows">Vilka rader är med?</h1>
       <div class="tables" id="rowTables"></div>
       <div class="row">
-        <button class="btn" id="rowsAll">Alla</button>
-        <button class="btn" id="rowsEasy">Lätta (1, 2, 5, 10)</button>
+        <button class="btn" id="rowsAll" data-i18n="all">Alla</button>
+        <button class="btn" id="rowsEasy" data-i18n="easy">Lätta (1, 2, 5, 10)</button>
       </div>
       <p class="garden-reach" id="rowsReach"></p>
-      <p class="note">Tryck på en rad för att sätta på eller stänga av den. Bara raderna som är på frågas och växer. Där en rad är avstängd blir det gräs, och dit kommer inga besökare.
+      <p class="note" data-i18n="rowsNote">Tryck på en rad för att sätta på eller stänga av den. Bara raderna som är på frågas och växer. Där en rad är avstängd blir det gräs, och dit kommer inga besökare.
         Med bara 2:an på frågas ändå 2 · 7, för den hör till 2-tabellen.
         Hela trädgården är alla tio raderna, så med färre rader kommer du inte ända fram till 100&nbsp;%, och några besökare och saker väntar tills fler rader är på.</p>
     </div>
-    <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
+    <div class="panel menu">
+      <span class="eyebrow" data-i18n="language">Språk</span>
+      <div class="seg" id="langSeg">
+        <button data-lang="sv" lang="sv">🇸🇪 Svenska</button>
+        <button data-lang="de" lang="de">🇩🇪 Deutsch</button>
+      </div>
+    </div>
+    <div class="row"><button class="btn" data-go="home" data-i18n="back">Tillbaka</button></div>
   </section>
 
   <!-- PARENTS (hidden: tap the logo five times) -->
   <section id="parent" class="menu" hidden>
     <div class="panel menu">
-      <span class="eyebrow">För föräldrar</span>
-      <h1>Svarstider</h1>
+      <span class="eyebrow" data-i18n="forParents">För föräldrar</span>
+      <h1 data-i18n="answerTimes">Svarstider</h1>
       <p id="parentSummary"></p>
       <div class="row">
-        <button class="btn" id="sortTable">Sortera efter tabell</button>
-        <button class="btn" id="sortSlow">Långsammast först</button>
-        <button class="btn" id="copyData">Kopiera data</button>
+        <button class="btn" id="sortTable" data-i18n="sortTable">Sortera efter tabell</button>
+        <button class="btn" id="sortSlow" data-i18n="sortSlow">Långsammast först</button>
+        <button class="btn" id="copyData" data-i18n="copyData">Kopiera data</button>
       </div>
       <p class="note" id="copyNote" hidden></p>
-      <textarea id="copyBox" class="copy-box" readonly hidden aria-label="Data att kopiera"></textarea>
+      <textarea id="copyBox" class="copy-box" readonly hidden aria-label="Data att kopiera" data-i18n-attr="aria-label=copyBoxAria"></textarea>
       <div class="grid-wrap"><table class="ptable" id="parentTable"></table></div>
-      <p class="note"><b>Typisk</b>: hennes vanliga tänketid (tid till OK minus skrivtiden på lätta frågor, viktat mot de senaste svaren). Blomma kräver ungefär högst <span id="limitNote">1,5</span> s.
+      <p class="note" data-i18n="parentNote"><b>Typisk</b>: hennes vanliga tänketid (tid till OK minus skrivtiden på lätta frågor, viktat mot de senaste svaren). Blomma kräver ungefär högst <span id="limitNote">1,5</span> s.
         <b>Nu</b>: den försiktiga tänketiden som trädgården räknar med just nu. Utan övning blir trädgården osäkrare och räknar med mer tid, så plantan blir törstig. Ett snabbt svar gör den säker igen.
         <b>Median</b>: mitten av de senaste rätta svarens tänketid. <b>Svar/Fel</b>: bland de sparade senaste svaren (högst 20 per fakta).
         <b>Halv.</b>: hur länge faktan håller utan övning (dagar). Ju längre, desto långsammare växer osäkerheten. <b>Stl.</b>: plantans storlek (bästa nivån hittills).</p>
     </div>
-    <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
+    <div class="row"><button class="btn" data-go="home" data-i18n="back">Tillbaka</button></div>
   </section>
 
   <!-- VISITORS -->
   <section id="collection" class="menu" hidden>
     <div class="panel menu">
-      <span class="eyebrow">Trädgårdens besökare</span>
+      <span class="eyebrow" data-i18n="gardenVisitors">Trädgårdens besökare</span>
       <h1 id="collTitle">Besökare</h1>
-      <p id="collIntro">Ett nytt djur kommer varje gång trädgården har vuxit tio procent till (det sista redan vid 95 %). Saker i trädgården får du när fler plantor blommar och när du slår ditt rekord. Allt här stannar för alltid.</p>
+      <p id="collIntro" data-i18n="collIntro">Ett nytt djur kommer varje gång trädgården har vuxit tio procent till (det sista redan vid 95 %). Saker i trädgården får du när fler plantor blommar och när du slår ditt rekord. Allt här stannar för alltid.</p>
     </div>
-    <h2 class="section-title">Djur</h2>
+    <h2 class="section-title" data-i18n="animals">Djur</h2>
     <div class="visit-grid" id="visitorList"></div>
     <div id="guestBox" class="menu" hidden>
-      <h2 class="section-title">Sällsynta gäster</h2>
+      <h2 class="section-title" data-i18n="rareGuests">Sällsynta gäster</h2>
       <div class="visit-grid" id="guestList"></div>
     </div>
-    <h2 class="section-title">Hela rader</h2>
+    <h2 class="section-title" data-i18n="fullRows">Hela rader</h2>
     <div class="panel">
-      <p class="note">När en hel rad blommar kan du hela den tabellen, och raden får en rosett.</p>
+      <p class="note" data-i18n="fullRowsNote">När en hel rad blommar kan du hela den tabellen, och raden får en rosett.</p>
       <div class="row-badges" id="rowBadges"></div>
     </div>
-    <h2 class="section-title">I trädgården</h2>
+    <h2 class="section-title" data-i18n="inGarden">I trädgården</h2>
     <div class="visit-grid" id="decoList"></div>
     <div id="oldStickers" class="menu" hidden>
-      <h2 class="section-title">Gamla klistermärken</h2>
+      <h2 class="section-title" data-i18n="oldStickers">Gamla klistermärken</h2>
       <div class="stickers" id="stickers"></div>
     </div>
-    <div class="row"><button class="btn" data-go="home">Tillbaka</button></div>
+    <div class="row"><button class="btn" data-go="home" data-i18n="back">Tillbaka</button></div>
   </section>
 </div>
 
@@ -588,28 +595,351 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   // ---------- Data ----------
   const KEY = "gangis-v1";
-  const ANIMALS = [
-    ["🦔", "Igelkott"], ["🦊", "Räv"], ["🦉", "Uggla"], ["🐿️", "Ekorre"], ["🐻", "Björn"],
-    ["🐺", "Varg"], ["🦌", "Ren"], ["🐰", "Hare"], ["🦭", "Säl"], ["🦦", "Utter"],
-    ["🐞", "Nyckelpiga"], ["🦋", "Fjäril"], ["🐝", "Bi"], ["🐸", "Groda"], ["🐢", "Sköldpadda"],
-    ["🐧", "Pingvin"], ["🐬", "Delfin"], ["🐳", "Val"], ["🐙", "Bläckfisk"], ["🦜", "Papegoja"],
-    ["🦩", "Flamingo"], ["🐼", "Panda"], ["🐨", "Koala"], ["🦒", "Giraff"], ["🐘", "Elefant"],
-    ["🦁", "Lejon"], ["🐯", "Tiger"], ["🦥", "Sengångare"], ["🦄", "Enhörning"], ["🐉", "Drake"]
-  ];
-  const NUM_WORDS = ["noll", "ett", "två", "tre", "fyra", "fem", "sex", "sju", "åtta", "nio", "tio"];
-  const PRAISE = ["Rätt!", "Snyggt!", "Toppen!", "Grymt!", "Så bra!", "Klockrent!", "Helt rätt!", "Strålande!", "Wow!", "Bravo!"];
-  const STREAK_PRAISE = { 3: "Tre i rad! 🔥", 5: "Fem i rad! Du är på gång!", 10: "TIO i rad! Otroligt!", 15: "15 i rad! Mästare!", 20: "20 i rad! Legendariskt!" };
-  const TIPS = {
-    1: "Allt gånger 1 blir sig självt. 1 · 7 = 7.",
-    2: "Dubbla talet! 2 · 8 är samma som 8 + 8 = 16.",
-    3: "Dubbla, och lägg till en gång till: 3 · 6 = 12 + 6 = 18.",
-    4: "Dubbla två gånger: 4 · 7 → 14 → 28.",
-    5: "Svaret slutar alltid på 0 eller 5. Det är halva 10-tabellen: 5 · 8 = 80 delat med 2 = 40.",
-    6: "Ta 5-tabellen och lägg till en gång till: 6 · 7 = 35 + 7 = 42.",
-    7: "Kom ihåg 5, 6, 7, 8: 56 = 7 · 8. Och 7 · 7 = 49.",
-    8: "Dubbla tre gånger: 8 · 6 → 12 → 24 → 48.",
-    9: "Fingertricket: håll upp tio fingrar. För 9 · 3, vik ner finger nummer 3. Två fingrar till vänster och sju till höger: 27! Siffrorna i svaret blir alltid 9 tillsammans.",
-    10: "Lägg till en nolla: 10 · 6 = 60."
+  const ANIMALS = ["🦔", "🦊", "🦉", "🐿️", "🐻", "🐺", "🦌", "🐰", "🦭", "🦦", "🐞", "🦋", "🐝", "🐸", "🐢",
+    "🐧", "🐬", "🐳", "🐙", "🦜", "🦩", "🐼", "🐨", "🦒", "🐘", "🦁", "🐯", "🦥", "🦄", "🐉"];
+  const cap = (s) => s.replace(/^./, (c) => c.toUpperCase());
+
+  // ---------- Text ----------
+  // Everything the app says, in Swedish (sv) and German (de). S.lang picks one; it is chosen under ⚙.
+  // The texts written in the page itself are Swedish in the HTML and German in de.page (see applyPage).
+  const TXT = {
+    sv: {
+      locale: "sv-SE",
+      numWords: ["noll", "ett", "två", "tre", "fyra", "fem", "sex", "sju", "åtta", "nio", "tio"],
+      praise: ["Rätt!", "Snyggt!", "Toppen!", "Grymt!", "Så bra!", "Klockrent!", "Helt rätt!", "Strålande!", "Wow!", "Bravo!"],
+      streakPraise: { 3: "Tre i rad! 🔥", 5: "Fem i rad! Du är på gång!", 10: "TIO i rad! Otroligt!", 15: "15 i rad! Mästare!", 20: "20 i rad! Legendariskt!" },
+      wrong: ["Nästan!", "Bra försök!", "Ingen fara!", "Oj, inte riktigt."],
+      fast: "⚡ Blixtsnabbt!",
+      tips: {
+        1: "Allt gånger 1 blir sig självt. 1 · 7 = 7.",
+        2: "Dubbla talet! 2 · 8 är samma som 8 + 8 = 16.",
+        3: "Dubbla, och lägg till en gång till: 3 · 6 = 12 + 6 = 18.",
+        4: "Dubbla två gånger: 4 · 7 → 14 → 28.",
+        5: "Svaret slutar alltid på 0 eller 5. Det är halva 10-tabellen: 5 · 8 = 80 delat med 2 = 40.",
+        6: "Ta 5-tabellen och lägg till en gång till: 6 · 7 = 35 + 7 = 42.",
+        7: "Kom ihåg 5, 6, 7, 8: 56 = 7 · 8. Och 7 · 7 = 49.",
+        8: "Dubbla tre gånger: 8 · 6 → 12 → 24 → 48.",
+        9: "Fingertricket: håll upp tio fingrar. För 9 · 3, vik ner finger nummer 3. Två fingrar till vänster och sju till höger: 27! Siffrorna i svaret blir alltid 9 tillsammans.",
+        10: "Lägg till en nolla: 10 · 6 = 60."
+      },
+      stages: ["Frö", "Grodd", "Planta", "Knopp", "Blomma"],
+      species: { daisy: "prästkrage", tulip: "tulpan", sunflower: "solros", lavender: "lavendel", rose: "ros", poppy: "vallmo",
+        forgetmenot: "förgätmigej", strawberry: "jordgubbe", cornflower: "blåklint", marigold: "ringblomma" },
+      visitors: { kalfjaril: "Kålfjäril", humla: "Humla", nyckelpiga: "Nyckelpiga", citronfjaril: "Citronfjäril", honungsbi: "Honungsbi",
+        "pafagelöga": "Påfågelöga", trollslanda: "Trollslända", blavinge: "Blåvinge", grashoppa: "Gräshoppa", snigel: "Snigel" },
+      guests: {
+        kanin: ["Kanin", "En kanin har flyttat in på gräsmattan."],
+        ekorre: ["Ekorre", "En ekorre har flyttat in vid bänken. Den har med sig en nöt."],
+        uggla: ["Uggla", "En uggla har flyttat in i det stora trädet."],
+        guldfisk: ["Guldfiskar", "Två guldfiskar simmar nu runt i dammen."],
+        rav: ["Räv", "En räv har flyttat in på gräsmattan."],
+        pafagel: ["Påfågel", "En påfågel visar upp sina fjädrar vid gången."],
+        alva: ["Älva", "En älva flyger runt över trädgården och lämnar glitter efter sig."],
+        enhorning: ["Enhörning", "En enhörning! Den kommer bara till de allra finaste trädgårdarna."]
+      },
+      decos: { bench: ["Bänk", "Rekord 25 %"], birdbox: ["Fågelholk", "10 blommor"], pond: ["Damm med groda", "Rekord 50 %"],
+        hedgehog: ["Igelkott", "25 blommor"], apple: ["Äppelträd", "Rekord 75 %"], greenhouse: ["Växthus", "Rekord 100 %"] },
+      animals: ["Igelkott", "Räv", "Uggla", "Ekorre", "Björn", "Varg", "Ren", "Hare", "Säl", "Utter", "Nyckelpiga", "Fjäril", "Bi", "Groda", "Sköldpadda",
+        "Pingvin", "Delfin", "Val", "Bläckfisk", "Papegoja", "Flamingo", "Panda", "Koala", "Giraff", "Elefant", "Lejon", "Tiger", "Sengångare", "Enhörning", "Drake"],
+      gardenAria: (n) => "Din trädgård med tio rader och tio kolumner. " + n + " av 55 plantor blommar.",
+      // home
+      news: "Nytt",
+      hello: (name) => name ? "Hej, " + name + "!" : "Hej!",
+      rename: "Byt namn",
+      caredToday: (n) => "Idag har du skött om trädgården " + (n === 1 ? "en gång." : n + " gånger."),
+      rained: "Det regnade i går, så trädgården klarade sig. Idag väntar den på dig.",
+      waiting: "Trädgården väntar på dig idag.",
+      nearOpen: (n) => "✨ " + (n === 1 ? "En knopp är nära" : n + " knoppar är nära") + " att slå ut.",
+      fullHint: "🎁 Något händer när Grönt nu når 100\u00a0%…",
+      fullHintAgain: "🎁 Når Grönt nu 100\u00a0% igen händer något nytt…",
+      thirstyN: (n) => n === 1 ? "En planta är törstig." : n + " plantor är törstiga.",
+      grownNext: (m, at) => "Trädgården har vuxit till " + m + "\u00a0%. Nästa besökare kommer vid " + at + "\u00a0%.",
+      grownMoreRows: (m) => "Trädgården har vuxit till " + m + "\u00a0%. Sätt på fler rader ⚙ så kan fler besökare komma.",
+      tapPlant: "Tryck på en planta",
+      tapPlantText: (n) => "Då ser du vilket tal den är, hur stor den har blivit och om den är törstig. Just nu blommar " + n + " av 55 plantor.",
+      thirst: ["Törstig", "Lite törstig", "Pigg"],
+      tipThirsty: (a, b) => "Den är törstig. Ett par snabba svar på " + a + " · " + b + " så piggnar den till.",
+      tipBloom: "Den blommar! Svara snabbt ibland så håller den sig pigg.",
+      tipSeed: (a, b) => "Svara rätt och snabbt på " + a + " · " + b + " så gror fröet.",
+      tipGrow: (a, b, next) => "Svara rätt och snabbt på " + a + " · " + b + " några gånger till, så blir den " + TXT.sv.stages[next].toLowerCase() + ".",
+      tipTomorrow: " Den behöver omsorg i morgon.",
+      tipDays: (d) => " Den klarar sig ungefär " + (d === 1 ? "en dag" : d + " dagar") + " till innan den blir törstig.",
+      rowCol: (a, b, sp) => "Rad " + a + " · kolumn " + b + " · " + sp,
+      size: "Storlek",
+      water: "Vatten",
+      // practice and the game
+      tileGreen: (m) => m + " % grönt",
+      go: "Kör!",
+      pickOne: "Välj minst en tabell",
+      spoken: (a, b) => cap(TXT.sv.numWords[a] + " gånger " + TXT.sv.numWords[b]),
+      nextKey: "Nästa",
+      hintCount: (a, b, rows) => a + " rader med " + b + " prickar. Räkna: " + rows.join(", "),
+      hint: (a, b) => a + " rader med " + b + " prickar i varje rad. Räkna " + b + " i taget!",
+      // results
+      starTitles: [(w) => "Bra att du övar" + w + "!", (w) => "Bra kämpat" + w + "!", (w) => "Jättebra" + w + "!", (w) => "Fantastiskt" + w + "!"],
+      tablesEyebrow: (t) => "Tabell " + t.join(", "),
+      score: (n, total) => n + " av " + total + " rätt på första försöket",
+      longestStreak: (n) => "Längsta svit: 🔥 " + n + " i rad",
+      fixedQ: (n) => "Rättade till: " + n + (n === 1 ? " fråga" : " frågor") + " som blev fel först.",
+      newRecord: (w) => "Nytt rekord" + w + "!",
+      gardenGrew: (w) => "Trädgården växte" + w + "!",
+      report: "Dagens rapport",
+      wetNote: "Plantorna du skötte om står i blöt jord och glittrar. Tryck på en planta så ser du den närmare.",
+      cared: "Plantorna du skötte om",
+      bloomed: "Slog ut!",
+      perked: "Piggnade till",
+      grew: "Växte",
+      nearNext: (n) => "✨ " + (n === 1 ? "En knopp kan" : n + " knoppar kan") + " slå ut nästa runda!",
+      ledger: ["Rätt svar", "Rättade till", "Blixtsnabba", "Plantor som växte", "Nya blommor", "Piggnade till", "Grönt nu", "Rekord"],
+      waterNote: (n, d) => (n === 1 ? "Första rundan idag." : "Runda " + n + " idag.") + " 🔥 " + d + (d === 1 ? " dag" : " dagar") + " i rad.",
+      rareGuest: "Sällsynt gäst",
+      rowBlooms: "Hela raden blommar",
+      rowBloomsTitle: (r) => "Hela " + r + ":ans rad blommar!",
+      rowBloomsText: (r) => "Du kan hela " + r + "-tabellen. Raden får en rosett.",
+      newVisitor: "Ny besökare",
+      landed: (m, x, y) => "Trädgården har vuxit till " + m + "\u00a0%. Den landade på " + x + " · " + y + ".",
+      newDeco: "Nytt i trädgården",
+      practiceMore: "Öva lite extra på",
+      oneMore: "En runda till!",
+      playAgain: "Spela igen",
+      finaleFirst: "Alla plantor blommar och är pigga på samma gång. Det är det svåraste som finns i Gångis!",
+      finaleAgain: (n) => "Du har gjort det igen! Det är " + TXT.sv.ordinal(n) + " gången.",
+      ordinal: (n) => n + ([1, 2].includes(n % 10) && ![11, 12].includes(n % 100) ? ":a" : ":e"),
+      trophy: "Guldpokal",
+      trophyTimes: (n) => TXT.sv.ordinal(n) + " gången!",
+      trophyText: "Alla sällsynta gäster bor redan här. Du är en riktig mästarträdgårdsmästare!",
+      // explore
+      hardLegend: "Röda rutor är knepiga för dig just nu. Dem kan du gärna titta lite extra på!",
+      same: (a, b, sum) => cap(TXT.sv.numWords[a]) + " gånger " + TXT.sv.numWords[b] + " är samma som " + (a <= 6 ? sum.join(" + ") : a + " stycken " + b + ":or") + ".",
+      hardNote: "Den här är lite knepig för dig just nu. Titta på prickarna och knepet, så sitter den snart!",
+      order: (a, b) => "Ordningen spelar ingen roll: " + b + " · " + a + " = " + a * b + " också! Därför växer samma planta på båda ställena i trädgården.",
+      square: (a) => a + " · " + a + " är en kvadrat! Prickarna bildar en fyrkant.",
+      tipFor: (a) => "Knep för " + a + "-tabellen:",
+      practiceTable: (a) => "Öva " + a + "-tabellen",
+      // settings and parents
+      rowsAllOn: "Alla 55 plantor är med. Hela trädgården kan blomma!",
+      rowsPart: (n, pct, v, vt, d, dt) => n + " av 55 plantor är med. Trädgården kan växa till " + pct + "\u00a0%, med " + v + " av " + vt + " besökare och " + d + " av " + dt + " saker.",
+      parentSummary: (t1, t2, total, n, of, med, fast) => "Skrivtid på lätta frågor (×1 och ×10): <b>" + t1 + " s</b> för ensiffriga svar, <b>" + t2 + " s</b> för tvåsiffriga. " +
+        "Sparade svar: <b>" + total + "</b> på " + n + " av " + of + " fakta. Median tänketid för alla rätta svar: <b>" + med + " s</b>. " +
+        "Blomma kräver en typisk tänketid på ungefär " + fast + " s.",
+      parentHead: ["Fakta", "Typisk", "Nu", "Median", "Svar", "Fel", "Halv.", "Stl."],
+      dayUnit: "d",
+      notPractised: "inte övad än",
+      copyFail: "Det gick inte att kopiera automatiskt. Texten är markerad nedan, kopiera den själv.",
+      copied: "Kopierat! Svarsdata för alla fakta ligger nu i urklipp.",
+      // visitors page
+      collTitle: (m) => "Trädgården har vuxit till " + m + "\u00a0%",
+      now: (v) => " (nu " + v + ")",
+      livesAt: (x, y) => "Bor på " + x + " · " + y,
+      onTheWay: "Är på väg! Kommer efter nästa runda",
+      comesAt: (pct) => "Kommer vid " + pct + "\u00a0%",
+      moreRows: ". Sätt på fler rader",
+      guestCame: "Kom när Grönt nu nådde 100\u00a0%",
+      rowBadge: (r) => '<b class="num">' + r + "</b>:an"
+    },
+    de: {
+      locale: "de-DE",
+      numWords: ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn"],
+      praise: ["Richtig!", "Super!", "Klasse!", "Spitze!", "Toll!", "Genau!", "Völlig richtig!", "Großartig!", "Wow!", "Bravo!"],
+      streakPraise: { 3: "Drei in Folge! 🔥", 5: "Fünf in Folge! Du bist in Fahrt!", 10: "ZEHN in Folge! Unglaublich!", 15: "15 in Folge! Meisterhaft!", 20: "20 in Folge! Legendär!" },
+      wrong: ["Fast!", "Guter Versuch!", "Kein Problem!", "Hoppla, nicht ganz."],
+      fast: "⚡ Blitzschnell!",
+      tips: {
+        1: "Alles mal 1 bleibt, wie es ist. 1 · 7 = 7.",
+        2: "Verdopple die Zahl! 2 · 8 ist dasselbe wie 8 + 8 = 16.",
+        3: "Verdoppeln und noch einmal dazuzählen: 3 · 6 = 12 + 6 = 18.",
+        4: "Zweimal verdoppeln: 4 · 7 → 14 → 28.",
+        5: "Das Ergebnis endet immer auf 0 oder 5. Es ist die Hälfte der 10er-Reihe: 5 · 8 = 80 geteilt durch 2 = 40.",
+        6: "Nimm die 5er-Reihe und zähl noch einmal dazu: 6 · 7 = 35 + 7 = 42.",
+        7: "Merk dir 5, 6, 7, 8: 56 = 7 · 8. Und 7 · 7 = 49.",
+        8: "Dreimal verdoppeln: 8 · 6 → 12 → 24 → 48.",
+        9: "Der Fingertrick: Halte zehn Finger hoch. Für 9 · 3 klappst du den 3. Finger ein. Zwei Finger links und sieben rechts: 27! Die Ziffern im Ergebnis ergeben zusammen immer 9.",
+        10: "Häng eine Null an: 10 · 6 = 60."
+      },
+      stages: ["Samen", "Keimling", "Pflanze", "Knospe", "Blüte"],
+      stagesTo: ["", "zum Keimling", "zur Pflanze", "zur Knospe", "zur Blüte"],
+      species: { daisy: "Margerite", tulip: "Tulpe", sunflower: "Sonnenblume", lavender: "Lavendel", rose: "Rose", poppy: "Mohn",
+        forgetmenot: "Vergissmeinnicht", strawberry: "Erdbeere", cornflower: "Kornblume", marigold: "Ringelblume" },
+      visitors: { kalfjaril: "Kohlweißling", humla: "Hummel", nyckelpiga: "Marienkäfer", citronfjaril: "Zitronenfalter", honungsbi: "Honigbiene",
+        "pafagelöga": "Tagpfauenauge", trollslanda: "Libelle", blavinge: "Bläuling", grashoppa: "Grashüpfer", snigel: "Schnecke" },
+      guests: {
+        kanin: ["Kaninchen", "Ein Kaninchen ist auf den Rasen gezogen."],
+        ekorre: ["Eichhörnchen", "Ein Eichhörnchen ist bei der Bank eingezogen. Es hat eine Nuss dabei."],
+        uggla: ["Eule", "Eine Eule ist in den großen Baum gezogen."],
+        guldfisk: ["Goldfische", "Zwei Goldfische schwimmen jetzt im Teich herum."],
+        rav: ["Fuchs", "Ein Fuchs ist auf den Rasen gezogen."],
+        pafagel: ["Pfau", "Ein Pfau zeigt am Weg seine Federn."],
+        alva: ["Fee", "Eine Fee fliegt über den Garten und lässt Glitzer hinter sich."],
+        enhorning: ["Einhorn", "Ein Einhorn! Es kommt nur in die allerschönsten Gärten."]
+      },
+      decos: { bench: ["Bank", "Rekord 25 %"], birdbox: ["Vogelhäuschen", "10 Blüten"], pond: ["Teich mit Frosch", "Rekord 50 %"],
+        hedgehog: ["Igel", "25 Blüten"], apple: ["Apfelbaum", "Rekord 75 %"], greenhouse: ["Gewächshaus", "Rekord 100 %"] },
+      animals: ["Igel", "Fuchs", "Eule", "Eichhörnchen", "Bär", "Wolf", "Rentier", "Hase", "Robbe", "Otter", "Marienkäfer", "Schmetterling", "Biene", "Frosch", "Schildkröte",
+        "Pinguin", "Delfin", "Wal", "Tintenfisch", "Papagei", "Flamingo", "Panda", "Koala", "Giraffe", "Elefant", "Löwe", "Tiger", "Faultier", "Einhorn", "Drache"],
+      gardenAria: (n) => "Dein Garten mit zehn Reihen und zehn Spalten. " + n + " von 55 Pflanzen blühen.",
+      // home
+      news: "Neu",
+      hello: (name) => name ? "Hallo, " + name + "!" : "Hallo!",
+      rename: "Namen ändern",
+      caredToday: (n) => "Heute hast du den Garten " + (n === 1 ? "einmal" : n + "-mal") + " gepflegt.",
+      rained: "Gestern hat es geregnet, also ist der Garten gut zurechtgekommen. Heute wartet er auf dich.",
+      waiting: "Der Garten wartet heute auf dich.",
+      nearOpen: (n) => "✨ " + (n === 1 ? "Eine Knospe ist kurz davor" : n + " Knospen sind kurz davor") + " aufzublühen.",
+      fullHint: "🎁 Etwas passiert, wenn „Jetzt grün“ 100\u00a0% erreicht…",
+      fullHintAgain: "🎁 Erreicht „Jetzt grün“ wieder 100\u00a0%, passiert etwas Neues…",
+      thirstyN: (n) => n === 1 ? "Eine Pflanze hat Durst." : n + " Pflanzen haben Durst.",
+      grownNext: (m, at) => "Der Garten ist auf " + m + "\u00a0% gewachsen. Der nächste Besucher kommt bei " + at + "\u00a0%.",
+      grownMoreRows: (m) => "Der Garten ist auf " + m + "\u00a0% gewachsen. Schalte unter ⚙ mehr Reihen an, dann können mehr Besucher kommen.",
+      tapPlant: "Tippe auf eine Pflanze",
+      tapPlantText: (n) => "Dann siehst du, welche Aufgabe sie ist, wie groß sie geworden ist und ob sie Durst hat. Gerade blühen " + n + " von 55 Pflanzen.",
+      thirst: ["Durstig", "Etwas durstig", "Munter"],
+      tipThirsty: (a, b) => "Sie hat Durst. Ein paar schnelle Antworten auf " + a + " · " + b + ", und sie wird wieder munter.",
+      tipBloom: "Sie blüht! Antworte ab und zu schnell, dann bleibt sie munter.",
+      tipSeed: (a, b) => "Beantworte " + a + " · " + b + " richtig und schnell, dann keimt der Samen.",
+      tipGrow: (a, b, next) => "Beantworte " + a + " · " + b + " noch ein paar Mal richtig und schnell, dann wird sie " + TXT.de.stagesTo[next] + ".",
+      tipTomorrow: " Morgen braucht sie Pflege.",
+      tipDays: (d) => " Sie hält noch ungefähr " + (d === 1 ? "einen Tag" : d + " Tage") + " durch, bevor sie Durst bekommt.",
+      rowCol: (a, b, sp) => "Reihe " + a + " · Spalte " + b + " · " + sp,
+      size: "Größe",
+      water: "Wasser",
+      // practice and the game
+      tileGreen: (m) => m + " % grün",
+      go: "Los!",
+      pickOne: "Wähle mindestens eine Reihe",
+      spoken: (a, b) => cap(TXT.de.numWords[a] + " mal " + TXT.de.numWords[b]),
+      nextKey: "Weiter",
+      hintCount: (a, b, rows) => a + " Reihen mit je " + b + " Punkten. Zähl: " + rows.join(", "),
+      hint: (a, b) => a + " Reihen mit " + b + " Punkten in jeder Reihe. Zähl in " + b + "er-Schritten!",
+      // results
+      starTitles: [(w) => "Schön, dass du übst" + w + "!", (w) => "Gut gekämpft" + w + "!", (w) => "Super" + w + "!", (w) => "Fantastisch" + w + "!"],
+      tablesEyebrow: (t) => (t.length === 1 ? "Reihe " : "Reihen ") + t.join(", "),
+      score: (n, total) => n + " von " + total + " beim ersten Versuch richtig",
+      longestStreak: (n) => "Längste Serie: 🔥 " + n + " in Folge",
+      fixedQ: (n) => "Verbessert: " + n + (n === 1 ? " Frage, die" : " Fragen, die") + " zuerst falsch war" + (n === 1 ? "." : "en."),
+      newRecord: (w) => "Neuer Rekord" + w + "!",
+      gardenGrew: (w) => "Der Garten ist gewachsen" + w + "!",
+      report: "Tagesbericht",
+      wetNote: "Die Pflanzen, die du gepflegt hast, stehen in feuchter Erde und glitzern. Tippe auf eine Pflanze, dann siehst du sie näher.",
+      cared: "Die Pflanzen, die du gepflegt hast",
+      bloomed: "Aufgeblüht!",
+      perked: "Wieder munter",
+      grew: "Gewachsen",
+      nearNext: (n) => "✨ " + (n === 1 ? "Eine Knospe kann" : n + " Knospen können") + " in der nächsten Runde aufblühen!",
+      ledger: ["Richtige Antworten", "Verbessert", "Blitzschnell", "Gewachsene Pflanzen", "Neue Blüten", "Wieder munter", "Jetzt grün", "Rekord"],
+      waterNote: (n, d) => (n === 1 ? "Erste Runde heute." : "Runde " + n + " heute.") + " 🔥 " + d + (d === 1 ? " Tag" : " Tage") + " in Folge.",
+      rareGuest: "Seltener Gast",
+      rowBlooms: "Die ganze Reihe blüht",
+      rowBloomsTitle: (r) => "Die ganze " + r + "er-Reihe blüht!",
+      rowBloomsText: (r) => "Du kannst die " + r + "er-Reihe. Die Reihe bekommt eine Rosette.",
+      newVisitor: "Neuer Besucher",
+      landed: (m, x, y) => "Der Garten ist auf " + m + "\u00a0% gewachsen. Gelandet auf " + x + " · " + y + ".",
+      newDeco: "Neu im Garten",
+      practiceMore: "Übe noch ein bisschen",
+      oneMore: "Noch eine Runde!",
+      playAgain: "Nochmal spielen",
+      finaleFirst: "Alle Pflanzen blühen und sind gleichzeitig munter. Das ist das Schwierigste, was es in Gångis gibt!",
+      finaleAgain: (n) => "Du hast es wieder geschafft! Das ist das " + n + ". Mal.",
+      trophy: "Goldpokal",
+      trophyTimes: (n) => "Das " + n + ". Mal!",
+      trophyText: "Alle seltenen Gäste wohnen schon hier. Du bist ein echter Gartenprofi!",
+      // explore
+      hardLegend: "Rote Felder sind gerade knifflig für dich. Die kannst du dir gern noch etwas genauer ansehen!",
+      same: (a, b, sum) => cap(TXT.de.numWords[a]) + " mal " + TXT.de.numWords[b] + " ist dasselbe wie " + (a <= 6 ? sum.join(" + ") : a + "-mal die " + b) + ".",
+      hardNote: "Diese Aufgabe ist gerade etwas knifflig für dich. Schau dir die Punkte und den Trick an, dann sitzt sie bald!",
+      order: (a, b) => "Die Reihenfolge ist egal: " + b + " · " + a + " = " + a * b + " auch! Darum wächst an beiden Stellen im Garten dieselbe Pflanze.",
+      square: (a) => a + " · " + a + " ist ein Quadrat! Die Punkte bilden ein Viereck.",
+      tipFor: (a) => "Trick für die " + a + "er-Reihe:",
+      practiceTable: (a) => a + "er-Reihe üben",
+      // settings and parents
+      rowsAllOn: "Alle 55 Pflanzen sind dabei. Der ganze Garten kann blühen!",
+      rowsPart: (n, pct, v, vt, d, dt) => n + " von 55 Pflanzen sind dabei. Der Garten kann bis " + pct + "\u00a0% wachsen, mit " + v + " von " + vt + " Besuchern und " + d + " von " + dt + " Dingen.",
+      parentSummary: (t1, t2, total, n, of, med, fast) => "Schreibzeit bei leichten Fragen (×1 und ×10): <b>" + t1 + " s</b> für einstellige Antworten, <b>" + t2 + " s</b> für zweistellige. " +
+        "Gespeicherte Antworten: <b>" + total + "</b> zu " + n + " von " + of + " Aufgaben. Median der Denkzeit aller richtigen Antworten: <b>" + med + " s</b>. " +
+        "Eine Blüte braucht eine typische Denkzeit von ungefähr " + fast + " s.",
+      parentHead: ["Aufgabe", "Typisch", "Jetzt", "Median", "Antw.", "Fehl.", "Halbw.", "Gr."],
+      dayUnit: "T",
+      notPractised: "noch nicht geübt",
+      copyFail: "Automatisches Kopieren hat nicht geklappt. Der Text ist unten markiert, kopiere ihn selbst.",
+      copied: "Kopiert! Die Antwortdaten für alle Aufgaben liegen jetzt in der Zwischenablage.",
+      // visitors page
+      collTitle: (m) => "Der Garten ist auf " + m + "\u00a0% gewachsen",
+      now: (v) => " (jetzt " + v + ")",
+      livesAt: (x, y) => "Wohnt auf " + x + " · " + y,
+      onTheWay: "Ist unterwegs! Kommt nach der nächsten Runde",
+      comesAt: (pct) => "Kommt bei " + pct + "\u00a0%",
+      moreRows: ". Schalte mehr Reihen an",
+      guestCame: "Kam, als „Jetzt grün“ 100\u00a0% erreichte",
+      rowBadge: (r) => '<b class="num">' + r + "</b>er",
+      // the texts written in the page (index.html), by their data-i18n key
+      page: {
+        greenNow: "Jetzt grün",
+        finaleTitle: "Der ganze Garten leuchtet grün!",
+        openGift: "Geschenk öffnen",
+        giftHint: "Tippe auf das Geschenk!",
+        hurra: "Hurra!",
+        toGarden: "Zum Garten",
+        starsTitle: "Richtige Antworten insgesamt",
+        settingsAria: "Einstellungen: Reihen und Sprache",
+        soundAria: "Ton aus oder an",
+        askName: "Wie heißt du?",
+        namePh: "Dein Name",
+        save: "Speichern",
+        resetAsk: "Ganz von vorn anfangen …",
+        resetText: "<b>Ganz von vorn anfangen?</b> Alles verschwindet: der Garten, der Rekord, die Besucher, die Tage in Folge und der Name. Das lässt sich nicht rückgängig machen.",
+        cancel: "Abbrechen",
+        resetYes: "Ja, neu anfangen",
+        resRounds: "Runden heute",
+        resDays: "Tage",
+        resNow: "jetzt grün",
+        resBest: "Rekord",
+        careTitle: "GARTEN PFLEGEN",
+        careSub: "20 Fragen. Welche Pflanzen wachsen jetzt?",
+        practice: "Reihen üben",
+        explore: "Entdecken",
+        visitors: "Besucher",
+        whichTables: "Welche Reihen?",
+        all: "Alle",
+        easy: "Leichte (1, 2, 5, 10)",
+        clear: "Leeren",
+        howMany: "Wie viele Fragen?",
+        practiceNote: "Das Üben zählt für deine Tage in Folge, aber die Pflanzen wachsen nur, wenn du den Garten pflegst.",
+        back: "Zurück",
+        quit: "Beenden",
+        streakTitle: "Richtig in Folge",
+        plantChipTitle: "Deine Pflanze im Garten",
+        retryTag: "Noch ein Versuch!",
+        next: "Weiter →",
+        del: "Löschen",
+        showDots: "Punkte zeigen",
+        kbNote: "Du kannst auch mit der Tastatur schreiben und Enter drücken.",
+        multTitle: "Das Einmaleins",
+        exploreIntro: "Tippe auf ein Feld. Die Reihe und die Spalte leuchten auf, und du siehst die Zahl als Punkte.",
+        settings: "Einstellungen",
+        whichRows: "Welche Reihen sind dabei?",
+        rowsNote: "Tippe auf eine Reihe, um sie an- oder auszuschalten. Nur die Reihen, die an sind, werden abgefragt und wachsen. Wo eine Reihe aus ist, wächst Gras, und dorthin kommen keine Besucher. " +
+          "Mit nur der 2er-Reihe wird trotzdem 2 · 7 gefragt, denn das gehört zur 2er-Reihe. " +
+          "Der ganze Garten sind alle zehn Reihen. Mit weniger Reihen kommst du also nicht ganz bis 100&nbsp;%, und einige Besucher und Dinge warten, bis mehr Reihen an sind.",
+        language: "Sprache",
+        forParents: "Für Eltern",
+        answerTimes: "Antwortzeiten",
+        sortTable: "Nach Reihe sortieren",
+        sortSlow: "Langsamste zuerst",
+        copyData: "Daten kopieren",
+        copyBoxAria: "Daten zum Kopieren",
+        parentNote: "<b>Typisch</b>: ihre übliche Denkzeit (Zeit bis OK minus die Schreibzeit bei leichten Fragen, gewichtet nach den letzten Antworten). Eine Blüte braucht ungefähr höchstens <span id=\"limitNote\">1,5</span> s. " +
+          "<b>Jetzt</b>: die vorsichtige Denkzeit, mit der der Garten gerade rechnet. Ohne Üben wird der Garten unsicherer und rechnet mit mehr Zeit, sodass die Pflanze Durst bekommt. Eine schnelle Antwort macht sie wieder sicher. " +
+          "<b>Median</b>: die Mitte der Denkzeiten der letzten richtigen Antworten. <b>Antw./Fehl.</b>: unter den gespeicherten letzten Antworten (höchstens 20 pro Aufgabe). " +
+          "<b>Halbw.</b>: wie lange die Aufgabe ohne Üben hält (Tage). Je länger, desto langsamer wächst die Unsicherheit. <b>Gr.</b>: die Größe der Pflanze (bestes Niveau bisher).",
+        gardenVisitors: "Besucher im Garten",
+        collIntro: "Jedes Mal, wenn der Garten um weitere zehn Prozent gewachsen ist, kommt ein neues Tier (das letzte schon bei 95 %). Dinge für den Garten bekommst du, wenn mehr Pflanzen blühen und wenn du deinen Rekord brichst. Alles hier bleibt für immer.",
+        animals: "Tiere",
+        rareGuests: "Seltene Gäste",
+        fullRows: "Ganze Reihen",
+        fullRowsNote: "Wenn eine ganze Reihe blüht, kannst du diese Reihe, und sie bekommt eine Rosette.",
+        inGarden: "Im Garten",
+        oldStickers: "Alte Sticker"
+      }
+    }
   };
 
   const ALL_ROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -626,6 +956,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* ignore */ } }
   const S = load();
   if (!Array.isArray(S.rows) || !S.rows.some((t) => ALL_ROWS.includes(t))) S.rows = ALL_ROWS.slice();
+  // Swedish unless chosen otherwise under ⚙, or the device is set to German.
+  if (!TXT[S.lang]) S.lang = /^de\b/i.test(navigator.language || "") ? "de" : "sv";
+  let L = TXT[S.lang];
 
   const $ = (id) => document.getElementById(id);
   const rand = (n) => Math.floor(Math.random() * n);
@@ -812,7 +1145,6 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   // ---------- The garden's state ----------
   // Size comes from the best greenness a fact has ever had (never shrinks).
   // Thirst comes from how far its current greenness has fallen below that best.
-  const STAGE_NAMES = ["Frö", "Grodd", "Planta", "Knopp", "Blomma"];
   function stageFromBest(best) { return best >= 0.999 ? 4 : best >= 0.6 ? 3 : best >= 0.4 ? 2 : best >= 0.2 ? 1 : 0; }
   // A plant's size: its best speed so far, plus a little for every correct answer however slow.
   // That effort can lift it to at most EFFORT_CEIL (a well-grown plant); buds and flowers need speed.
@@ -859,32 +1191,23 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   // ---------- Visitors and decorations (all permanent) ----------
   const VISITORS = [
-    { id: "kalfjaril", name: "Kålfjäril", kind: "butterfly", c1: "#ffffff", c2: "#2b1a0a" },
-    { id: "humla", name: "Humla", kind: "bumblebee" },
-    { id: "nyckelpiga", name: "Nyckelpiga", kind: "ladybug" },
-    { id: "citronfjaril", name: "Citronfjäril", kind: "butterfly", c1: "#fff06a", c2: "#e0a92a" },
-    { id: "honungsbi", name: "Honungsbi", kind: "bee" },
-    { id: "pafagelöga", name: "Påfågelöga", kind: "butterfly", c1: "#c8402a", c2: "#4f7df0" },
-    { id: "trollslanda", name: "Trollslända", kind: "dragonfly" },
-    { id: "blavinge", name: "Blåvinge", kind: "butterfly", c1: "#7fb6ff", c2: "#2f5fb3" },
-    { id: "grashoppa", name: "Gräshoppa", kind: "grasshopper" },
-    { id: "snigel", name: "Snigel", kind: "snail" }
+    { id: "kalfjaril", kind: "butterfly", c1: "#ffffff", c2: "#2b1a0a" },
+    { id: "humla", kind: "bumblebee" },
+    { id: "nyckelpiga", kind: "ladybug" },
+    { id: "citronfjaril", kind: "butterfly", c1: "#fff06a", c2: "#e0a92a" },
+    { id: "honungsbi", kind: "bee" },
+    { id: "pafagelöga", kind: "butterfly", c1: "#c8402a", c2: "#4f7df0" },
+    { id: "trollslanda", kind: "dragonfly" },
+    { id: "blavinge", kind: "butterfly", c1: "#7fb6ff", c2: "#2f5fb3" },
+    { id: "grashoppa", kind: "grasshopper" },
+    { id: "snigel", kind: "snail" }
   ];
   // The maturity at which each visitor comes: one per 10 %, but the last one (the snail) already at
   // 95 %, so that 100 % is kept for the big surprises below.
   const VISITOR_AT = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95];
   // Rare guests: one moves in each time "Grönt nu" reaches 100 % (again). They are a surprise, so the
   // visitors page only shows the ones that have come. The unicorn is kept for last.
-  const GUESTS = [
-    { id: "kanin", name: "Kanin", text: "En kanin har flyttat in på gräsmattan." },
-    { id: "ekorre", name: "Ekorre", text: "En ekorre har flyttat in vid bänken. Den har med sig en nöt." },
-    { id: "uggla", name: "Uggla", text: "En uggla har flyttat in i det stora trädet." },
-    { id: "guldfisk", name: "Guldfiskar", text: "Två guldfiskar simmar nu runt i dammen." },
-    { id: "rav", name: "Räv", text: "En räv har flyttat in på gräsmattan." },
-    { id: "pafagel", name: "Påfågel", text: "En påfågel visar upp sina fjädrar vid gången." },
-    { id: "alva", name: "Älva", text: "En älva flyger runt över trädgården och lämnar glitter efter sig." },
-    { id: "enhorning", name: "Enhörning", text: "En enhörning! Den kommer bara till de allra finaste trädgårdarna." }
-  ];
+  const GUESTS = ["kanin", "ekorre", "uggla", "guldfisk", "rav", "pafagel", "alva", "enhorning"].map((id) => ({ id: id }));
   // "Grönt nu" and the record show as 100 % from 99.5 %, so that is when it counts.
   const isFull = (pct) => shownPct(pct) >= 100;
   // Grönt nu has just reached 100 %: count it, and the next rare guest (if any is left) moves in.
@@ -896,12 +1219,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     return { n: S.fullTimes, guest: g };
   }
   const DECOS = [
-    { id: "bench", name: "Bänk", how: "Rekord 25 %", has: () => shownPct(S.bestPct) >= 25, reach: () => maxPct() >= 25 },
-    { id: "birdbox", name: "Fågelholk", how: "10 blommor", has: () => flowerCount() >= 10, reach: () => FACTS.length >= 10 },
-    { id: "pond", name: "Damm med groda", how: "Rekord 50 %", has: () => shownPct(S.bestPct) >= 50, reach: () => maxPct() >= 50 },
-    { id: "hedgehog", name: "Igelkott", how: "25 blommor", has: () => flowerCount() >= 25, reach: () => FACTS.length >= 25 },
-    { id: "apple", name: "Äppelträd", how: "Rekord 75 %", has: () => shownPct(S.bestPct) >= 75, reach: () => maxPct() >= 75 },
-    { id: "greenhouse", name: "Växthus", how: "Rekord 100 %", has: () => isFull(S.bestPct), reach: () => isFull(maxPct()) }
+    { id: "bench", rec: true, has: () => shownPct(S.bestPct) >= 25, reach: () => maxPct() >= 25 },
+    { id: "birdbox", has: () => flowerCount() >= 10, reach: () => FACTS.length >= 10 },
+    { id: "pond", rec: true, has: () => shownPct(S.bestPct) >= 50, reach: () => maxPct() >= 50 },
+    { id: "hedgehog", has: () => flowerCount() >= 25, reach: () => FACTS.length >= 25 },
+    { id: "apple", rec: true, has: () => shownPct(S.bestPct) >= 75, reach: () => maxPct() >= 75 },
+    { id: "greenhouse", rec: true, has: () => isFull(S.bestPct), reach: () => isFull(maxPct()) }
   ];
   // How far the garden can get with the rows that are on (100 % only with all rows).
   const maxPct = () => FACTS.length / ALL_FACTS.length * 100;
@@ -998,8 +1321,6 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const css = (c) => "rgb(" + (c[0] | 0) + "," + (c[1] | 0) + "," + (c[2] | 0) + ")";
 
     const SPECIES = ["daisy", "tulip", "sunflower", "lavender", "rose", "poppy", "forgetmenot", "strawberry", "cornflower", "marigold"];
-    const SPECIES_NAMES = { daisy: "prästkrage", tulip: "tulpan", sunflower: "solros", lavender: "lavendel", rose: "ros", poppy: "vallmo",
-      forgetmenot: "förgätmigej", strawberry: "jordgubbe", cornflower: "blåklint", marigold: "ringblomma" };
     const TULIP = ["#e8445a", "#ff7ab0", "#ffd23f", "#9b59d0", "#ff7a2f"];
     const ROSE = ["#e8445a", "#ff8fb0", "#fff4f0", "#ffb36b"];
     const POPPY = ["#ff4b2b", "#ff7a2f", "#e8305a"];
@@ -1557,7 +1878,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     function plotBox(a, b) { return { x: GX + (b - 1) * C + 8 - 12, y: GY + (a - 1) * C + 8 - 12, w: 24, h: 24 }; }
 
     return { debug: { plant: plant, pen: pen, speciesOf: speciesOf, hash2: hash2 }, draw: draw, drawMini: drawMini, drawIcon: drawIcon, cellAt: cellAt, labels: labels, plotBox: plotBox,
-      speciesName: (a, b) => SPECIES_NAMES[speciesOf(a, b).sp] };
+      species: (a, b) => speciesOf(a, b).sp };
   })();
 
   if (location.hash === "#garden-debug") { window.__garden = Garden; window.__gangis = { S: S, recordSpeed: recordSpeed, daysUntilThirsty: daysUntilThirsty, reachFull: reachFull, showFinale: (f) => showFinale(f) }; }
@@ -1591,7 +1912,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     });
     el.querySelectorAll(".lbl").forEach((l, i) => l.classList.toggle("off", !rowOn(i % 10 + 1)));
     const flowers = FACTS.filter(([a, b]) => plotOf(a, b, now).stage === 4).length;
-    canvas.setAttribute("aria-label", "Din trädgård med tio rader och tio kolumner. " + flowers + " av 55 plantor blommar.");
+    canvas.setAttribute("aria-label", L.gardenAria(flowers));
     return canvas;
   }
 
@@ -1707,22 +2028,22 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const now = Date.now(), items = [];
     const thirsty = FACTS.filter(([a, b]) => plotOf(a, b, now).dry > 0.4).length;
     const n = roundsToday(), near = FACTS.filter(([a, b]) => plotOf(a, b, now).near).length;
-    if (n) items.push("Idag har du skött om trädgården " + (n === 1 ? "en gång." : n + " gånger."));
-    else if (rainedYesterday()) items.push("Det regnade i går, så trädgården klarade sig. Idag väntar den på dig.");
-    else items.push("Trädgården väntar på dig idag.");
-    if (near) items.push("✨ " + (near === 1 ? "En knopp är nära" : near + " knoppar är nära") + " att slå ut.");
+    if (n) items.push(L.caredToday(n));
+    else if (rainedYesterday()) items.push(L.rained);
+    else items.push(L.waiting);
+    if (near) items.push(L.nearOpen(near));
     // A hint that something happens at 100 %, without saying what.
     if (isFull(maxPct()) && boardPct() >= 90 && !isFull(boardPct()))
-      items.push(S.fullTimes ? "🎁 Når Grönt nu 100\u00a0% igen händer något nytt…" : "🎁 Något händer när Grönt nu når 100\u00a0%…");
-    if (thirsty) items.push(thirsty === 1 ? "En planta är törstig." : thirsty + " plantor är törstiga.");
-    if (S.visits.length < visitorsReachable()) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Nästa besökare kommer vid " + Math.round(VISITOR_AT[S.visits.length] * 100) + "\u00a0%.");
-    else if (S.visits.length < VISITORS.length) items.push("Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Sätt på fler rader ⚙ så kan fler besökare komma.");
+      items.push(S.fullTimes ? L.fullHintAgain : L.fullHint);
+    if (thirsty) items.push(L.thirstyN(thirsty));
+    if (S.visits.length < visitorsReachable()) items.push(L.grownNext(Math.floor(maturity() * 100), Math.round(VISITOR_AT[S.visits.length] * 100)));
+    else if (S.visits.length < VISITORS.length) items.push(L.grownMoreRows(Math.floor(maturity() * 100)));
     const t = $("ticker");
-    t.innerHTML = "<b>Nytt</b>";
+    t.innerHTML = "<b>" + L.news + "</b>";
     const hello = document.createElement("button");
     hello.id = "helloBtn";
-    hello.textContent = S.name ? "Hej, " + S.name + "!" : "Hej!";
-    hello.title = "Byt namn";
+    hello.textContent = L.hello(S.name);
+    hello.title = L.rename;
     hello.addEventListener("click", () => { $("nameForm").hidden = false; $("nameInput").value = S.name; $("nameInput").focus(); });
     t.appendChild(hello);
     t.appendChild(document.createTextNode(" " + items.join(" · ")));
@@ -1731,9 +2052,8 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const box = $("plotInfo"), now = Date.now();
     if (!home.sel) {
       const flowers = FACTS.filter(([a, b]) => plotOf(a, b, now).stage === 4).length;
-      box.innerHTML = '<div class="plot-text"><b style="font-family: var(--font-pixel); font-size: 1.15rem;">Tryck på en planta</b>' +
-        "<p>Då ser du vilket tal den är, hur stor den har blivit och om den är törstig. " +
-        "Just nu blommar " + flowers + " av 55 plantor.</p></div>";
+      box.innerHTML = '<div class="plot-text"><b style="font-family: var(--font-pixel); font-size: 1.15rem;">' + L.tapPlant + "</b>" +
+        "<p>" + L.tapPlantText(flowers) + "</p></div>";
       return;
     }
     fillPlotInfo(box, $("homeGarden"), home.sel, now);
@@ -1741,25 +2061,22 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   // What one plant is and how it is doing, beside a close-up taken from the garden canvas.
   function fillPlotInfo(box, gardenEl, sel, now) {
     const [a, b] = sel, st = plotOf(a, b, now);
-    const thirst = st.dry > 0.75 ? "Törstig" : st.dry > 0.4 ? "Lite törstig" : "Pigg";
+    const thirst = L.thirst[st.dry > 0.75 ? 0 : st.dry > 0.4 ? 1 : 2];
     let tip;
-    if (st.dry > 0.4) tip = "Den är törstig. Ett par snabba svar på " + a + " · " + b + " så piggnar den till.";
-    else if (st.stage === 4) tip = "Den blommar! Svara snabbt ibland så håller den sig pigg.";
-    else if (st.stage === 0) tip = "Svara rätt och snabbt på " + a + " · " + b + " så gror fröet.";
-    else tip = "Svara rätt och snabbt på " + a + " · " + b + " några gånger till, så blir den " + STAGE_NAMES[st.stage + 1].toLowerCase() + ".";
+    if (st.dry > 0.4) tip = L.tipThirsty(a, b);
+    else if (st.stage === 4) tip = L.tipBloom;
+    else if (st.stage === 0) tip = L.tipSeed(a, b);
+    else tip = L.tipGrow(a, b, st.stage + 1);
     const left = st.dry <= 0.4 ? daysUntilThirsty(st.key, now) : null;
-    if (left != null) {
-      const d = Math.round(left);
-      tip += left < 1 ? " Den behöver omsorg i morgon." : " Den klarar sig ungefär " + (d === 1 ? "en dag" : d + " dagar") + " till innan den blir törstig.";
-    }
+    if (left != null) tip += left < 1 ? L.tipTomorrow : L.tipDays(Math.round(left));
     box.innerHTML =
       '<div class="zoom"><canvas class="pix" width="24" height="24"></canvas></div>' +
       '<div class="plot-text">' +
       '<span class="eq">' + a + " · " + b + " = " + a * b + "</span>" +
-      '<span class="note">Rad ' + a + " · kolumn " + b + " · " + Garden.speciesName(a, b) + "</span>" +
-      '<div class="meter"><span>Storlek</span><span class="pips">' + [1, 2, 3, 4].map((k) => '<i class="' + (st.stage >= k ? "on" : "") + '"></i>').join("") +
-      "</span><b>" + STAGE_NAMES[st.stage] + "</b></div>" +
-      '<div class="meter"><span>Vatten</span><span class="waterbar"><i style="width:' + Math.round((1 - st.dry) * 100) + '%"></i></span><b>' + thirst + "</b></div>" +
+      '<span class="note">' + L.rowCol(a, b, L.species[Garden.species(a, b)]) + "</span>" +
+      '<div class="meter"><span>' + L.size + '</span><span class="pips">' + [1, 2, 3, 4].map((k) => '<i class="' + (st.stage >= k ? "on" : "") + '"></i>').join("") +
+      "</span><b>" + L.stages[st.stage] + "</b></div>" +
+      '<div class="meter"><span>' + L.water + "</span>" + '<span class="waterbar"><i style="width:' + Math.round((1 - st.dry) * 100) + '%"></i></span><b>' + thirst + "</b></div>" +
       '<p class="note">' + tip + "</p></div>";
     const g = gardenEl.querySelector("canvas"), bx = Garden.plotBox(a, b), z = box.querySelector(".zoom canvas").getContext("2d");
     z.imageSmoothingEnabled = false;
@@ -1793,7 +2110,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const m = Math.round(tableGreen(t) * 100);
     return '<button class="tile' + (sel ? " sel" : "") + '" data-t="' + t + '" aria-pressed="' + !!sel + '">' +
       "<b>" + t + "</b>" +
-      '<span class="bar" title="' + m + ' % grönt"><i style="width:' + m + '%"></i></span></button>';
+      '<span class="bar" title="' + L.tileGreen(m) + '"><i style="width:' + m + '%"></i></span></button>';
   }
   function renderSetup() {
     let html = "";
@@ -1804,7 +2121,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       b.setAttribute("aria-pressed", String(Number(b.dataset.n) === setup.count));
     });
     $("startBtn").disabled = setup.tables.length === 0;
-    $("startBtn").textContent = setup.tables.length ? "Kör!" : "Välj minst en tabell";
+    $("startBtn").textContent = setup.tables.length ? L.go : L.pickOne;
   }
   $("setupTables").addEventListener("click", (e) => {
     const b = e.target.closest(".tile");
@@ -1910,7 +2227,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     G.input = ""; G.locked = false; G.hinted = false;
     $("qa").textContent = G.q.a; $("qb").textContent = G.q.b;
     $("retryTag").hidden = !G.q.retry;
-    $("spoken").textContent = (NUM_WORDS[G.q.a] + " gånger " + NUM_WORDS[G.q.b]).replace(/^./, (c) => c.toUpperCase());
+    $("spoken").textContent = L.spoken(G.q.a, G.q.b);
     $("feedback").textContent = ""; $("feedback").className = "feedback";
     $("qCard").className = "panel question";
     $("hint").hidden = true; $("hintBtn").disabled = false;
@@ -1987,9 +2304,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       G.bestStreak = Math.max(G.bestStreak, G.streak);
       card.className = "panel question right";
       fb.className = "feedback good pop";
-      fb.textContent = STREAK_PRAISE[G.streak] || (quick ? "⚡ Blixtsnabbt!" : pick(PRAISE));
+      fb.textContent = L.streakPraise[G.streak] || (quick ? L.fast : pick(L.praise));
       $("answer").classList.add("pop");
-      if (STREAK_PRAISE[G.streak]) { sfx.streak(); confetti(60, 0.4); } else sfx.right();
+      if (L.streakPraise[G.streak]) { sfx.streak(); confetti(60, 0.4); } else sfx.right();
       $("starCount").textContent = S.total;
       save();
       renderStreak();
@@ -2004,7 +2321,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       else if (!G.q.retry) { G.retry.push({ q: { a: a, b: b }, due: G.answered + 3 }); G.retried++; }
       card.className = "panel question wrong";
       fb.className = "feedback bad";
-      fb.textContent = pick(["Nästan!", "Bra försök!", "Ingen fara!", "Oj, inte riktigt."]) + " " + a + " · " + b + " = " + ans;
+      fb.textContent = pick(L.wrong) + " " + a + " · " + b + " = " + ans;
       $("answer").textContent = ans;
       $("answer").classList.remove("empty");
       sfx.wrong();
@@ -2013,7 +2330,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       // Wait for her to tap "Nästa" so she has time to look at the right answer and the dots.
       G.waiting = true; G.wrongAt = performance.now();
       $("nextBtn").hidden = false;
-      document.querySelector("#pad .ok").textContent = "Nästa";
+      document.querySelector("#pad .ok").textContent = L.nextKey;
     }
   }
   function continueAfterWrong() {
@@ -2040,9 +2357,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const { a, b } = G.q;
     const rows = [];
     for (let i = 1; i <= a; i++) rows.push(b * i);
-    $("hint").innerHTML = dotsHtml(a, b) + '<p class="note">' + (afterWrong
-      ? a + " rader med " + b + " prickar. Räkna: " + rows.join(", ")
-      : a + " rader med " + b + " prickar i varje rad. Räkna " + b + " i taget!") + "</p>";
+    $("hint").innerHTML = dotsHtml(a, b) + '<p class="note">' + (afterWrong ? L.hintCount(a, b, rows) : L.hint(a, b)) + "</p>";
     $("hint").hidden = false;
     $("hintBtn").disabled = true;
   }
@@ -2107,13 +2422,13 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       const firstTry = G.firstRight;
       const pct = firstTry / G.total;
       const stars = pct >= 0.95 ? 3 : pct >= 0.8 ? 2 : pct >= 0.5 ? 1 : 0;
-      const title = stars === 3 ? "Fantastiskt" + who + "!" : stars === 2 ? "Jättebra" + who + "!" : stars === 1 ? "Bra kämpat" + who + "!" : "Bra att du övar" + who + "!";
-      head += '<span class="eyebrow">Tabell ' + G.tables.join(", ") + "</span>";
+      const title = L.starTitles[stars](who);
+      head += '<span class="eyebrow">' + L.tablesEyebrow(G.tables) + "</span>";
       head += "<h2>" + esc(title) + "</h2>";
       head += '<div class="big-stars">' + starsHtml(stars) + "</div>";
-      head += '<p class="score">' + firstTry + " av " + G.total + " rätt på första försöket</p>";
-      if (G.bestStreak >= 3) html += "<p>Längsta svit: 🔥 " + G.bestStreak + " i rad</p>";
-      if (G.fixed) html += "<p>Rättade till: " + G.fixed + (G.fixed === 1 ? " fråga" : " frågor") + " som blev fel först.</p>";
+      head += '<p class="score">' + L.score(firstTry, G.total) + "</p>";
+      if (G.bestStreak >= 3) html += "<p>" + L.longestStreak(G.bestStreak) + "</p>";
+      if (G.fixed) html += "<p>" + L.fixedQ(G.fixed) + "</p>";
       celebrate = pct >= 0.8;
     } else {
       const after = snapshot(), pct = boardPct();
@@ -2130,38 +2445,38 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       cared.sort((x, y) => y.score - x.score);
       const nearNext = FACTS.filter(([a, b]) => after[factKey(a, b)].near).length;
       const record = shownPct(S.bestPct) > shownPct(G.startBest);
-      const title = record ? "Nytt rekord" + who + "!" : grew || bloomed ? "Trädgården växte" + who + "!" : "Bra kämpat" + who + "!";
-      head += '<span class="eyebrow">Dagens rapport</span>';
+      const title = record ? L.newRecord(who) : grew || bloomed ? L.gardenGrew(who) : L.starTitles[1](who);
+      head += '<span class="eyebrow">' + L.report + "</span>";
       head += "<h2>" + esc(title) + "</h2>";
       html += '<div class="garden-frame" style="width:100%"><div class="garden" id="resultGarden"></div></div>';
-      html += '<p class="note">Plantorna du skötte om står i blöt jord och glittrar. Tryck på en planta så ser du den närmare.</p>';
+      html += '<p class="note">' + L.wetNote + "</p>";
       html += '<div class="plot-info" id="resultPlot" hidden></div>';
       if (cared.length) {
-        html += '<span class="eyebrow">Plantorna du skötte om</span><div class="cared">' + cared.slice(0, 4).map((c) => {
+        html += '<span class="eyebrow">' + L.cared + '</span><div class="cared">' + cared.slice(0, 4).map((c) => {
           const [x, y] = c.k.split("x");
-          const what = c.bloom ? "Slog ut!" : c.perk ? "Piggnade till" : c.b1.stage > c.b0.stage ? STAGE_NAMES[c.b0.stage] + " → " + STAGE_NAMES[c.b1.stage] : "Växte";
+          const what = c.bloom ? L.bloomed : c.perk ? L.perked : c.b1.stage > c.b0.stage ? L.stages[c.b0.stage] + " → " + L.stages[c.b1.stage] : L.grew;
           return '<div class="care-card"><canvas class="pix" data-mini="' + c.k + '" data-when="0"></canvas><span class="arrow">→</span>' +
             '<canvas class="pix" data-mini="' + c.k + '" data-when="1"></canvas><span class="care-text"><b>' + x + " · " + y + "</b>" + what + "</span></div>";
         }).join("") + "</div>";
       }
-      if (nearNext) html += '<p class="near-note">✨ ' + (nearNext === 1 ? "En knopp kan" : nearNext + " knoppar kan") + " slå ut nästa runda!</p>";
+      if (nearNext) html += '<p class="near-note">' + L.nearNext(nearNext) + "</p>";
+      const lg = L.ledger;
       html += '<div class="ledger">' +
-        "<div><span>Rätt svar</span><b>" + G.freshRight + " / " + G.total + "</b></div>" +
-        (G.retried ? "<div><span>Rättade till</span><b>" + G.fixed + " / " + G.retried + "</b></div>" : "") +
-        "<div><span>Blixtsnabba</span><b>" + G.fast + "</b></div>" +
-        "<div><span>Plantor som växte</span><b>" + grew + "</b></div>" +
-        "<div><span>Nya blommor</span><b>" + bloomed + "</b></div>" +
-        "<div><span>Piggnade till</span><b>" + perked + "</b></div>" +
-        '<div><span>Grönt nu</span><b class="up">' + shownPct(G.startPct) + " → " + shownPct(pct) + " %</b></div>" +
-        "<div><span>Rekord</span><b>" + shownPct(S.bestPct) + " %</b></div></div>";
+        "<div><span>" + lg[0] + "</span><b>" + G.freshRight + " / " + G.total + "</b></div>" +
+        (G.retried ? "<div><span>" + lg[1] + "</span><b>" + G.fixed + " / " + G.retried + "</b></div>" : "") +
+        "<div><span>" + lg[2] + "</span><b>" + G.fast + "</b></div>" +
+        "<div><span>" + lg[3] + "</span><b>" + grew + "</b></div>" +
+        "<div><span>" + lg[4] + "</span><b>" + bloomed + "</b></div>" +
+        "<div><span>" + lg[5] + "</span><b>" + perked + "</b></div>" +
+        "<div><span>" + lg[6] + '</span><b class="up">' + shownPct(G.startPct) + " → " + shownPct(pct) + " %</b></div>" +
+        "<div><span>" + lg[7] + "</span><b>" + shownPct(S.bestPct) + " %</b></div></div>";
       celebrate = record || bloomed > 0;
       G.arrived = arriveVisitors(cared.map((c) => c.k));
       // Grönt nu reached 100 % (again): the big surprise, shown over the report.
       if (isFull(pct) && !isFull(G.startPct)) G.finale = reachFull();
     }
     const n = roundsToday();
-    html += '<p class="water-note">' + (n === 1 ? "Första rundan idag." : "Runda " + n + " idag.") +
-      " 🔥 " + streakDays() + (streakDays() === 1 ? " dag" : " dagar") + " i rad.</p>";
+    html += '<p class="water-note">' + L.waterNote(n, streakDays()) + "</p>";
 
     const u = unlocked(), newV = G.arrived || [], newD = u.decos.filter((id) => !G.unlockedBefore.decos.includes(id)),
       newRows = fullRows().filter((r) => !G.rowsBefore.includes(r));
@@ -2170,19 +2485,19 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     if (newV.length || newD.length || newRows.length || newG) {
       celebrate = true;
       news = '<div class="unlocks">' +
-        (newG ? '<div class="unlock"><canvas class="pix" data-icon="guest" data-id="' + newG.id + '"></canvas><span><span class="eyebrow">Sällsynt gäst</span><b>' +
-          newG.name + "</b>" + newG.text + "</span></div>" : "") +
-        newRows.map((r) => '<div class="unlock"><span class="rosette-big" aria-hidden="true">🎀</span><span><span class="eyebrow">Hela raden blommar</span><b>Hela ' + r +
-          ":ans rad blommar!</b>Du kan hela " + r + "-tabellen. Raden får en rosett.</span></div>").join("") +
-        newV.map((w) => { const v = VISITORS.find((x) => x.id === w.id), [x, y] = visitSpot(w.key);
-          return '<div class="unlock"><canvas class="pix" data-icon="visitor" data-id="' + w.id + '"></canvas><span><span class="eyebrow">Ny besökare</span><b>' + v.name +
-            "</b>Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%. Den landade på " + x + " · " + y + ".</span></div>"; }).join("") +
-        newD.map((id) => { const d = DECOS.find((x) => x.id === id);
-          return '<div class="unlock"><canvas class="pix" data-icon="deco" data-id="' + id + '"></canvas><span><span class="eyebrow">Nytt i trädgården</span><b>' + d.name + "</b>" + d.how + ".</span></div>"; }).join("") +
+        (newG ? '<div class="unlock"><canvas class="pix" data-icon="guest" data-id="' + newG.id + '"></canvas><span><span class="eyebrow">' + L.rareGuest + "</span><b>" +
+          L.guests[newG.id][0] + "</b>" + L.guests[newG.id][1] + "</span></div>" : "") +
+        newRows.map((r) => '<div class="unlock"><span class="rosette-big" aria-hidden="true">🎀</span><span><span class="eyebrow">' + L.rowBlooms + "</span><b>" +
+          L.rowBloomsTitle(r) + "</b>" + L.rowBloomsText(r) + "</span></div>").join("") +
+        newV.map((w) => { const [x, y] = visitSpot(w.key);
+          return '<div class="unlock"><canvas class="pix" data-icon="visitor" data-id="' + w.id + '"></canvas><span><span class="eyebrow">' + L.newVisitor + "</span><b>" + L.visitors[w.id] +
+            "</b>" + L.landed(Math.floor(maturity() * 100), x, y) + "</span></div>"; }).join("") +
+        newD.map((id) => '<div class="unlock"><canvas class="pix" data-icon="deco" data-id="' + id + '"></canvas><span><span class="eyebrow">' + L.newDeco + "</span><b>" +
+          L.decos[id][0] + "</b>" + L.decos[id][1] + ".</span></div>").join("") +
         "</div>";
     }
     if (G.missed.length) {
-      html += '<span class="eyebrow">Öva lite extra på</span><div class="missed">' +
+      html += '<span class="eyebrow">' + L.practiceMore + '</span><div class="missed">' +
         G.missed.map((k) => { const [x, y] = k.split("x"); return "<span>" + x + " · " + y + " = " + x * y + "</span>"; }).join("") + "</div>";
     }
     card.innerHTML = head + news + html;
@@ -2191,7 +2506,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       const [x, y] = c.dataset.mini.split("x").map(Number), snap = c.dataset.when === "1" ? snapshot() : G.before;
       Garden.drawMini(c, x, y, snap[c.dataset.mini]);
     });
-    $("againBtn").textContent = G.mode === "green" ? "En runda till!" : "Spela igen";
+    $("againBtn").textContent = G.mode === "green" ? L.oneMore : L.playAgain;
     show("result");
     G.sel = null;
     if (G.mode === "green") {
@@ -2208,14 +2523,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   // ---------- 100 %: the big surprise ----------
   // Shown over the report each time Grönt nu reaches 100 %. She opens the present herself; inside is
   // the next rare guest, or a trophy once they have all moved in.
-  const ordinal = (n) => n + ([1, 2].includes(n % 10) && ![11, 12].includes(n % 100) ? ":a" : ":e");
   function showFinale(f) {
-    $("finaleText").textContent = f.n === 1 ? "Alla plantor blommar och är pigga på samma gång. Det är det svåraste som finns i Gångis!" :
-      "Du har gjort det igen! Det är " + ordinal(f.n) + " gången.";
+    $("finaleText").textContent = f.n === 1 ? L.finaleFirst : L.finaleAgain(f.n);
     const r = $("finaleReveal");
     r.innerHTML = f.guest
-      ? '<span class="eyebrow">Sällsynt gäst</span><canvas class="pix" data-icon="guest" data-id="' + f.guest.id + '"></canvas><b>' + f.guest.name + "</b><p>" + f.guest.text + "</p>"
-      : '<span class="eyebrow">Guldpokal</span><span class="trophy">🏆</span><b>' + ordinal(f.n) + " gången!</b><p>Alla sällsynta gäster bor redan här. Du är en riktig mästarträdgårdsmästare!</p>";
+      ? '<span class="eyebrow">' + L.rareGuest + '</span><canvas class="pix" data-icon="guest" data-id="' + f.guest.id + '"></canvas><b>' + L.guests[f.guest.id][0] + "</b><p>" + L.guests[f.guest.id][1] + "</p>"
+      : '<span class="eyebrow">' + L.trophy + '</span><span class="trophy">🏆</span><b>' + L.trophyTimes(f.n) + "</b><p>" + L.trophyText + "</p>";
     r.querySelectorAll("canvas[data-icon]").forEach((c) => Garden.drawIcon(c, "guest", c.dataset.id, false));
     r.hidden = true; $("finaleClose").hidden = true; $("finaleGift").hidden = false; $("finaleHint").hidden = false;
     $("finale").hidden = false;
@@ -2279,18 +2592,18 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     }
     $("multTable").innerHTML = html;
     $("hardLegend").hidden = !nHard;
-    $("hardLegend").innerHTML = '<i></i>Röda rutor är knepiga för dig just nu. Dem kan du gärna titta lite extra på!';
+    $("hardLegend").innerHTML = "<i></i>" + L.hardLegend;
     const a = ex.a, b = ex.b;
     const sum = [];
     for (let i = 0; i < a; i++) sum.push(b);
     $("explain").innerHTML =
       '<div class="eq">' + a + ' <span class="op">·</span> ' + b + ' <span class="op">=</span> ' + a * b + "</div>" +
-      '<p class="note">' + NUM_WORDS[a].replace(/^./, (c) => c.toUpperCase()) + " gånger " + NUM_WORDS[b] + " är samma som " + (a <= 6 ? sum.join(" + ") : a + " stycken " + b + ":or") + ".</p>" +
-      (hard[factKey(a, b)] ? '<p class="hard-note">Den här är lite knepig för dig just nu. Titta på prickarna och knepet, så sitter den snart!</p>' : "") +
+      '<p class="note">' + L.same(a, b, sum) + "</p>" +
+      (hard[factKey(a, b)] ? '<p class="hard-note">' + L.hardNote + "</p>" : "") +
       dotsHtml(a, b) +
-      (a !== b ? '<p class="note">Ordningen spelar ingen roll: ' + b + " · " + a + " = " + a * b + " också! Därför växer samma planta på båda ställena i trädgården.</p>" : '<p class="note">' + a + " · " + a + " är en kvadrat! Prickarna bildar en fyrkant.</p>") +
-      '<div class="tip"><b>Knep för ' + a + "-tabellen:</b> " + TIPS[a] + "</div>" +
-      '<button class="btn green" id="practiceThis">Öva ' + a + "-tabellen</button>";
+      '<p class="note">' + (a !== b ? L.order(a, b) : L.square(a)) + "</p>" +
+      '<div class="tip"><b>' + L.tipFor(a) + "</b> " + L.tips[a] + "</div>" +
+      '<button class="btn green" id="practiceThis">' + L.practiceTable(a) + "</button>";
     $("practiceThis").addEventListener("click", () => { setup.mode = "practice"; setup.tables = [a]; startGame(); });
   }
   $("multTable").addEventListener("click", (e) => {
@@ -2302,7 +2615,7 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
 
   // ---------- Parent view ----------
   let parentSort = "table";
-  const fmtS = (v) => v == null ? "–" : v.toLocaleString("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const fmtS = (v) => v == null ? "–" : v.toLocaleString(L.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   function factStats(a, b) {
     const key = factKey(a, b), s = S.speed[key];
     if (!s) return { key: key, a: a, b: b, n: 0 };
@@ -2316,9 +2629,9 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
       '<button class="tile' + (rowOn(t) ? " sel" : "") + '" data-t="' + t + '" aria-pressed="' + rowOn(t) + '"><b>' + t + "</b></button>").join("");
     const v = visitorsReachable(), d = DECOS.filter((x) => x.reach()).length;
     $("rowsReach").textContent = FACTS.length === ALL_FACTS.length
-      ? "Alla 55 plantor är med. Hela trädgården kan blomma!"
-      : FACTS.length + " av 55 plantor är med. Trädgården kan växa till " + Math.round(maxPct()) + "\u00a0%, med " +
-        v + " av " + VISITORS.length + " besökare och " + d + " av " + DECOS.length + " saker.";
+      ? L.rowsAllOn
+      : L.rowsPart(FACTS.length, Math.round(maxPct()), v, VISITORS.length, d, DECOS.length);
+    document.querySelectorAll("#langSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
   }
   function setRows(rows) {
     if (!rows.length) return; // at least one row stays on
@@ -2337,6 +2650,13 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
   });
   $("rowsAll").addEventListener("click", () => setRows(ALL_ROWS));
   $("rowsEasy").addEventListener("click", () => setRows([1, 2, 5, 10]));
+  $("langSeg").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    sfx.tap();
+    setLang(b.dataset.lang);
+    renderRows();
+  });
   function renderParent() {
     const rows = FACTS.map(([a, b]) => factStats(a, b));
     const answered = rows.filter((r) => r.n), total = answered.reduce((t, r) => t + r.n, 0);
@@ -2345,14 +2665,12 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     allThink.sort((x, y) => x - y);
     const med = allThink.length ? allThink[Math.floor(allThink.length / 2)] : null;
     $("limitNote").textContent = fmtS(SP.FAST);
-    $("parentSummary").innerHTML = "Skrivtid på lätta frågor (×1 och ×10): <b>" + fmtS(S.typing[1]) + " s</b> för ensiffriga svar, <b>" + fmtS(S.typing[2]) + " s</b> för tvåsiffriga. " +
-      "Sparade svar: <b>" + total + "</b> på " + answered.length + " av " + FACTS.length + " fakta. Median tänketid för alla rätta svar: <b>" + fmtS(med) + " s</b>. " +
-      "Blomma kräver en typisk tänketid på ungefär " + fmtS(SP.FAST) + " s.";
+    $("parentSummary").innerHTML = L.parentSummary(fmtS(S.typing[1]), fmtS(S.typing[2]), total, answered.length, FACTS.length, fmtS(med), fmtS(SP.FAST));
     if (parentSort === "slow") rows.sort((x, y) => (y.n ? y.e : -1) - (x.n ? x.e : -1));
-    $("parentTable").innerHTML = "<thead><tr><th>Fakta</th><th>Typisk</th><th>Nu</th><th>Median</th><th>Svar</th><th>Fel</th><th>Halv.</th><th>Stl.</th></tr></thead><tbody>" +
+    $("parentTable").innerHTML = "<thead><tr>" + L.parentHead.map((h) => "<th>" + h + "</th>").join("") + "</tr></thead><tbody>" +
       rows.map((r) => "<tr" + (r.n && r.e > SP.FAST ? ' class="slow"' : "") + "><td>" + r.a + " · " + r.b + "</td>" +
-        (r.n ? "<td>" + fmtS(r.e) + " s</td><td>" + fmtS(r.now) + " s</td><td>" + fmtS(r.median) + " s</td><td>" + r.n + "</td><td>" + r.wrong + "</td><td>" + fmtS(r.hl) + " d</td><td>" + r.size + " %</td>"
-          : '<td colspan="7" class="none">inte övad än</td>') + "</tr>").join("") + "</tbody>";
+        (r.n ? "<td>" + fmtS(r.e) + " s</td><td>" + fmtS(r.now) + " s</td><td>" + fmtS(r.median) + " s</td><td>" + r.n + "</td><td>" + r.wrong + "</td><td>" + fmtS(r.hl) + " " + L.dayUnit + "</td><td>" + r.size + " %</td>"
+          : '<td colspan="7" class="none">' + L.notPractised + "</td>") + "</tr>").join("") + "</tbody>";
     $("sortTable").setAttribute("aria-pressed", String(parentSort === "table"));
     $("sortSlow").setAttribute("aria-pressed", String(parentSort === "slow"));
   }
@@ -2362,50 +2680,77 @@ table.mult th.band { color: var(--ink); background: var(--sun); }
     const text = JSON.stringify({ version: 2, model: { green: SP.GREEN, noise: SP.NOISE, vMin: SP.V_MIN, drift: SP.DRIFT }, typing: S.typing, speed: S.speed });
     const fallback = () => {
       $("copyBox").hidden = false; $("copyBox").value = text; $("copyBox").focus(); $("copyBox").select();
-      $("copyNote").hidden = false; $("copyNote").textContent = "Det gick inte att kopiera automatiskt. Texten är markerad nedan, kopiera den själv.";
+      $("copyNote").hidden = false; $("copyNote").textContent = L.copyFail;
     };
     try {
       navigator.clipboard.writeText(text).then(() => {
-        $("copyNote").hidden = false; $("copyNote").textContent = "Kopierat! Svarsdata för alla fakta ligger nu i urklipp.";
+        $("copyNote").hidden = false; $("copyNote").textContent = L.copied;
       }, fallback);
     } catch (e) { fallback(); }
   });
 
   // ---------- Visitors ----------
   // The record (speed) is not the same as how much the garden has grown (size), so say where the record is now.
-  const progress = (d) => d.how.startsWith("Rekord") ? " (nu " + shownPct(S.bestPct) + "\u00a0%)" : " (nu " + flowerCount() + ")";
+  const progress = (d) => L.now(d.rec ? shownPct(S.bestPct) + "\u00a0%" : flowerCount());
   function renderCollection() {
     const u = unlocked();
-    $("collTitle").textContent = "Trädgården har vuxit till " + Math.floor(maturity() * 100) + "\u00a0%";
+    $("collTitle").textContent = L.collTitle(Math.floor(maturity() * 100));
     const pending = VISITORS.filter((v) => !S.visits.some((w) => w.id === v.id));
     $("visitorList").innerHTML = S.visits.map((w) => {
-      const v = VISITORS.find((x) => x.id === w.id), [x, y] = visitSpot(w.key);
-      return '<div class="panel vcard"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="false"></canvas>' +
-        "<b>" + v.name + "</b><small>Bor på " + x + " · " + y + "</small></div>";
+      const [x, y] = visitSpot(w.key);
+      return '<div class="panel vcard"><canvas class="pix" data-icon="visitor" data-id="' + w.id + '" data-locked="false"></canvas>' +
+        "<b>" + L.visitors[w.id] + "</b><small>" + L.livesAt(x, y) + "</small></div>";
     }).join("") + pending.map((v, i) => {
       const at = S.visits.length + i + 1, reach = at <= visitorsReachable(), due = at <= visitorsDue(), pct = Math.round(VISITOR_AT[at - 1] * 100);
       return '<div class="panel vcard locked"><canvas class="pix" data-icon="visitor" data-id="' + v.id + '" data-locked="true"></canvas>' +
-        "<b>???</b><small>" + (due ? "Är på väg! Kommer efter nästa runda" : "Kommer vid " + pct + "\u00a0%" + (reach ? "" : ". Sätt på fler rader")) + "</small></div>";
+        "<b>???</b><small>" + (due ? L.onTheWay : L.comesAt(pct) + (reach ? "" : L.moreRows)) + "</small></div>";
     }).join("");
     const guests = S.guests || [];
     $("guestBox").hidden = !guests.length;
     $("guestList").innerHTML = guests.map((id) => '<div class="panel vcard"><canvas class="pix" data-icon="guest" data-id="' + id + '" data-locked="false"></canvas>' +
-      "<b>" + GUESTS.find((g) => g.id === id).name + "</b><small>Kom när Grönt nu nådde 100\u00a0%</small></div>").join("");
+      "<b>" + L.guests[id][0] + "</b><small>" + L.guestCame + "</small></div>").join("");
     const rows = fullRows();
     $("rowBadges").innerHTML = S.rows.map((r) =>
-      '<span class="row-badge' + (rows.includes(r) ? " on" : "") + '">' + (rows.includes(r) ? "🎀 " : "") + '<b class="num">' + r + "</b>:an</span>").join("");
+      '<span class="row-badge' + (rows.includes(r) ? " on" : "") + '">' + (rows.includes(r) ? "🎀 " : "") + L.rowBadge(r) + "</span>").join("");
     $("decoList").innerHTML = DECOS.map((d) => {
       const has = u.decos.includes(d.id);
       return '<div class="panel vcard' + (has ? "" : " locked") + '"><canvas class="pix" data-icon="deco" data-id="' + d.id + '" data-locked="' + !has + '"></canvas>' +
-        "<b>" + (has ? d.name : "???") + "</b><small>" + d.how + (has ? "" : d.reach() ? progress(d) : ". Sätt på fler rader") + "</small></div>";
+        "<b>" + (has ? L.decos[d.id][0] : "???") + "</b><small>" + L.decos[d.id][1] + (has ? "" : d.reach() ? progress(d) : L.moreRows) + "</small></div>";
     }).join("");
     document.querySelectorAll("#collection canvas[data-icon]").forEach((c) => Garden.drawIcon(c, c.dataset.icon, c.dataset.id, c.dataset.locked === "true"));
     // Stickers from the first version stay visible, but no new ones are handed out.
     $("oldStickers").hidden = !S.stickers.length;
     $("stickers").innerHTML = S.stickers.map((i) =>
-      '<div class="panel sticker"><span class="em">' + ANIMALS[i][0] + "</span><small>" + ANIMALS[i][1] + "</small></div>").join("");
+      '<div class="panel sticker"><span class="em">' + ANIMALS[i] + "</span><small>" + L.animals[i] + "</small></div>").join("");
   }
 
+  // ---------- Language ----------
+  // Texts in the page carry data-i18n (inner HTML) or data-i18n-attr ("attr=key;..."). Their Swedish
+  // is the HTML itself, kept aside the first time; the other languages come from TXT[lang].page.
+  const PAGE_SV = new Map();
+  function applyPage() {
+    document.documentElement.lang = S.lang;
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      if (!PAGE_SV.has(el)) PAGE_SV.set(el, el.innerHTML);
+      el.innerHTML = S.lang === "sv" ? PAGE_SV.get(el) : L.page[el.dataset.i18n];
+    });
+    document.querySelectorAll("[data-i18n-attr]").forEach((el) => {
+      if (!PAGE_SV.has(el)) PAGE_SV.set(el, {});
+      const sv = PAGE_SV.get(el);
+      el.dataset.i18nAttr.split(";").forEach((pair) => {
+        const [attr, key] = pair.split("=");
+        if (!(attr in sv)) sv[attr] = el.getAttribute(attr);
+        el.setAttribute(attr, S.lang === "sv" ? sv[attr] : L.page[key]);
+      });
+    });
+  }
+  function setLang(lang) {
+    if (!TXT[lang] || lang === S.lang) return;
+    S.lang = lang; L = TXT[lang]; save();
+    applyPage();
+  }
+
+  applyPage();
   renderSound();
   show("home");
 })();
